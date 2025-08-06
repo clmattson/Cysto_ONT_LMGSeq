@@ -7,7 +7,7 @@ mask1_rear = "CGCTACGGCGGTATTGTC"
 # Barcode sequences
 barcode1_pattern = "CM%02i"
 first_index = 1
-last_index = 4
+last_index = 96
 rear_only_barcodes = false
 
 ## Scoring options

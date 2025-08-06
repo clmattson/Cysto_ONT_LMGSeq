@@ -1,6 +1,6 @@
 [arrangement]
-name = "custom_barcode_test"
-kit = "custom_barcode_test"
+name = "plaque_M"
+kit = "plaque_M"
 
 mask1_front = "TTGGTGCTGATATTGC"
 mask1_rear = "CGCTACGGCGGTATTGTC"

@@ -1,0 +1,21 @@
+name = "custom_barcode_test"
+kit = "custom_barcode_test"
+
+mask1_front = "TTGGTGCTGATATTGC"
+mask1_rear = "CGCTACGGCGGTATTGTC"
+
+# Barcode sequences
+barcode1_pattern = "CM%02i"
+first_index = 1
+last_index = 4
+rear_only_barcodes = false
+
+## Scoring options
+[scoring]
+max_barcode_penalty = 2
+min_barcode_penalty_dist = 5
+min_separation_only_dist = 9
+flank_left_pad = 0
+flank_right_pad = 0
+front_barcode_window = 200
+midstrand_flank_score = 0.90

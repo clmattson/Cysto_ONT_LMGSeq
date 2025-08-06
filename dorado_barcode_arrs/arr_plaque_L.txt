@@ -1,5 +1,5 @@
-name = "custom_barcode_test"
-kit = "custom_barcode_test"
+name = "plaque_L"
+kit = "plaque_L"
 
 mask1_front = "TTGGTGCTGATATTGC"
 mask1_rear = "CGCTACGGCGGTATTGTC"

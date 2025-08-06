@@ -5,7 +5,7 @@ mask1_front = "TTGGTGCTGATATTGC"
 mask1_rear = "TCGATGTTCAACTACTACGC"
 
 # Barcode sequences
-barcode1_pattern = "CM%02i"
+barcode1_pattern = "plaque%02i"
 first_index = 1
 last_index = 96
 rear_only_barcodes = false

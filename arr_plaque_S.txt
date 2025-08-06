@@ -1,6 +1,6 @@
 [arrangement]
-name = "plaques_S"
-kit = "plaques_S"
+name = "plaque_S"
+kit = "plaque_S"
 
 mask1_front = "TTGGTGCTGATATTGC"
 mask1_rear = "CTTTCGTACAACCGAGTAGG"

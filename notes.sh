@@ -47,4 +47,14 @@ sup \
 [2025-08-06 17:19:51.234] [debug] Classified rate 11.126459%
 
 
+
+
+
+#okay % classified looking sad for the plaque primers. lets get some code that searches for the barcodes and identifies the % of reads containing an exact match
+
+file="/path/to/file"
+while read line; do
+  echo "${line}"
+done < "${file}
+
  

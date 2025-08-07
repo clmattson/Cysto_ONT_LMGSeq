@@ -1,3 +1,4 @@
+[arrangement]
 name = "plaque_L"
 kit = "plaque_L"
 

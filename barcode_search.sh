@@ -53,9 +53,27 @@ while read line; do
   echo "${line}"
 done < "${file}
 
+total_reads=$( wc -l FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq | awk '{print $1/4}')
 
 for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
-  grep -c "${plaque_barcode_seq}" ${reads_fastq}
+  seq_line=$(sed -n "/${plaque_barcode_seq}/=" ${plaque_barcodes_fasta});   
+  echo "seq_line = ${seq_line}";
+  header_line=$((seq_line -1));   
+  reads_with_barcode=$(grep -c "${plaque_barcode_seq}" ${reads_fastq});
+  echo "reads_with_barcode = ${reads_with_barcode}";
+  #total_reads=$( wc -l FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq | awk '{print $1/4}');
+  echo "total_reads = ${total_reads}";
+  percent_reads_with_barcode=$(echo "scale=5 ; $reads_with_barcode/$total_reads"| bc);
+  header=$(sed -n "${header_line}p" ${plaque_barcodes_fasta}); 
+  echo "${percent_reads_with_barcode}% of the reads contain an exact match to the barcode for ${header}";
+  echo;
+  echo;
+done
+
+
+
+
+  
 
 
 

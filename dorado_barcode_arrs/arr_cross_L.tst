@@ -18,5 +18,5 @@ min_barcode_penalty_dist = 5
 min_separation_only_dist = 9
 flank_left_pad = 0
 flank_right_pad = 0
-front_barcode_window = 200
+rear_barcode_window = 200
 midstrand_flank_score = 0.90

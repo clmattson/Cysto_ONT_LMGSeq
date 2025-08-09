@@ -47,14 +47,24 @@ sup \
 [2025-08-06 17:19:51.234] [debug] Classified rate 11.126459%
 
 
-
-
-
 #okay % classified looking sad for the plaque primers. lets get some code that searches for the barcodes and identifies the % of reads containing an exact match
 
-file="/path/to/file"
-while read line; do
-  echo "${line}"
-done < "${file}
+#run the barcode search code to check
 
+
+
+#### CROSS Demultiplexing
+
+ # DEMULTIPLEX CROSSES - S
+#run in the demux folder
  
+for fastq_file in demux_plaque_S/*.fastq; do
+plaque_reads="${fastq_file##*/}"; 
+plaque_reads="${plaque_reads#*_}"; 
+plaque_reads="${plaque_reads%%.*}"; 
+~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --no-trim --kit-name "cross_S" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_S.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_S/demux_cross_${plaque_reads} \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
+ done

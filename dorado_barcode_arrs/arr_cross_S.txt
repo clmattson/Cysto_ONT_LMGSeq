@@ -2,13 +2,13 @@
 name = "cross_S"
 kit = "cross_S"
 
-mask2_front = "CTCCTGAAGTATCTCACGCC"
-mask2_rear = "GAAGATAGAGCGACAG"
+mask1_front = "CTCCTGAAGTATCTCACGCC"
+mask1_rear = "GAAGATAGAGCGACAG"
 
 # Barcode sequences
-barcode2_pattern = "cross%02i"
+barcode1_pattern = "cross%02i"
 first_index = 1
-last_index = 96
+last_index = 30
 rear_only_barcodes = true
 
 ## Scoring options

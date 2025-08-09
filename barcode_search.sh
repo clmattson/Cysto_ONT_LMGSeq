@@ -49,9 +49,7 @@ echo
 #okay % classified looking sad for the plaque primers. lets get some code that searches for the barcodes and identifies the % of reads containing an exact match
 
 file="dorado_barcode_arrs/plaque_barcodes.fasta"
-while read line; do
-  echo "${line}"
-done < "${file}
+
 
 #barcode_matches_by_plaque=()
 barcode_S_matches_by_plaque=()
@@ -111,6 +109,20 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
   echo;
   echo;
 done
+
+
+
+
+barcode_matches_by_plaque=()
+barcode_S_matches_by_plaque=()
+barcode_M_matches_by_plaque=()
+barcode_L_matches_by_plaque=()
+dorado_barcode_S_matches_by_plaque=()
+plaque_barcodes_fasta="dorado_barcode_arrs/plaque_barcodes.fasta"
+reads_fastq="fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq"
+cross_barcodes_fasta="dorado_barcode_arrs/cross_barcodes.fasta"
+
+total_reads=$( wc -l FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq | awk '{print $1/4}')
 
 
 

@@ -118,6 +118,14 @@ barcode_S_matches_by_plaque=()
 barcode_M_matches_by_plaque=()
 barcode_L_matches_by_plaque=()
 dorado_barcode_S_matches_by_plaque=()
+dorado_barcode_M_matches_by_plaque=()
+dorado_barcode_L_matches_by_plaque=()
+dorado_cross_plaque_barcode_S_matches_by_plaque=()
+dorado_cross_plaque_barcode_M_matches_by_plaque=()
+dorado_cross_plaque_barcode_L_matches_by_plaque=()
+barcode_S_matches_by_cross_plaque=()
+barcode_M_matches_by_cross_plaque=()
+barcode_L_matches_by_cross_plaque=()
 plaque_barcodes_fasta="dorado_barcode_arrs/plaque_barcodes.fasta"
 reads_fastq="fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq"
 cross_barcodes_fasta="dorado_barcode_arrs/cross_barcodes.fasta"
@@ -226,6 +234,33 @@ for i in "${arr[@]}"; do
       reads_name="${reads#*_}"; 
       echo "plaque_barcode_${j#*barcode}_${reads}"; 
 
+
+
+
+####RERUN#############3
+
+barcode_matches_by_plaque=()
+barcode_S_matches_by_plaque=()
+barcode_M_matches_by_plaque=()
+barcode_L_matches_by_plaque=()
+dorado_barcode_S_matches_by_plaque=()
+dorado_barcode_M_matches_by_plaque=()
+dorado_barcode_L_matches_by_plaque=()
+dorado_cross_plaque_barcode_S_matches_by_plaque=()
+dorado_cross_plaque_barcode_M_matches_by_plaque=()
+dorado_cross_plaque_barcode_L_matches_by_plaque=()
+barcode_S_matches_by_cross_plaque=()
+barcode_M_matches_by_cross_plaque=()
+barcode_L_matches_by_cross_plaque=()
+plaque_barcodes_fasta="dorado_barcode_arrs/plaque_barcodes.fasta"
+reads_fastq="fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq"
+cross_barcodes_fasta="dorado_barcode_arrs/cross_barcodes.fasta"
+
+total_reads=$( wc -l fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq | awk '{print $1/4}')
+
+#################################################################
+      
+
 #get fasta lines without the header symbol >, loop thru all of them:
 for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
   #get line in barcodes fasta with sequence
@@ -268,10 +303,10 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     percent_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_cross_plaque_barcode/$total_reads"| bc);  
     #get header name
     cross_header=$(sed -n "${cross_header_line}p" ${cross_barcodes_fasta});    
-  echo "${percent_reads_with_cross_plaque_barcode} fraaction of the reads contain an exact match to the barcode for ${crosss_header}";   
-  #append fraction to array
-  barcode_matches_by_plaque+=("${percent_reads_withcross__plaque_barcode}");   
-  echo "{$barcode_matches_by_cross_plaque[@]}";   
+    echo "${percent_reads_with_cross_plaque_barcode} fraction of the reads contain an exact match to the barcode for ${cross_header}";   
+    #append fraction to array
+    barcode_matches_by_plaque+=("${percent_reads_with_cross_plaque_barcode}");   
+    echo "{$barcode_matches_by_cross_plaque[@]}";   
 
     
   
@@ -293,9 +328,9 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     percent_M_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_M_primer/$total_reads"| bc);
     percent_L_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_L_primer/$total_reads"| bc);
     #print them out
-    echo "${percent_S_reads_with_cross_plaque_barcode} of the reads contain an exact S segment match to the barcode for ${header}";
-    echo "${percent_M_reads_with_cross_plaque_barcode} of the reads contain an exact M segment match to the barcode for ${header}";
-    echo "${percent_L_reads_with_cross_plaque_barcode} of the reads contain an exact L segment match to the barcode for ${header}";
+    echo "${percent_S_reads_with_cross_plaque_barcode} of the reads contain an exact S segment match to the barcode for corss ${cross_header} and plaque ${plaque_header}";
+    echo "${percent_M_reads_with_cross_plaque_barcode} of the reads contain an exact M segment match to the barcode forcross ${cross_header} and plaque ${plaque_header}";
+    echo "${percent_L_reads_with_cross_plaque_barcode} of the reads contain an exact L segment match to the barcode for cross ${cross_header} and plaque ${plaque_header}";
     #append the fraction to an array
     barcode_S_matches_by_cross_plaque+=("${num_reads_with_S_primer}");
     barcode_M_matches_by_cross_plaque+=("${num_reads_with_M_primer}");
@@ -308,29 +343,33 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     
     #get num reads for current barcode in fastq output by dorado demux:
     plaque_num="${plaque_header#*plaque}";
-    #cross_num="${cross_header#*cross}";
+    cross_num="${cross_header#*cross}";
     
-    dorado_S_read_count=$( wc -l demux_plaque_S/*plaque_S_barcode${plaque_num}.fastq | awk '{print $1/4}');
-    dorado_M_read_count=$( wc -l demux_plaque_M/*plaque_M_barcode${plaque_num}.fastq | awk '{print $1/4}');
-    dorado_L_read_count=$( wc -l demux_plaque_L/*plaque_L_barcode${plaque_num}.fastq | awk '{print $1/4}');
+    dorado_S_read_count=$( wc -l demux_plaque_S/demux_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq | awk '{print $1/4}');
+    dorado_M_read_count=$( wc -l demux_plaque_M/demux_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq | awk '{print $1/4}');
+    dorado_L_read_count=$( wc -l demux_plaque_L/demux_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq | awk '{print $1/4}');
     
-    dorado_plaque_barcode_S_matches_by_plaque+=("${dorado_S_read_count}");
-    dorado_plaque_barcode_M_matches_by_plaque+=("${dorado_M_read_count}");
-    dorado_plaque_barcode_L_matches_by_plaque+=("${dorado_L_read_count}");
+    dorado_cross_plaque_barcode_S_matches_by_plaque+=("${dorado_S_read_count}");
+    dorado_cross_plaque_barcode_M_matches_by_plaque+=("${dorado_M_read_count}");
+    dorado_cross_plaque_barcode_L_matches_by_plaque+=("${dorado_L_read_count}");
     
     echo "barcode matches by plaque found by dorado:"
-    echo "${dorado_plaque_barcode_S_matches_by_plaque[@]}";
-    echo "${dorado_plaque_barcode_M_matches_by_plaque[@]}";
-    echo "${dorado_plaque_barcode_L_matches_by_plaque[@]}";
+    echo "${dorado_cross_plaque_barcode_S_matches_by_plaque[@]}";
+    echo "${dorado_cross_plaque_barcode_M_matches_by_plaque[@]}";
+    echo "${dorado_cross_plaque_barcode_L_matches_by_plaque[@]}";
     
     echo
-    echo "Dorado found ${dorado_S_read_count} reads with the ${plaque_header} barcode and the S primer | grep found ${num_reads_with_S_primer} reads with the S primer among ${num_reads_with_plaque_barcode} reads with the ${header} barcode."
-    echo "Dorado found ${dorado_M_read_count} reads with the ${plaque_header} barcode and the M primer | grep found ${num_reads_with_M_primer} reads with the M primer among ${num_reads_with_plaque_barcode} reads with the ${header} barcode."
-    echo "Dorado found ${dorado_L_read_count} reads with the ${plaque_header} barcode and the L primer | grep found ${num_reads_with_L_primer} reads with the L primer among ${num_reads_with_plaque_barcode} reads with the ${header} barcode."
+    echo "Dorado found ${dorado_S_read_count} reads with the plaque ${plaque_header} and cross ${cross_header} barcode and the S primer | grep found ${num_reads_with_S_primer} reads with the S primer among ${num_reads_with_cross_plaque_barcode} reads with the plaque ${plaque_header} and cross ${cross_header} barcode."
+    echo "Dorado found ${dorado_M_read_count} reads with the plaque ${plaque_header} and cross ${cross_header} barcode and the M primer | grep found ${num_reads_with_M_primer} reads with the M primer among ${num_reads_with_cross_plaque_barcode} reads with the plaque ${plaque_header} and cross ${cross_header} barcode."
+    echo "Dorado found ${dorado_L_read_count} reads with the plaque ${plaque_header} and cross ${cross_header} barcode and the L primer | grep found ${num_reads_with_L_primer} reads with the L primer among ${num_reads_with_cross_plaque_barcode} reads with the plaque ${plaque_header} and cross ${cross_header} barcode."
     echo;   
     echo; 
-  done
-  done |& tee barcoding_loop_log.out
+    done;
+  done |& tee cross_plaque_barcoding_loop_log.out
+
+
+  
+  done 
 
       
     done; 

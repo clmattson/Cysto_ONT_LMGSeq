@@ -211,7 +211,137 @@ done |& tee barcoding_loop_log.out
 
 
 
+#process the fully demuxed reads - cross and plaque
 
+
+ declare -a arr=("S" "M" "L")
+
+#run in sup_basecall
+for i in "${arr[@]}"; do 
+  for j in demux_plaque_${i}/demux_cross_plaque_${i}_barcode*; do 
+    for reads_fastq in ${j}/*.fastq; do 
+      echo; 
+      echo "j = ${j}"; 
+      reads_name="${reads_fastq##*/}"; 
+      reads_name="${reads#*_}"; 
+      echo "plaque_barcode_${j#*barcode}_${reads}"; 
+
+#get fasta lines without the header symbol >, loop thru all of them:
+for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
+  #get line in barcodes fasta with sequence
+  plaque_seq_line=$(sed -n "/${plaque_barcode_seq}/=" ${plaque_barcodes_fasta});      
+  echo "plaque_seq_line = ${plaque_seq_line}";  
+  #get line in barcodes fasta with fasta name
+  plaque_header_line=$((plaque_seq_line -1)); 
+  #search reads FASTQ  for the above barcode seqs, -BA get lines above and below match; spit out subset of reads containing the sequence:
+  grep -B 1 -A 2 --no-group-separator "${plaque_barcode_seq}" ${reads_fastq} > reads_with_plaque_barcode.fastq;
+  echo "grepped the full reads fastq on barcode sequence ${plaque_barcode_seq} and output matching reads to reads_with_plaque_barcode_tmp.fastq";
+  num_reads_with_plaque_barcode=$( wc -l reads_with_plaque_barcode.fastq | awk '{print $1/4}')
+  #num_reads_with_plaque_barcode=$(grep -c "${plaque_barcode_seq}" ${reads_fastq});   
+  echo "reads_with_plaque_barcode = ${num_reads_with_plaque_barcode}";
+  echo "total_reads = ${total_reads}";   
+  percent_reads_with_plaque_barcode=$(echo "scale=5 ; $num_reads_with_plaque_barcode/$total_reads"| bc);  
+  #get header name
+  plaque_header=$(sed -n "${plaque_header_line}p" ${plaque_barcodes_fasta});    
+  echo "${percent_reads_with_plaque_barcode} fraaction of the reads contain an exact match to the barcode for ${plaque_header}";   
+  #append fraction to array
+  barcode_matches_by_plaque+=("${percent_reads_with_plaque_barcode}");   
+  echo "{$barcode_matches_by_plaque[@]}";   
+
+  #now lets search for cross barcode before we search for primers
+  #repeat the loop and search steps
+  #get fasta lines without the header symbol >, loop thru all of them:
+  for cross_barcode_seq in $(grep -v "^>" "$cross_barcodes_fasta" ); do
+      
+     #get line in barcodes fasta with cross sequence
+    cross_seq_line=$(sed -n "/${cross_barcode_seq}/=" ${cross_barcodes_fasta});      
+    echo "cross_seq_line = ${cross_seq_line}";  
+    #get line in barcodes fasta with fasta name
+    cross_header_line=$((cross_seq_line -1)); 
+    #search reads FASTQ  for the above barcode seqs, -BA get lines above and below match; spit out subset of reads containing the sequence:
+    grep -B 1 -A 2 --no-group-separator "${cross_barcode_seq}" reads_with_plaque_barcode.fastq > reads_with_cross_plaque_barcode.fastq;
+    echo "grepped the plaque sorted reads fastq on barcode sequence ${cross_barcode_seq} and output matching reads to reads_with_cross_plaque_cross_barcode.fastq";
+    num_reads_with_cross_plaque_barcode=$( wc -l reads_with_cross_plaque_barcode.fastq | awk '{print $1/4}')
+    #num_reads_with_cross_plaque_barcode=$(grep -c "${cross_barcode_seq}" ${reads_fastq});   
+    echo "num reads_with_cross_plaque_barcode = ${num_reads_with_cross_plaque_barcode}";
+    echo "total_reads = ${total_reads}";   
+    percent_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_cross_plaque_barcode/$total_reads"| bc);  
+    #get header name
+    cross_header=$(sed -n "${cross_header_line}p" ${cross_barcodes_fasta});    
+  echo "${percent_reads_with_cross_plaque_barcode} fraaction of the reads contain an exact match to the barcode for ${crosss_header}";   
+  #append fraction to array
+  barcode_matches_by_plaque+=("${percent_reads_withcross__plaque_barcode}");   
+  echo "{$barcode_matches_by_cross_plaque[@]}";   
+
+    
+  
+    #create variables for the barcoode sequence + the GSP fwd primer
+    plaque_S_primer="CTTTCGTACAACCGAGTAGG";
+    plaque_M_primer="CGCTACGGCGGTATTGTC";
+    plaque_L_primer="TCGATGTTCAACTACTACGC";
+    #search reads files for the above combos
+    num_reads_with_S_primer=$(grep -c "${plaque_S_primer}" reads_with_cross_plaque_barcode.fastq);
+    num_reads_with_M_primer=$(grep -c "${plaque_M_primer}" reads_with_cross_plaque_barcode.fastq);
+    num_reads_with_L_primer=$(grep -c "${plaque_L_primer}" reads_with_cross_plaque_barcode.fastq);
+    #print them out
+    echo "reads_with_S_primer = ${num_reads_with_S_primer}";
+    echo "reads_with_M_primer = ${num_reads_with_M_primer}";
+    echo "reads_with_L_primer = ${num_reads_with_L_primer}";
+    
+    #calculate % of total reads matvhed to the currect barcode, split by segment too
+    percent_S_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_S_primer/$total_reads"| bc);
+    percent_M_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_M_primer/$total_reads"| bc);
+    percent_L_reads_with_cross_plaque_barcode=$(echo "scale=5 ; $num_reads_with_L_primer/$total_reads"| bc);
+    #print them out
+    echo "${percent_S_reads_with_cross_plaque_barcode} of the reads contain an exact S segment match to the barcode for ${header}";
+    echo "${percent_M_reads_with_cross_plaque_barcode} of the reads contain an exact M segment match to the barcode for ${header}";
+    echo "${percent_L_reads_with_cross_plaque_barcode} of the reads contain an exact L segment match to the barcode for ${header}";
+    #append the fraction to an array
+    barcode_S_matches_by_cross_plaque+=("${num_reads_with_S_primer}");
+    barcode_M_matches_by_cross_plaque+=("${num_reads_with_M_primer}");
+    barcode_L_matches_by_cross_plaque+=("${num_reads_with_L_primer}");
+    #print the array
+    echo "barcode matches by cross and plaque found by grep:"
+    echo "${barcode_S_matches_by_cross_plaque[@]}";
+    echo "${barcode_M_matches_by_cross_plaque[@]}";
+    echo "${barcode_L_matches_by_cross_plaque[@]}";
+    
+    #get num reads for current barcode in fastq output by dorado demux:
+    plaque_num="${plaque_header#*plaque}";
+    #cross_num="${cross_header#*cross}";
+    
+    dorado_S_read_count=$( wc -l demux_plaque_S/*plaque_S_barcode${plaque_num}.fastq | awk '{print $1/4}');
+    dorado_M_read_count=$( wc -l demux_plaque_M/*plaque_M_barcode${plaque_num}.fastq | awk '{print $1/4}');
+    dorado_L_read_count=$( wc -l demux_plaque_L/*plaque_L_barcode${plaque_num}.fastq | awk '{print $1/4}');
+    
+    dorado_plaque_barcode_S_matches_by_plaque+=("${dorado_S_read_count}");
+    dorado_plaque_barcode_M_matches_by_plaque+=("${dorado_M_read_count}");
+    dorado_plaque_barcode_L_matches_by_plaque+=("${dorado_L_read_count}");
+    
+    echo "barcode matches by plaque found by dorado:"
+    echo "${dorado_plaque_barcode_S_matches_by_plaque[@]}";
+    echo "${dorado_plaque_barcode_M_matches_by_plaque[@]}";
+    echo "${dorado_plaque_barcode_L_matches_by_plaque[@]}";
+    
+    echo
+    echo "Dorado found ${dorado_S_read_count} reads with the ${plaque_header} barcode and the S primer | grep found ${num_reads_with_S_primer} reads with the S primer among ${num_reads_with_plaque_barcode} reads with the ${header} barcode."
+    echo "Dorado found ${dorado_M_read_count} reads with the ${plaque_header} barcode and the M primer | grep found ${num_reads_with_M_primer} reads with the M primer among ${num_reads_with_plaque_barcode} reads with the ${header} barcode."
+    echo "Dorado found ${dorado_L_read_count} reads with the ${plaque_header} barcode and the L primer | grep found ${num_reads_with_L_primer} reads with the L primer among ${num_reads_with_plaque_barcode} reads with the ${header} barcode."
+    echo;   
+    echo; 
+  done
+  done |& tee barcoding_loop_log.out
+
+      
+    done; 
+  done; 
+done
+
+
+
+test
+tes
+tes
 
 
 file="dorado_barcode_arrs/plaque_barcodes.fasta"

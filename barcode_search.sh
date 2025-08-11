@@ -255,8 +255,11 @@ barcode_L_matches_by_cross_plaque=()
 plaque_barcodes_fasta="dorado_barcode_arrs/plaque_barcodes.fasta"
 reads_fastq="fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq"
 cross_barcodes_fasta="dorado_barcode_arrs/cross_barcodes.fasta"
+echo "plaque_num,cross_num,plaque_matches_all,s_cross_plaque_dorado,s_cross_plaque_grep,m_cross_plaque_dorado,m_cross_plaque_grep,l_cross_plaque_dorado,l_cross_plaque_grep" > dorado_vs_grep_barcode_matches.csv
 
 total_reads=$( wc -l fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq | awk '{print $1/4}')
+
+#echo "plaque_num,cross_num,s_plaque_dorado,s_plaque_grep,m_plaque_dorado,m_plaque_grep,l_plaque_dorado,l_plaque_grep,s_cross_plaque_dorado,s_cross_plaque_grep,m_cross_plaque_dorado,m_cross_plaque_grep,l_cross_plaque_dorado,l_cross_plaque_grep" > dorado_vs_grep_barcode_matches.csv
 
 #################################################################
       
@@ -344,10 +347,23 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     #get num reads for current barcode in fastq output by dorado demux:
     plaque_num="${plaque_header#*plaque}";
     cross_num="${cross_header#*cross}";
+
     
     dorado_S_read_count=$( wc -l demux_plaque_S/demux_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq | awk '{print $1/4}');
     dorado_M_read_count=$( wc -l demux_plaque_M/demux_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq | awk '{print $1/4}');
     dorado_L_read_count=$( wc -l demux_plaque_L/demux_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq | awk '{print $1/4}');
+
+    #set to 0 if files dont exist
+    if ! test -f demux_plaque_S/demux_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq; then
+      dorado_S_read_count="0"
+    fi;
+    if ! test -f demux_plaque_M/demux_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq; then
+      dorado_M_read_count="0"
+    fi;
+    if ! test -f demux_plaque_L/demux_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq; then
+      dorado_L_read_count="0"
+    fi;
+
     
     dorado_cross_plaque_barcode_S_matches_by_plaque+=("${dorado_S_read_count}");
     dorado_cross_plaque_barcode_M_matches_by_plaque+=("${dorado_M_read_count}");
@@ -362,10 +378,12 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     echo "Dorado found ${dorado_S_read_count} reads with the plaque ${plaque_header} and cross ${cross_header} barcode and the S primer | grep found ${num_reads_with_S_primer} reads with the S primer among ${num_reads_with_cross_plaque_barcode} reads with the plaque ${plaque_header} and cross ${cross_header} barcode."
     echo "Dorado found ${dorado_M_read_count} reads with the plaque ${plaque_header} and cross ${cross_header} barcode and the M primer | grep found ${num_reads_with_M_primer} reads with the M primer among ${num_reads_with_cross_plaque_barcode} reads with the plaque ${plaque_header} and cross ${cross_header} barcode."
     echo "Dorado found ${dorado_L_read_count} reads with the plaque ${plaque_header} and cross ${cross_header} barcode and the L primer | grep found ${num_reads_with_L_primer} reads with the L primer among ${num_reads_with_cross_plaque_barcode} reads with the plaque ${plaque_header} and cross ${cross_header} barcode."
+   
+    echo "${plaque_num},${cross_num},${num_reads_with_plaque_barcode},${dorado_S_read_count},${num_reads_with_S_primer},${dorado_M_read_count},${num_reads_with_M_primer},${dorado_L_read_count},${num_reads_with_L_primer}" >> dorado_vs_grep_barcode_matches.csv;
     echo;   
     echo; 
     done;
-  done |& tee cross_plaque_barcoding_loop_log.out
+  done |& tee update_cross_plaque_barcoding_loop_log.out
 
 
   

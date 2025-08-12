@@ -101,3 +101,18 @@ num_threads 1
 2025-08-12 01:21:35: Start simulation of aligned reads
 2025-08-12 01:21:35: Number of reads simulated >> 1
 
+
+#okay nanosim just hangs here, not sure whats wrong
+
+
+
+
+#discovered that exhaustive barcode generator has some python scripts for testing. lets tryu those:
+
+python build_index.py --fwd-file plaque_fwd_barcodes_test.txt --rev-file cross_rev_barcodes_test.txt -o index_file_test.txt
+
+python read_simulator.py --reads-per-specimen 500 --noise-length 25 --error-rate 0.05 --batch-size 12500 index_file_test.txt simulated_reads_test.txt
+
+
+
+

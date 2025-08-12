@@ -1,0 +1,103 @@
+#conda install nanosim
+
+#read characterization: 
+#TBH I dont entirely unders tnad this step. We have segmented genomes right, and this step aligns reads to a refernce to compute error stats.
+#I think it owuld be best to use the lambda control seq data fo this. But I dont know if the reads and genome entered have to be for the thing youre later simulating...
+
+
+#alifgn the dnacs sequence to the reads with dorado aligner
+ ~/dorado/bin/dorado aligner --emit-summary -o dorado_aligner dnacs.fasta fastq_pass/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq
+samtools view -b -F 4 FBC73506_fastq_pass_d5fa85e0_b727e37a_0.bam > DNACS_allreads_mapped.bam
+samtools sort -o DNACS_allreads_mapped_sorted.bam -T ./samtools_temp_dir --threads 24 DNACS_allreads_mapped.bam
+samtools fastq DNACS_allreads_mapped_sorted.bam > DNACS_allreads_mapped_sorted.fastq
+
+ok then lets try the characterize step for nanosim
+read_analysis.py genome --read DNACS_allreads_mapped_sorted.fastq --ref_g dnacs.fasta --chimeric --fastq -t 8
+
+###output:
+/home/cmatt5/.conda/envs/nanosim/lib/python3.9/site-packages/sklearn/utils/fixes.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version  # type: ignore
+
+Running the code with following parameters:
+
+infile DNACS_allreads_mapped_sorted.fastq
+ref_g dnacs.fasta
+aligner minimap2
+g_alnm
+prefix training
+num_threads 8
+model_fit True
+chimeric True
+homopolymer False
+fastq True
+2025-08-11 23:19:32: Read pre-process
+2025-08-11 23:19:43: Alignment with minimap2
+[M::mm_idx_gen::0.003*1.33] collected minimizers
+[M::mm_idx_gen::0.004*1.15] sorted minimizers
+[M::main::0.004*1.15] loaded/built the index for 1 target sequence(s)
+[M::mm_mapopt_update::0.004*1.14] mid_occ = 10
+[M::mm_idx_stat] kmer size: 15; skip: 10; is_hpc: 0; #seq: 1
+[M::mm_idx_stat::0.004*1.14] distinct minimizers: 660 (99.70% are singletons); average occurrences: 1.003; average spacing: 5.378; total length: 3560
+[M::worker_pipeline::58.814*0.82] mapped 75440 sequences
+[M::main] Version: 2.30-r1287
+[M::main] CMD: minimap2 --cs -ax map-ont -t 8 dnacs.fasta training_processed.fastq.gz
+[M::main] Real time: 58.816 sec; CPU: 48.420 sec; Peak RSS: 0.783 GB
+2025-08-11 23:20:43: Processing alignment file: bam
+2025-08-11 23:20:55: Aligned reads analysis
+2025-08-11 23:20:57: Computing KDEds processed >> 75001
+2025-08-11 23:20:57: Computing KDE for aligned region
+2025-08-11 23:20:57: Computing KDE for aligned reads
+2025-08-11 23:20:57: Computing KDE for unaligned length
+2025-08-11 23:20:57: Computing KDE for ht ratio
+2025-08-11 23:20:58: Unaligned reads analysis
+2025-08-11 23:20:58: match and error models
+2025-08-11 23:21:08: Model fitting
+2025-08-11 23:21:08: Mismatch fitting start
+Mismatch parameters: 0.14307605278971985 0.8384478329199779 0.3257859518499423 Residual 2.4382044101933786e-05
+2025-08-11 23:23:11: Mismatch fitting done
+2025-08-11 23:23:11: Insertion fitting start
+Insertion parameters: 0.9209280915628559 1.1491684081003757 0.5331248908679364 0.4636280834214388 Residual 0.0005949214232107147
+2025-08-11 23:45:12: Insertion fitting done
+2025-08-11 23:45:12: Deletion fitting start
+Deletion parameters: 1.34037212670854 1.5539248618076154 0.4847846500163366 0.26131879842219385 Residual 0.0011110274241432627
+2025-08-12 00:03:23: Deletion fitting done
+2025-08-12 00:03:23: Analyzing base qualities and estimating model parameters
+2025-08-12 00:03:23: Parsing alignment file for base qualities relative to matches and each error type
+2025-08-12 00:04:00: Estimating model parameters
+2025-08-12 00:04:20: Finished!
+
+
+simulator.py genome --ref_g phi6_L_amplicon.fasta -dna_type linear --fastq --max_len 10000 -o phi6_L_amplicon_SIM
+
+
+#started tmux session and closed so here is partial output:
+/home/cmatt5/.conda/envs/nanosim/lib/python3.9/site-packages/sklearn/utils/fixes.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version  # type: ignore
+
+running the code with following parameters:
+
+ref_g phi6_L_amplicon.fasta
+model_prefix training
+out phi6_L_amplicon_SIM
+number [20000]
+coverage None
+perfect False
+homopolymer False
+dna_type linear
+strandness None
+sd_len None
+median_len None
+max_len 10000
+min_len 50
+fastq True
+chimeric False
+num_threads 1
+2025-08-12 01:21:35: /home/cmatt5/.conda/envs/nanosim/bin/simulator.py genome --ref_g phi6_L_amplicon.fasta -dna_type linear --fastq --max_len 10000 -o phi6_L_amplicon_SIM
+2025-08-12 01:21:35: Read in reference
+2025-08-12 01:21:35: Read error profile
+2025-08-12 01:21:35: Read KDF of unaligned reads
+2025-08-12 01:21:35: Read KDF of aligned reads
+2025-08-12 01:21:35: Read chimeric simulation information
+2025-08-12 01:21:35: Start simulation of aligned reads
+2025-08-12 01:21:35: Number of reads simulated >> 1
+

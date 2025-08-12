@@ -100,4 +100,50 @@ plaque_reads="${plaque_reads%%.*}";
 
 
 
+
+
+#okay, have the files demuxed with decent read counts for each cross/plaque combo
+
+lets concatenate barcode numbers to get unique identifier for each reads file, so can reuse scripts from fall
+
+for fastq_file in demux_plaque_L/demux_cross_plaque_L_barcode*/*cross_L_barcode*.fastq; 
+do plaque_barcode_num="${fastq_file#*barcode}"; 
+plaque_barcode_num="${plaque_barcode_num%%/*}";
+cross_barcode_num="${fastq_file##*barcode}"; 
+cross_barcode_num="${cross_barcode_num%%.*}";
+segment="${fastq_file%%/demux_cross*}";
+segment="${segment##*_}";
+echo "plaque${plaque_barcode_num}"; 
+echo "cross${cross_barcode_num}"; 
+echo "segment: ${segment}";
+echo "cp ${fastq_file} to new directory and file named /demux_all/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq"
+mkdir demux_all/barcode${cross_barcode_num}${plaque_barcode_num};
+cp ${fastq_file} demux_all/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq
+done
+
+
+for fastq_file in demux_plaque_*/demux_cross_plaque_*_barcode*/*cross_*_barcode*.fastq; 
+do plaque_barcode_num="${fastq_file#*barcode}"; 
+plaque_barcode_num="${plaque_barcode_num%%/*}";
+cross_barcode_num="${fastq_file##*barcode}"; 
+cross_barcode_num="${cross_barcode_num%%.*}";
+segment="${fastq_file%%/demux_cross*}";
+segment="${segment##*_}";
+echo "plaque${plaque_barcode_num}"; 
+echo "cross${cross_barcode_num}"; 
+echo "segment: ${segment}";
+echo "cp ${fastq_file} to new directory and file named /demux_all/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq"
+mkdir demux_all/barcode${cross_barcode_num}${plaque_barcode_num};
+cp ${fastq_file} demux_all/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq
+done
+
+
+
+
+move them to franklin
+
+
+
+
+
  

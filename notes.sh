@@ -221,3 +221,18 @@ plaque_reads="${plaque_reads%%.*}";
  -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_L/demux_cross_${plaque_reads} \
  /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
  done |& tee demux_cross_L.out
+
+
+
+
+
+
+
+
+
+
+
+
+
+#running scripts
+bash make_databases.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all -e /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/sample_list2.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/cross_list.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_L_89.fasta

@@ -77,8 +77,8 @@ do
         #samtools sam to bam and sort bam:
         samtools view -bS ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_S_alignment.sam | samtools sort - -o ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_S_alignment.bam
         samtools consensus --format fasta --output ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_S_mmp-consensus.fasta ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_S_alignment.bam
-
-
+		echo "samtools commplete for S seg, parent ${parent_name}";
+		
         #rename sequence fasta header (sed edit -i inplace):
         sed -i 's/>.*/>'${parent_name}'_S/' ${demuxed_path}/${parent_barcode}/${parent_barcode}_parent_S_mmp-consensus.fasta
         sed -i ':a; $!N; /^>/!s/\n\([^>]\)/\1/; ta; P; D' ${demuxed_path}/${parent_barcode}/${parent_barcode}_parent_S_mmp-consensus.fasta
@@ -94,7 +94,7 @@ do
         #samtools sam to bam and sort bam:
         samtools view -bS ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_M_alignment.sam | samtools sort - -o ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_M_alignment.bam
         samtools consensus --format fasta --output ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_M_mmp-consensus.fasta ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_M_alignment.bam
-
+		echo "samtools commplete for M seg, parent ${parent_name}";
 
         #rename sequence fasta header (sed edit -i inplace):
         sed -i 's/>.*/>'${parent_name}'_M/' ${demuxed_path}/${parent_barcode}/${parent_barcode}_parent_M_mmp-consensus.fasta
@@ -111,7 +111,7 @@ do
         #samtools sam to bam and sort bam:
         samtools view -bS ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_L_alignment.sam | samtools sort - -o ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_L_alignment.bam
         samtools consensus --format fasta --output ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_L_mmp-consensus.fasta ${demuxed_path}/$parent_barcode/${parent_barcode}_parent_L_alignment.bam
-
+		echo "samtools commplete for L seg, parent ${parent_name}";
 
         #rename sequence fasta header (sed edit -i inplace):
         sed -i 's/>.*/>'${parent_name}'_L/' ${demuxed_path}/${parent_barcode}/${parent_barcode}_parent_L_mmp-consensus.fasta

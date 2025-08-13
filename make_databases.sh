@@ -37,7 +37,8 @@ do
     esac
 done
 
-
+echo "" > ${demuxed_path}/parent_barcodes.txt
+echo "" > ${demuxed_path}/all_parent_db.fasta
 
 #get list of parents:
 
@@ -129,12 +130,15 @@ do
 for cross in `cat ${cross_list}`;
 do
 
+	###THIS SECTION DOESNT WORK CORRECTLY WITH THE CURRENT CROSS VS PARENT SAMPLE_LIST.CSV SETUP########3333
+ 
 	mkdir ${demuxed_path}/${cross}
-        parent1="$(grep -m 1 "${cross}" ${sample_list} | awk -F"," '{print $4}')";
-        parent2="$(grep -m 1 "${cross}" ${sample_list} | awk -F"," '{print $5}')";
+ 	#touch ${demuxed_path}/${cross}/${cross}_parent_database.fasta
+    parent1="$(grep -m 1 "${cross}" ${sample_list} | awk -F"," '{print $4}')";
+    parent2="$(grep -m 1 "${cross}" ${sample_list} | awk -F"," '{print $5}')";
 
-        grep "${parent1}" ${demuxed_path}/all_parent_db.fasta -A1 --no-group-separator >> ${demuxed_path}/${cross}/${cross}_parent_database.fasta;
-        grep "${parent2}" ${demuxed_path}/all_parent_db.fasta -A1 --no-group-separator >> ${demuxed_path}/${cross}/${cross}_parent_database.fasta;
+    grep "${parent1}" ${demuxed_path}/all_parent_db.fasta -A1 --no-group-separator > ${demuxed_path}/${cross}/${cross}_parent_database.fasta;
+    grep "${parent2}" ${demuxed_path}/all_parent_db.fasta -A1 --no-group-separator >> ${demuxed_path}/${cross}/${cross}_parent_database.fasta;
 done
 
 

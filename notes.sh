@@ -121,7 +121,7 @@ mkdir demux_all/barcode${cross_barcode_num}${plaque_barcode_num};
 cp ${fastq_file} demux_all/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq
 done
 
-
+#this one:
 for fastq_file in demux_plaque_*/demux_cross_plaque_*_barcode*/*cross_*_barcode*.fastq; 
 do plaque_barcode_num="${fastq_file#*barcode}"; 
 plaque_barcode_num="${plaque_barcode_num%%/*}";
@@ -189,7 +189,7 @@ plaque_reads="${plaque_reads%%.*}";
 ~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "cross_S" \
 --barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_S.txt \
  --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
- -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_S/demux_cross_${plaque_reads} \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_trimmed_plaque_S/demux_trimmed_cross_${plaque_reads} \
  /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
  done
 
@@ -203,9 +203,9 @@ plaque_reads="${plaque_reads%%.*}";
 ~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "cross_M" \
 --barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_M.txt \
  --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
- -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_M/demux_cross_${plaque_reads} \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_trimmed_plaque_M/demux_trimmed_cross_${plaque_reads} \
  /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
- done |& tee demux_cross_M.out
+ done |& tee demux_trimmed_cross_M.out
 
 
 
@@ -218,13 +218,29 @@ plaque_reads="${plaque_reads%%.*}";
 ~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "cross_L" \
 --barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_L.txt \
  --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
- -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_L/demux_cross_${plaque_reads} \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_trimmed_plaque_L/demux_trimmed_cross_${plaque_reads} \
  /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
- done |& tee demux_cross_L.out
+ done |& tee demux_trimmed_cross_L.out
 
 
+#trim primers? ... no, unnecessary since part of sequence
 
 
+#redo for trimmed data
+for fastq_file in demux_trimmed_plaque_*/demux_trimmed_cross_plaque_*_barcode*/*cross_*_barcode*.fastq; 
+do plaque_barcode_num="${fastq_file#*barcode}"; 
+plaque_barcode_num="${plaque_barcode_num%%/*}";
+cross_barcode_num="${fastq_file##*barcode}"; 
+cross_barcode_num="${cross_barcode_num%%.*}";
+segment="${fastq_file%%/demux_trimmed_cross*}";
+segment="${segment##*_}";
+echo "plaque${plaque_barcode_num}"; 
+echo "cross${cross_barcode_num}"; 
+echo "segment: ${segment}";
+echo "cp ${fastq_file} to new directory and file named /demux_all_trimmed/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq"
+mkdir demux_all_trimmed/barcode${cross_barcode_num}${plaque_barcode_num};
+cp ${fastq_file} demux_all_trimmed/barcode${cross_barcode_num}${plaque_barcode_num}/barcode${cross_barcode_num}${plaque_barcode_num}_${segment}_reads.fastq
+done
 
 
 

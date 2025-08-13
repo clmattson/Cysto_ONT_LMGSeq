@@ -146,4 +146,78 @@ move them to franklin
 
 
 
+
+
+ #### CROSS Demultiplexing WITH TRIM ENABLED
  
+ # DEMULTIPLEX PLAQUES - S
+#run in the demux folder
+
+
+ # DEMULTIPLEX PLAQUES - S
+ 
+~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "plaque_S" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_plaque_S.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/plaque_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_trimmed_plaque_S  \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/fastq_pass
+
+# M 
+ ~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "plaque_M" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_plaque_M.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/plaque_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_trimmed_plaque_M  \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/fastq_pass
+
+ ~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "plaque_L" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_plaque_L.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/plaque_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_trimmed_plaque_L  \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/fastq_pass
+
+
+ 
+#### CROSS Demultiplexing
+
+ # DEMULTIPLEX CROSSES - S
+#run in the demux folder
+ 
+for fastq_file in demux_trimmed_plaque_S/*.fastq; do
+plaque_reads="${fastq_file##*/}"; 
+plaque_reads="${plaque_reads#*_}"; 
+plaque_reads="${plaque_reads%%.*}"; 
+~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "cross_S" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_S.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_S/demux_cross_${plaque_reads} \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
+ done
+
+
+## # DEMULTIPLEX CROSSES - M
+
+for fastq_file in demux_trimmed_plaque_M/*.fastq; do
+plaque_reads="${fastq_file##*/}"; 
+plaque_reads="${plaque_reads#*_}"; 
+plaque_reads="${plaque_reads%%.*}"; 
+~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "cross_M" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_M.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_M/demux_cross_${plaque_reads} \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
+ done |& tee demux_cross_M.out
+
+
+
+## # DEMULTIPLEX CROSSES - L
+
+for fastq_file in demux_trimmed_plaque_L/*.fastq; do
+plaque_reads="${fastq_file##*/}"; 
+plaque_reads="${plaque_reads#*_}"; 
+plaque_reads="${plaque_reads%%.*}"; 
+~/dorado/bin/dorado demux -v --emit-fastq --emit-summary --kit-name "cross_L" \
+--barcode-arrangement /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/arr_cross_L.txt \
+ --barcode-sequences /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/dorado_barcode_arrs/cross_barcodes.fasta \
+ -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/demux_plaque_L/demux_cross_${plaque_reads} \
+ /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/${fastq_file};
+ done |& tee demux_cross_L.out

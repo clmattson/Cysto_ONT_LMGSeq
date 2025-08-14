@@ -257,3 +257,7 @@ bash make_databases.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all -e /gro
 bash make_databases.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all -e /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/sample_list2.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/cross_list.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_L_89.fasta
 
 
+
+
+#cutadapt
+bash make_databases.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt -e /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/sample_list_plate01.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/cross_list.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/refs/ref_phi6_L_89.fasta

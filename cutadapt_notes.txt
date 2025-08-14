@@ -8,6 +8,9 @@ cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -a CTGTCGCTCTATCTTC...GCAATATCAG
   #THIS ONE#########################33
 cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 10 --discard-untrimmed --revcomp -o all_reads_custom_landing_pads_trimmed.fastq FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq > all_reads_custom_landing_pads_trimmed.txt
 
+### OUTPUT: 
+#   Done           00:13:51    20,226,344 reads @  41.1 µs/read;   1.46 M reads/minute
+
   
 #check if adapter is founf midstrand: 
 cutadapt -a TTGGTGCTGATATTGC --rest-file rest_chimeras.fastq --discard-untrimmed --revcomp -o subset_landing_pad.fastq subset.fastq > rest_revcomp_subset_landing_pad.txt
@@ -56,13 +59,13 @@ segment_array=("S" "M" "L")
      # for segment in "${segment_array[@]}"; do
 
         #S O= 15, (75%)
-        cutadapt -a CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_S_reads.fastq barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}_S_reads.txt;
+        cutadapt -a CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_S_reads.fastq barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_S_reads.txt;
 
-        #M 
-        cutadapt -a CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_M_reads.fastq barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}_M_reads.txt;
+        #M O= 13, (75% of the sorter one)
+        cutadapt -a CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -O 13 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_M_reads.fastq barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_M_reads.txt;
 
-        #L
-        cutadapt -a TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_L_reads.fastq barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}_L_reads.txt;    
+        #L O=12 (75% of the sorter one)
+        cutadapt -a TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 12 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_L_reads.fastq barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_L_reads.txt;    
     done
 done
 

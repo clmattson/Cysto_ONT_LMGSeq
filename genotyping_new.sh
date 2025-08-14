@@ -15,9 +15,9 @@
 demuxed_path=''
 sample_list=''
 cross_list=''
-s_ref_path=''
-m_ref_path=''
-l_ref_path=''
+#s_ref_path=''
+#m_ref_path=''
+#l_ref_path=''
 
 
 print_usage() {
@@ -30,9 +30,9 @@ do
 	d) demuxed_path=${OPTARG};;
 	e) sample_list=${OPTARG};;
 	c) cross_list=${OPTARG};;
-	s) s_ref_path=${OPTARG};;
-        m) m_ref_path=${OPTARG};;
-        l) l_ref_path=${OPTARG};;
+	#s) s_ref_path=${OPTARG};;
+    #m) m_ref_path=${OPTARG};;
+    #l) l_ref_path=${OPTARG};;
     esac
 done
 
@@ -64,6 +64,7 @@ echo
 	#echo "reading file ${demuxed_path}/${plaque_barcode}/${plaque_barcode}.all.fastq ; generating file ${cross}/usearch/${cross}_${sample}_98_merged.b6"
 	echo 
 
+	mkdir ${demuxed_path}/${cross}/${plate}
 
  	#Usearch files
 
@@ -78,7 +79,7 @@ echo
 
 		#USEARCH STRAIN ASSIGNMENT!!
 		#Key change for this Oct 20 version is changing the database
-		usearch -usearch_global ${demuxed_path}/${plaque_barcode}/${plaque_barcode}_${locus}_reads.fastq -db ${demuxed_path}/${cross}/${cross}_parent_database.fasta -id 0.98 -blast6out ${demuxed_path}/${cross}/${plate}/${cross}_${sample}_${locus}_98_merged.b6 -strand both
+		usearch -usearch_global ${demuxed_path}/${plaque_barcode}/${plaque_barcode}_${locus}_reads.fastq -db ${demuxed_path}/${cross}/${cross}_parent_database.fasta -id 0.90 -blast6out ${demuxed_path}/${cross}/${plate}/${cross}_${plaque_number}_${locus}_90_merged.b6 -strand both
 
 	done
 
@@ -94,7 +95,9 @@ do
 
         for b6_file in ${demuxed_path}/${cross}/${plate}/cross*_*_*_90_merged.b6;
         do
-        #echo "generating strain assignment output data in output folder for ${cross}!"
+		plate="${b6_file%%/cr*}"; 
+  		plate="${plate##*/}"
+        #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
         echo -n -e "${b6_file##*/}"\\t"";
         wc -l ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\t" } {if($1!="0") print $1}'
         rev ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $11}' | rev | cut -d , -f 1 | sort | uniq -c | sort -nr | head -n 1 | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $1, $2}'

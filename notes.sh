@@ -252,3 +252,8 @@ done
 
 #running scripts
 bash make_databases.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all -e /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/sample_list2.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/cross_list.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_L_89.fasta
+
+
+bash make_databases.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all -e /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/sample_list2.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/cross_list.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/demux_all/refs/ref_phi6_L_89.fasta
+
+

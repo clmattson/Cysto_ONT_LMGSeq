@@ -89,7 +89,7 @@ done
       
 
 
-
+c
 
 
 ################## ADD LENGTH FILTERING #######################################3333
@@ -158,6 +158,11 @@ done
 
 #cuutadapt plaque
   cutadapt -a file:plaque_barcodes.fasta --revcomp --rest-file plaquel_chimeras.fastq -o cross_landing-pad-rc_subset.fastq --discard-untrimmed landing-pad-rc_subset.fastq > cross_landing-pad-rc_subset.txt
+
+
+
+
+#once filtered, cutadapt and 
 
 
 

@@ -23,6 +23,8 @@ head bi
 
 segment_array=("S" "M" "L")
 
+#search for the cross, plaque, and segment info with cutadapt in loops. I think its worth noting that the loop searches with replacement. ie, reads can be classified multiple times
+
   #THIS ONE
   for cross_barcode_seq in $(grep -v "^>" "cross_barcodes.fasta" ); do
       

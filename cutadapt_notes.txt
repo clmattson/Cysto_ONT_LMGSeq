@@ -1,0 +1,94 @@
+
+#run cutadapt, detect and trim my custom landing pads
+cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -a CTGTCGCTCTATCTTC...GCAATATCAGCACCAA -o subset_landing_pad.fastq subset.fastq --discard-untrimmed
+
+#with checking reverse complement reads insteadd of putting -a twice
+#I checked and they find the same number of instances of th adapters
+#also changed file names
+  #THIS ONE#########################33
+cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 10 --discard-untrimmed --revcomp -o all_reads_custom_landing_pads_trimmed.fastq FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq > all_reads_custom_landing_pads_trimmed.txt
+
+  
+#check if adapter is founf midstrand: 
+cutadapt -a TTGGTGCTGATATTGC --rest-file rest_chimeras.fastq --discard-untrimmed --revcomp -o subset_landing_pad.fastq subset.fastq > rest_revcomp_subset_landing_pad.txt
+head bi
+
+#cutadapt cross
+#cutadapt -g file:cross_barcodes.fasta --revcomp --rest-file cross_chimeras.fastq -o crossALL_landing-pad-rc_subset.fastq --discard-untrimmed landing-pad-rc_subset.fastq > crossALL_landing-pad-rc_subset.txt
+
+#okay now get sep files: 
+
+segment_array=("S" "M" "L")
+
+  #THIS ONE
+  for cross_barcode_seq in $(grep -v "^>" "cross_barcodes.fasta" ); do
+      
+    #get line in barcodes fasta with cross sequence
+    cross_seq_line=$(sed -n "/${cross_barcode_seq}/=" cross_barcodes.fasta);        
+    #get line in barcodes fasta with fasta name
+    cross_header_line=$((cross_seq_line -1)); 
+    cross_header=$(sed -n "${cross_header_line}p" cross_barcodes.fasta);
+    cross_header=${cross_header#*>};
+    echo "cross = ${cross_header}";  
+    #O=14; tot len =18 (75%)
+    cutadapt -a ${cross_barcode_seq} -O 14 --revcomp --discard-untrimmed --rest-file ${cross_header}_chimeras.fastq -o ${cross_header}_reads.fastq all_reads_custom_landing_pads_trimmed.fastq > ${cross_header}_reads.txt;
+
+      for plaque_barcode_seq in $(grep -v "^>" "plaque_barcodes.fasta" ); do
+        
+      #get line in barcodes fasta with plaque sequence
+      plaque_seq_line=$(sed -n "/${plaque_barcode_seq}/=" plaque_barcodes.fasta);        
+      #get line in barcodes fasta with fasta name
+      plaque_header_line=$((plaque_seq_line -1)); 
+      plaque_header=$(sed -n "${plaque_header_line}p" plaque_barcodes.fasta);
+      plaque_header=${plaque_header#*>};
+        
+      plaque_num="${plaque_header#*plaque}";
+      cross_num="${cross_header#*cross}";
+      echo "plaque = ${plaque_header}";  
+
+      mkdir barcode${cross_num}${plaque_num};
+
+      #O=18, tot length = 24 (75%)
+      cutadapt -g ${plaque_barcode_seq} -O 14 --no-indels --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_reads.fastq  ${cross_header}_reads.fastq > barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_reads.txt;
+
+    
+
+     # for segment in "${segment_array[@]}"; do
+
+        #S O= 15, (75%)
+        cutadapt -a CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_S_reads.fastq barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}_S_reads.txt;
+
+        #M 
+        cutadapt -a CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_M_reads.fastq barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}_M_reads.txt;
+
+        #L
+        cutadapt -a TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 15 --revcomp --discard-untrimmed -o barcode${cross_num}${plaque_num}/barcode${cross_num}${plaque_num}_L_reads.fastq barcode${cross_num}${plaque_num}_reads.fastq > barcode${cross_num}${plaque_num}_L_reads.txt;    
+    done
+done
+
+
+
+
+#plaques: 
+ for plaque_barcode_seq in $(grep -v "^>" "plaque_barcodes.fasta" ); do
+      
+    #get line in barcodes fasta with plaque sequence
+    plaque_seq_line=$(sed -n "/${plaque_barcode_seq}/=" plaque_barcodes.fasta);        
+    #get line in barcodes fasta with fasta name
+    plaque_header_line=$((plaque_seq_line -1)); 
+    plaque_header=$(sed -n "${plaque_header_line}p" plaque_barcodes.fasta);
+    plaque_header=${plaque_header#*>};
+    echo "plaque = ${plaque_header}";    
+    cutadapt -g ${plaque_barcode_seq} -O 14 --no-indels --revcomp --rest-file ${plaque_header}_chimeras.fastq -o ${plaque_header}_landing-pad-rc_subset.fastq --discard-untrimmed big_landing-pad-rc_subset.fastq > ${plaque_header}_landing-pad-rc_subset.txt;
+  done
+      
+
+
+
+  
+#cuutadapt plaque
+  cutadapt -a file:plaque_barcodes.fasta --revcomp --rest-file plaquel_chimeras.fastq -o cross_landing-pad-rc_subset.fastq --discard-untrimmed landing-pad-rc_subset.fastq > cross_landing-pad-rc_subset.txt
+
+
+
+  

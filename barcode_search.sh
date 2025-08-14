@@ -349,18 +349,18 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     cross_num="${cross_header#*cross}";
 
     
-    dorado_S_read_count=$( wc -l demux_plaque_S/demux_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq | awk '{print $1/4}');
-    dorado_M_read_count=$( wc -l demux_plaque_M/demux_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq | awk '{print $1/4}');
-    dorado_L_read_count=$( wc -l demux_plaque_L/demux_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq | awk '{print $1/4}');
+    dorado_S_read_count=$( wc -l demux_trimmed_plaque_S/demux_trimmed_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq | awk '{print $1/4}');
+    dorado_M_read_count=$( wc -l demux_trimmed_plaque_M/demux_trimmed_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq | awk '{print $1/4}');
+    dorado_L_read_count=$( wc -l demux_trimmed_plaque_L/demux_trimmed_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq | awk '{print $1/4}');
 
     #set to 0 if files dont exist
-    if ! test -f demux_plaque_S/demux_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq; then
+    if ! test -f demux_trimmed_plaque_S/demux_trimmed_cross_plaque_S_barcode${plaque_num}/*_cross_S_barcode${cross_num}.fastq; then
       dorado_S_read_count="0"
     fi;
-    if ! test -f demux_plaque_M/demux_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq; then
+    if ! test -f demux_trimmed_plaque_M/demux_trimmed_cross_plaque_M_barcode${plaque_num}/*_cross_M_barcode${cross_num}.fastq; then
       dorado_M_read_count="0"
     fi;
-    if ! test -f demux_plaque_L/demux_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq; then
+    if ! test -f demux_trimmed_plaque_L/demux_trimmed_cross_plaque_L_barcode${plaque_num}/*_cross_L_barcode${cross_num}.fastq; then
       dorado_L_read_count="0"
     fi;
 
@@ -383,7 +383,7 @@ for plaque_barcode_seq in $(grep -v "^>" "$plaque_barcodes_fasta" ); do
     echo;   
     echo; 
     done;
-  done |& tee update_cross_plaque_barcoding_loop_log.out
+  done |& tee trimmed_cross_plaque_barcoding_loop_log.out
 
 
   

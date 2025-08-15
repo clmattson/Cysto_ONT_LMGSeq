@@ -252,4 +252,14 @@ done
 
 
 
-  
+
+
+
+Go back and usearch parents for new data:
+
+bash genotyping_with_parents.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15 -e /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15/sample_list2_parents.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15/cross_list_p.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15/refs/ref_phi6_L_89.fasta |& tee genotyping_usearch_error0.15.out
+
+
+old data: 
+
+bash genotyping_with_parents.sh -d /group/sldmunozgrp/cysto_coinf_CA68x426427 -e /group/sldmunozgrp/cysto_coinf_CA68x426427/sample_list2_parents.csv -c /group/sldmunozgrp/cysto_coinf_CA68x426427/cross_list_p.txt -s /group/sldmunozgrp/cysto_coinf_CA68x426427/refs/ref_phi6_S_48.fasta -m /group/sldmunozgrp/cysto_coinf_CA68x426427/refs/ref_phi6_M_45.fasta -l /group/sldmunozgrp/cysto_coinf_CA68x426427/refs/ref_phi6_L_89.fasta |& tee genotyping_usearch_with parents.out

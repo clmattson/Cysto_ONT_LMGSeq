@@ -14,7 +14,7 @@
 #fast5_pass_path=''
 demuxed_path=''
 sample_list=''
-cross_list=''
+#cross_list=''
 #s_ref_path=''
 #m_ref_path=''
 #l_ref_path=''
@@ -24,12 +24,12 @@ print_usage() {
   printf "Usage: ..."
 }
 
-while getopts d:e:c:s:m:l: flag
+while getopts d:e: flag
 do
     case "${flag}" in
         d) demuxed_path=${OPTARG};;
         e) sample_list=${OPTARG};;
-        c) cross_list=${OPTARG};;
+        #c) cross_list=${OPTARG};;
         #s) s_ref_path=${OPTARG};;
     #m) m_ref_path=${OPTARG};;
     #l) l_ref_path=${OPTARG};;
@@ -104,8 +104,6 @@ for plate_name in `cat plate_list_grid.txt`; do
         plate="${b_file%/parent*}";
         plate="${plate##*/}";
         #echo "${plate}";
-       #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
-       #echo "the next code will output to the final results file, ${demuxed_path}/strain_assignment_output/${cross}_${plate}_strain_assignment_output.txt";
        #echo "b_file = ${b_file}";
         echo -n -e "${b_file##*/}"\\t"";
         wc -l ${b_file} | awk 'BEGIN { OFS = "\t"; ORS = "\t" } {if($1!="0") print $1}'
@@ -115,7 +113,12 @@ for plate_name in `cat plate_list_grid.txt`; do
 
         done
 
-#end the cross loop
-done
 
-echo "Amplicon processing and strain assignment done!"
+#end the cross loop
+
+echo "Amplicon processing and strain assignment done!" 
+
+
+
+#RUN: bash genotyping_grid.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15 -e /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/error0.15/sample_list_grid.csv 
+

@@ -263,3 +263,127 @@ bash genotyping_with_parents.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt
 old data: 
 
 bash genotyping_with_parents.sh -d /group/sldmunozgrp/cysto_coinf_CA68x426427 -e /group/sldmunozgrp/cysto_coinf_CA68x426427/sample_list2_parents.csv -c /group/sldmunozgrp/cysto_coinf_CA68x426427/cross_list_p.txt -s /group/sldmunozgrp/cysto_coinf_CA68x426427/refs/ref_phi6_S_48.fasta -m /group/sldmunozgrp/cysto_coinf_CA68x426427/refs/ref_phi6_M_45.fasta -l /group/sldmunozgrp/cysto_coinf_CA68x426427/refs/ref_phi6_L_89.fasta |& tee genotyping_usearch_with parents.out
+
+
+
+
+
+
+
+#starting over, 9/10/2025
+
+
+#lets actually look for the ONT adaptyers weith cutadapt
+
+
+cutadapt -a TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -a GCAATACGTAACTGAACGAAGTACAGG --revcomp -o subset_adapter_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+####
+Total reads processed:                 100,000
+Reads with adapters:                    69,499 (69.5%)
+Reverse-complemented:                   45,778 (45.8%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           30,501 (30.5%)
+Reads written (passing filters):        69,499 (69.5%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     62,753,566 bp (71.1%)
+#####
+#ok the adapters seem to be at the ends...? I'm confused, -a is supposed to be for 5' adapters
+# oh ok i see now there is a typo on the cutadapt site >:(
+
+
+#switch to -g, just to see
+cutadapt -g TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -g GCAATACGTAACTGAACGAAGTACAGG --revcomp -o subset_adapter_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+
+####
+Total reads processed:                 100,000
+Reads with adapters:                    66,690 (66.7%)
+Reverse-complemented:                   44,606 (44.6%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           33,310 (33.3%)
+Reads written (passing filters):        66,690 (66.7%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     61,577,490 bp (69.8%)
+#####
+#weirdly similar? lots of the reads appear to be ALL adapter... 
+#lets do both:
+
+
+cutadapt -g TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -g GCAATACGTAACTGAACGAAGTACAGG -a TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -a GCAATACGTAACTGAACGAAGTACAGG --revcomp -o subset_adapter_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+
+#meh ok thats barely higher:
+
+######
+Total reads processed:                 100,000
+Reads with adapters:                    71,879 (71.9%)
+Reverse-complemented:                   45,027 (45.0%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           28,121 (28.1%)
+Reads written (passing filters):        71,879 (71.9%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     64,772,461 bp (73.4%)
+######
+
+## e=0.15:
+
+cutadapt -g TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -g GCAATACGTAACTGAACGAAGTACAGG -a TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -a GCAATACGTAACTGAACGAAGTACAGG --revcomp -e 0.15 -o subset_both_adapter_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+
+#### significant increase in reads haivng the adapter?
+####
+Total reads processed:                 100,000
+Reads with adapters:                    88,487 (88.5%)
+Reverse-complemented:                   44,912 (44.9%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           11,513 (11.5%)
+Reads written (passing filters):        88,487 (88.5%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     79,248,723 bp (89.8%)
+#####
+
+
+#ok 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -331,7 +331,7 @@ Total written (filtered):     64,772,461 bp (73.4%)
 
 ## e=0.15:
 
-cutadapt -g TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -g GCAATACGTAACTGAACGAAGTACAGG -a TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -a GCAATACGTAACTGAACGAAGTACAGG --revcomp -e 0.15 -o subset_both_adapter_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+cutadapt -g TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -g GCAATACGTAACTGAACGAAGTACAGG -a TTTTTTTTCCTGTACTTCGTTCAGTTACGTATTGCT -a GCAATACGTAACTGAACGAAGTACAGG --revcomp -e 0.15 -o subset_both_adapter_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=ont-adapters_untrimmed.fastq > running_log.txt
 
 #### significant increase in reads haivng the adapter?
 ####
@@ -347,14 +347,47 @@ Total basepairs processed:    88,277,155 bp
 Total written (filtered):     79,248,723 bp (89.8%)
 #####
 
-
-#ok 
-
+#### realized i can do the same thing (search both ends) with -b instead
 
 
 
 
+#ok lets just try thr landing pads again 
 
+cutadapt -a TTGGTGCTGATATTGC -g GAAGATAGAGCGACAG -O 6 --revcomp -o subset_landpad_tests.fastq big_subset.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+
+##############
+Total reads processed:                 100,000
+Reads with adapters:                    81,833 (81.8%)
+Reverse-complemented:                   46,709 (46.7%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           18,167 (18.2%)
+Reads written (passing filters):        81,833 (81.8%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     77,671,585 bp (88.0%)
+#######################
+
+
+#what if i search on the output of the adapter search?
+
+cutadapt -a TTGGTGCTGATATTGC -g GAAGATAGAGCGACAG -O 6 --revcomp -o subset_landpad_tests.fastq subset_both_adapter_tests.fastq --action=lowercase --untrimmed-output=untrimmed.fastq > running_log.txt
+
+#not as high a % as I would have guessed 
+
+Total reads processed:                  88,487
+Reads with adapters:                    74,711 (84.4%)
+Reverse-complemented:                   31,260 (35.3%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           13,776 (15.6%)
+Reads written (passing filters):        74,711 (84.4%)
+
+Total basepairs processed:    79,248,723 bp
+Total written (filtered):     70,845,786 bp (89.4%)
+
+#okay maybe actually need to search on  TRIMMED adapter search results (take off previous actio =lowercase) 
 
 
 

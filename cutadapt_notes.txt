@@ -409,6 +409,14 @@ porechop -i cutadapt/big_subset.fastq --verbosity 2 --extra_end_trim 0 --end_siz
 
 
 
+ONT duplex bascalling attempt:
+
+~/dorado/bin/dorado duplex -r --device cuda:all --threads 20 --emit-fastq -o duplex_sup_basecall sup pod5
+#jus kidding it gives a warning that fastq output not recommended so ill take that off and allow the default. its unclear which is recommended
+
+
+
+
 
 
 

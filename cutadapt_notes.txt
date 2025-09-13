@@ -290,7 +290,7 @@ Total basepairs processed:    88,277,155 bp
 Total written (filtered):     62,753,566 bp (71.1%)
 #####
 #ok the adapters seem to be at the ends...? I'm confused, -a is supposed to be for 5' adapters
-# oh ok i see now there is a typo on the cutadapt site >:(
+# later update: oh ok i see now there is a typo on the cutadapt site >:( - -g is actually for 5'
 
 
 #switch to -g, just to see
@@ -400,7 +400,9 @@ Total written (filtered):     70,845,786 bp (89.4%)
 
 
 
+#lets try looking for mid-strand adapters with porechop
 
+porechop -i cutadapt/big_subset.fastq --verbosity 2 --extra_end_trim 0 --end_size 40 --min_split_read_size 1 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o porechop/split_subset_reads.fastq 
 
 
 

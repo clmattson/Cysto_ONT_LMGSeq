@@ -415,6 +415,13 @@ ONT duplex bascalling attempt:
 #jus kidding it gives a warning that fastq output not recommended so ill take that off and allow the default. its unclear which is recommended
 
 
+grep "adapters" recompile_rerun_new_adapters.txt
+
+#Trimming adapters from read ends
+# 83,335 / 100,000 reads had adapters trimmed from their start (2,760,017 bp removed)
+# 26,147 / 100,000 reads had adapters trimmed from their end (256,528 bp removed)
+# Splitting reads containing middle adapters
+# 3,320 / 100,000 reads were split based on middle adapters
 
 
 

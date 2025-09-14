@@ -431,6 +431,127 @@ Splitting reads containing middle adapters
 6,288 / 100,000 reads were split based on middle adapters
 
 
+#It looks like the adapters are present in those even where they arent identified, but at very high error. Lets try to do some QC analysis.
+
+#nanoQC
+nanoQC -o nanoQC cutadapt/big_subset.fastq
+#plots show that quality doesnt level off until around base 45 or so, and then at the ends it drops starting at around base -30 or so. So it makes sense that some of the end adapters have high error 
+
+
+#hmm... what if we just look for the pcr 2 landing pads
+
+cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 10 --discard-untrimmed --revcomp -o all_reads_pcr2_landing_pads_trimmed.fastq big_subset.fastq > current_cutadapt_log.txt
+Total reads processed:                 100,000
+Reads with adapters:                    81,820 (81.8%)
+Reverse-complemented:                   52,223 (52.2%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           18,180 (18.2%)
+Reads written (passing filters):        81,820 (81.8%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     45,884,667 bp (52.0%)
+
+
+cutadapt -g TTGGTGCTGATATTGC -a GAAGATAGAGCGACAG -O 8 --revcomp --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq -o all_reads_pcr2_landing_pads_trimmed.fastq big_subset.fastq > current_cutadapt_log.txt
+
+
+Total reads processed:                 100,000
+Reads with adapters:                    81,830 (81.8%)
+Reverse-complemented:                   46,724 (46.7%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           18,170 (18.2%)
+Reads written (passing filters):        81,830 (81.8%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     77,669,461 bp (88.0%)
+
+
+#add --times=2
+#cutadapt -g TTGGTGCTGATATTGC -a GAAGATAGAGCGACAG -O 8 --revcomp --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq -o all_reads_pcr2_landing_pads_trimmed.fastq big_subset.fastq -e --times 2 > current_cutadapt_log.txt
+
+Total reads processed:                 100,000
+Reads with adapters:                    81,830 (81.8%)
+Reverse-complemented:                   51,919 (51.9%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           18,170 (18.2%)
+Reads written (passing filters):        81,830 (81.8%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     77,669,461 bp (88.0%)
+
+#hmm, doesnt seem to change the overall % of reads with adapters, but it does increase the number of reverse complemented reads that were found.
+
+#increase error to 0.15, allowing 1 error in 10 bases, 2 errors in 20 bases, etc. (previously was 0 in 10, 1 in 20, 2 in 30)
+cutadapt -g TTGGTGCTGATATTGC -a GAAGATAGAGCGACAG -O 8 --revcomp --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq -o all_reads_pcr2_landing_pads_trimmed.fastq big_subset.fastq -e 0.15  --times 2 > current_cutadapt_log.txt
+
+#visual check shows most lowercase bases at the ends of reads? Why isnt it trimming both ends....?
+
+Total reads processed:                 100,000
+Reads with adapters:                    84,986 (85.0%)
+Reverse-complemented:                   53,779 (53.8%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           15,014 (15.0%)
+Reads written (passing filters):        84,986 (85.0%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     79,623,082 bp (90.2%)
+
+
+cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq --revcomp -e 0.15 -o all_reads_pcr2_landing_pads_linked_trimmed.fastq big_subset.fastq > current_cutadapt_log.txt
+
+#linked adapters show exactly the same stats 
+#visual check: okay lots still with what appear to be internal adapters. um also, theres a noticeable fraction that appear to only have identified adapters on one end. weird
+
+Total reads processed:                 100,000
+Reads with adapters:                    84,986 (85.0%)
+Reverse-complemented:                   54,154 (54.2%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           15,014 (15.0%)
+Reads written (passing filters):        84,986 (85.0%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     79,623,082 bp (90.2%)
+
+
+#try just one landing pad:
+cutadapt -g TTGGTGCTGATATTGC -O 8 --revcomp --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq -o all_reads_pcr2_landing_pad_5pr_trimmed.fastq big_subset.fastq -e 0.15 --times 2 > current_cutadapt_log.txt
+
+##visual check shows that it sure seems like more than the ~3% identified by porechop that have an internal adapter (ie like way more than just the first <=40 bases are lowercase. in some instances its like half the reads. Turn off --revcomp next and see if this persists.
+
+Total reads processed:                 100,000
+Reads with adapters:                    43,958 (44.0%)
+Reverse-complemented:                   19,428 (19.4%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           56,042 (56.0%)
+Reads written (passing filters):        43,958 (44.0%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     54,431,783 bp (61.7%)
+
+
+cutadapt -g TTGGTGCTGATATTGC -O 8 --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq -o all_reads_pcr2_landing_pad_5pr_trimmed.fastq big_subset.fastq -e 0.15 --times 2 > current_cutadapt_log.txt
+
+##visual check shows honestly kinda the same pattern? most lowercase bases at the beginning of the reads definitely still a lot that have an internal adapter (ie like way more than just the first <=40 bases are lowercase. in some instances its like half the reads still??  
+
+#loss of 44% -> 27% of reads found with adapters when you take out --revcomp
+
+Total reads processed:                 100,000
+Reads with adapters:                    27,590 (27.6%)
+
+== Read fate breakdown ==
+Reads discarded as untrimmed:           72,410 (72.4%)
+Reads written (passing filters):        27,590 (27.6%)
+
+Total basepairs processed:    88,277,155 bp
+Total written (filtered):     37,701,137 bp (42.7%)
+
+
 
 
 
@@ -442,8 +563,9 @@ ONT duplex bascalling attempt:
 ~/dorado/bin/dorado duplex -r --device cuda:all --threads 20 --emit-fastq -o duplex_sup_basecall sup pod5
 #jus kidding it gives a warning that fastq output not recommended so ill take that off and allow the default. its unclear which is recommended
 
+#lost connectivity, rerun:
 
-
+~/dorado/bin/dorado duplex -r --device cuda:all --threads 40 -o rerun_duplex_sup_basecall sup pod5
 
 
 

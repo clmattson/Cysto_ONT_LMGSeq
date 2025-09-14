@@ -405,16 +405,6 @@ Total written (filtered):     70,845,786 bp (89.4%)
 porechop -i cutadapt/big_subset.fastq --verbosity 2 --extra_end_trim 0 --end_size 40 --min_split_read_size 1 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o porechop/split_subset_reads.fastq 
 
 
-
-
-
-
-ONT duplex bascalling attempt:
-
-~/dorado/bin/dorado duplex -r --device cuda:all --threads 20 --emit-fastq -o duplex_sup_basecall sup pod5
-#jus kidding it gives a warning that fastq output not recommended so ill take that off and allow the default. its unclear which is recommended
-
-
 grep "adapters" recompile_rerun_new_adapters.txt
 
 #Trimming adapters from read ends
@@ -424,7 +414,33 @@ grep "adapters" recompile_rerun_new_adapters.txt
 # 3,320 / 100,000 reads were split based on middle adapters
 
 
+#that doesnt add up to 100,000, its actually around 109K, so some reads have 2 adapters. not sure what % of reads have none.
+#also looks like only around 3% had middle adapters
+#visually, it looks like ~17/170 or 10% dont have an adapter identified at either end
 
+#rerun with higher error allowed
+
+porechop -i cutadapt/big_subset.fastq --verbosity 2 --end_threshold 60 --middle_threshold 80 --extra_end_trim 0 --end_size 40 --min_split_read_size 1 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o porechop/split_adapters-only_subset_reads.fastq  > 
+
+
+Looking for known adapter sets
+Trimming adapters from read ends
+ 92,331 / 100,000 reads had adapters trimmed from their start (3,038,744 bp removed)
+ 37,368 / 100,000 reads had adapters trimmed from their end (503,233 bp removed)
+Splitting reads containing middle adapters
+6,288 / 100,000 reads were split based on middle adapters
+
+
+
+
+
+
+
+
+ONT duplex bascalling attempt:
+
+~/dorado/bin/dorado duplex -r --device cuda:all --threads 20 --emit-fastq -o duplex_sup_basecall sup pod5
+#jus kidding it gives a warning that fastq output not recommended so ill take that off and allow the default. its unclear which is recommended
 
 
 

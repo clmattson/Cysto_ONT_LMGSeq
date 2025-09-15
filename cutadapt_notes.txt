@@ -645,7 +645,7 @@ No adapters found - output reads are unchanged from input reads
 porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq --adapter_threshold 70 --verbosity 2 --end_threshold 60 --middle_threshold 70 --extra_end_trim 0 --end_size 200 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/re-check.fastq  > running_porechop_re-check.txt
 
 #ermmm ok when you run with adapt threshold of 70& you gat the following: 
-#but when I blast apparent 'hits' they seem to always match fully to cystovirus online - i think these arent real because pid is too low
+#but when I blast apparent 'hits' they seem to always match fully to cystovirus on blast - i think these arent real because pid is too low
 
 Trimming adapters from read ends
 110,880 / 144,704 reads had adapters trimmed from their start (10,241,101 bp removed)
@@ -655,7 +655,8 @@ Splitting reads containing middle adapters
 
 
 
-#
+
+
 
 
 
@@ -668,10 +669,31 @@ ONT duplex bascalling attempt:
 ~/dorado/bin/dorado duplex -r --device cuda:all --threads 20 --emit-fastq -o duplex_sup_basecall sup pod5
 #jus kidding it gives a warning that fastq output not recommended so ill take that off and allow the default. its unclear which is recommended
 
-#lost connectivity, rerun:
+#lost connectivity, rerun inn a tmux sesh:
 
 ~/dorado/bin/dorado duplex -r --device cuda:all --threads 40 -o rerun_duplex_sup_basecall sup pod5
 
+[2025-09-14 10:16:02.602] [info] Running: "duplex" "-r" "--device" "cuda:all" "--threads" "40" "-o" "rerun_duplex_sup_basecall" "sup" "pod5"
+[2025-09-14 10:16:02.627] [info] > No duplex pairs file provided, pairing will be performed automatically
+[2025-09-14 10:16:02.750] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2025-09-14 10:16:20.779] [info]  - downloading dna_r10.4.1_e8.2_5khz_stereo@v1.4 with httplib
+[2025-09-14 10:16:22.401] [info] Using CUDA devices:
+[2025-09-14 10:16:22.401] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2025-09-14 10:16:23.095] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchm
+arking will run for this device, which may take some time.
+[2025-09-14 10:16:23.461] [info] cuda:0 using chunk size 12288, batch size 64
+[2025-09-14 10:16:23.705] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_5khz_stereo@v1.4. Full benchma
+rking will run for this device, which may take some time.
+[2025-09-14 10:16:23.952] [info] cuda:0 using chunk size 10000, batch size 320
+[2025-09-14 10:16:24.129] [info] > Starting Stereo Duplex pipeline
+[2025-09-14 10:16:24.135] [info] > Reading read channel info
+[2025-09-14 10:16:44.175] [info] > Processed read channel info
+[2025-09-15 07:15:53.809] [info] > Finished in (ms): 75569670
+[2025-09-15 07:15:53.809] [info] > Simplex reads basecalled: 20226344
+[2025-09-15 07:15:53.809] [info] > Simplex reads filtered: 901
+[2025-09-15 07:15:53.809] [info] > Duplex reads basecalled: 1697341
+[2025-09-15 07:15:53.809] [info] > Duplex rate: 10.896313%
+[2025-09-15 07:15:53.810] [info] > Basecalled @ Bases/s: 2.564030e+05
 
 
 

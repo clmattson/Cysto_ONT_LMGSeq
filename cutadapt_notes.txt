@@ -563,6 +563,52 @@ porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --ver
 
 #check how many reads have internal adapters when the end size is set to 100 bp. change the min readd size kept post splitting to 50 bp:
 porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --verbosity 2 --end_threshold 60 --middle_threshold 80  and use defualts --extra_end_trim 0 --end_size 100 --min_split_read_size 50 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/wider-ends_ONT-adapters_land-pads_subset_reads.fastq  > running_porechop_wider-ends_ONT-adapt_land-pads.txt
+#num reads: 154841
+#avg read length is 510.433 compared to 882.772 for original subset file
+#whoa thats a ot more than the starting 100K
+
+
+#even wider ends and larger min fragment size
+porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq  > running_porechop_even-wider-ends_ONT-adapt_land-pads.txt
+#num reads: 151839
+#avg read length is 539.842 compared to 882.772 for original subset file
+#numbers arent that different?
+
+#compare % of reads longer than 1200 bp 
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)>1051) longer++} END {print longer/total}' ../cutadapt/big_subset.fastq
+0.24105
+
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)>1051) longer++} END {print longer/total}' even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq
+0.0469906
+
+#ok that looks pretty good!
+#L amplicon length is 905 (non-primer region) + 60 (fwd primer) +50 (R primer) + 36 for the longer of the two ONT adapters
+
+#trim anything longer than 1051?
+cutadapt -M 1051 --untrimmed-output=untrimmed_over_1051.fastq  even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq > length-trimmed_cutadapt_log.txt
+
+Total reads processed:                 151,839
+
+== Read fate breakdown ==
+Reads that were too long:                7,135 (4.7%)
+Reads discarded as untrimmed:          144,704 (95.3%)
+Reads written (passing filters):             0 (0.0%)
+
+Total basepairs processed:    81,969,126 bp
+Total written (filtered):              0 bp (0.0%)
+
+
+#btw, % reads under 200 bp length
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)<200) longer++} END {print longer/total}' ../cutadapt/big_subset.fastq
+#0.04231
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)<200) longer++} END {print longer/total}' length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq
+#0.0318581
+
+
+
+
+
+
 
 
 
@@ -573,7 +619,39 @@ to-do
 -demux by barcode R
 -demux by primer
 
+#next, look for barcodes?????
 
+#maybe re-check for adapters? use higher allowed error (lower % id)
+porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq --verbosity 2 --end_threshold 60 --middle_threshold 70 --extra_end_trim 0 --end_size 200 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/re-check.fastq  > running_porechop_re-check.txt
+
+nice!
+144,704 reads loaded
+
+
+Looking for known adapter sets
+10,000 / 10,000 (100.0%)
+                                        Best
+                                        read       Best
+                                        start      read end
+  Set                                   %ID        %ID
+  SQK-LSK114                                79.3       74.1
+  PCR2_landing_pads                         77.8       78.9
+
+
+No adapters found - output reads are unchanged from input reads
+
+#try with lower adapter threshold, use 70 due to above numbers
+
+porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq --adapter_threshold 70 --verbosity 2 --end_threshold 60 --middle_threshold 70 --extra_end_trim 0 --end_size 200 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/re-check.fastq  > running_porechop_re-check.txt
+
+#ermmm ok when you run with adapt threshold of 70& you gat the following: 
+#but when I blast apparent 'hits' they seem to always match fully to cystovirus online - i think these arent real because pid is too low
+
+Trimming adapters from read ends
+110,880 / 144,704 reads had adapters trimmed from their start (10,241,101 bp removed)
+119,473 / 144,704 reads had adapters trimmed from their end (9,141,755 bp removed)
+Splitting reads containing middle adapters
+71,522 / 144,704 reads were split based on middle adapters
 
 
 

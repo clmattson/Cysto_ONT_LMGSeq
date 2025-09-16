@@ -791,3 +791,116 @@ rking will run for this device, which may take some time.
 
 
 
+~/dorado/bin/dorado basecaller -v -r --emit-fastq --no-trim --device cuda:all -o sup_basecall_split sup pod5
+
+
+[2025-09-15 12:46:02.424] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--no-trim" "--device" "cuda:all" "-o" "sup_basecall_split" "sup" "pod5"
+[2025-09-15 12:46:02.478] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2025-09-15 12:46:20.791] [info] > Creating basecall pipeline
+[2025-09-15 12:46:20.874] [info] Using CUDA devices:
+[2025-09-15 12:46:20.874] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2025-09-15 12:46:20.886] [debug] TxEncoderStack: use_koi_tiled true.
+[2025-09-15 12:46:20.886] [debug] TxEncoderStack: use_koi_volta_tiled false.
+[2025-09-15 12:46:21.458] [debug] cuda:0 memory available: 9.58GB
+[2025-09-15 12:46:21.458] [debug] cuda:0 memory limit 8.58GB
+[2025-09-15 12:46:21.458] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
+[2025-09-15 12:46:21.458] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
+[2025-09-15 12:46:21.458] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
+[2025-09-15 12:46:21.459] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
+[2025-09-15 12:46:21.666] [debug] Auto batchsize cuda:0: 32, time per chunk 0.449024 ms
+[2025-09-15 12:46:21.748] [debug] Auto batchsize cuda:0: 64, time per chunk 0.366592 ms
+[2025-09-15 12:46:21.828] [debug] Auto batchsize cuda:0: 96, time per chunk 0.317556 ms
+[2025-09-15 12:46:21.925] [debug] Auto batchsize cuda:0: 128, time per chunk 0.310182 ms
+[2025-09-15 12:46:22.042] [debug] Auto batchsize cuda:0: 160, time per chunk 0.300205 ms
+[2025-09-15 12:46:22.176] [debug] Auto batchsize cuda:0: 192, time per chunk 0.295632 ms
+[2025-09-15 12:46:22.176] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
+[2025-09-15 12:46:22.176] [debug] Largest batch size for cuda:0: 192, time per chunk 0.295632 ms
+[2025-09-15 12:46:22.176] [debug] Final batch size for cuda:0[0]: 96
+[2025-09-15 12:46:22.176] [debug] Final batch size for cuda:0[1]: 192
+[2025-09-15 12:46:22.177] [info] cuda:0 using chunk size 12288, batch size 96
+[2025-09-15 12:46:22.177] [debug] cuda:0 Model memory 6.85GB
+[2025-09-15 12:46:22.177] [debug] cuda:0 Decode memory 0.83GB
+[2025-09-15 12:46:22.383] [info] cuda:0 using chunk size 6144, batch size 192
+[2025-09-15 12:46:22.383] [debug] cuda:0 Model memory 6.85GB
+[2025-09-15 12:46:22.383] [debug] cuda:0 Decode memory 0.83GB
+[2025-09-15 12:46:22.645] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2025-09-15 12:46:22.645] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2025-09-15 12:46:22.645] [debug] BasecallerNode chunk size 12288
+[2025-09-15 12:46:22.645] [debug] BasecallerNode chunk size 6144
+[2025-09-15 12:46:22.647] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_65.pod5
+[2025-09-15 12:50:12.989] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_27.pod5
+[2025-09-15 13:10:28.153] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_20.pod5
+[2025-09-15 13:32:02.444] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_41.pod5
+[2025-09-15 13:49:12.765] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_68.pod5
+[2025-09-15 13:49:36.659] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_54.pod5
+[2025-09-15 13:57:39.074] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_6.pod5
+[2025-09-15 14:25:29.691] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_55.pod5
+[2025-09-15 14:32:16.264] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_51.pod5
+[2025-09-15 14:42:44.385] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_19.pod5
+[2025-09-15 15:05:39.276] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_11.pod5
+[2025-09-15 15:32:49.396] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_0.pod5
+[2025-09-15 16:05:51.869] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_18.pod5
+[2025-09-15 16:27:22.996] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_23.pod5
+[2025-09-15 16:47:01.224] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_1.pod5
+[2025-09-15 17:19:47.202] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_38.pod5
+[2025-09-15 17:35:50.804] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_22.pod5
+[2025-09-15 17:58:27.118] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_53.pod5
+[2025-09-15 18:04:38.046] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_64.pod5
+[2025-09-15 18:06:02.725] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_56.pod5
+[2025-09-15 18:09:23.021] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_45.pod5
+[2025-09-15 18:23:33.202] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_12.pod5
+[2025-09-15 18:48:28.002] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_7.pod5
+[2025-09-15 19:16:07.453] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_5.pod5
+[2025-09-15 19:44:35.586] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_25.pod5
+[2025-09-15 20:05:41.061] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_52.pod5
+[2025-09-15 20:18:09.019] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_40.pod5
+[2025-09-15 20:32:46.616] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_33.pod5
+[2025-09-15 20:51:33.934] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_9.pod5
+[2025-09-15 21:17:51.589] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_58.pod5
+[2025-09-15 21:20:09.333] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_50.pod5
+[2025-09-15 21:31:28.723] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_29.pod5
+[2025-09-15 21:51:01.527] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_15.pod5
+[2025-09-15 22:14:27.048] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_24.pod5
+[2025-09-15 22:36:01.636] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_4.pod5
+[2025-09-15 23:06:39.111] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_66.pod5
+[2025-09-15 23:07:43.929] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_46.pod5
+[2025-09-15 23:20:38.160] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_60.pod5
+[2025-09-15 23:25:43.819] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_36.pod5
+[2025-09-15 23:44:01.429] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_30.pod5
+[2025-09-16 00:05:11.319] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_3.pod5
+[2025-09-16 00:37:16.023] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_35.pod5
+[2025-09-16 00:54:05.770] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_42.pod5
+[2025-09-16 01:10:58.993] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_59.pod5
+[2025-09-16 01:13:30.506] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_13.pod5
+[2025-09-16 01:38:26.163] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_47.pod5
+[2025-09-16 01:51:56.560] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_32.pod5
+[2025-09-16 02:08:22.711] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_39.pod5
+[2025-09-16 02:25:05.363] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_14.pod5
+[2025-09-16 02:48:58.977] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_37.pod5
+[2025-09-16 03:05:33.518] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_43.pod5
+[2025-09-16 03:20:12.453] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_63.pod5
+[2025-09-16 03:22:07.317] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_44.pod5
+[2025-09-16 03:35:52.076] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_10.pod5
+[2025-09-16 04:04:38.616] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_8.pod5
+[2025-09-16 04:32:19.596] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_61.pod5
+[2025-09-16 04:34:32.951] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_62.pod5
+[2025-09-16 04:36:37.894] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_26.pod5
+[2025-09-16 04:56:35.166] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_34.pod5
+[2025-09-16 05:13:14.723] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_49.pod5
+[2025-09-16 05:25:26.744] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_48.pod5
+[2025-09-16 05:38:22.027] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_28.pod5
+[2025-09-16 05:57:45.061] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_17.pod5
+[2025-09-16 06:19:23.713] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_21.pod5
+[2025-09-16 06:40:52.967] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_31.pod5
+[2025-09-16 06:56:34.325] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_67.pod5
+[2025-09-16 06:58:02.005] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_57.pod5
+[2025-09-16 07:00:34.477] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_16.pod5
+[2025-09-16 07:24:52.167] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_2.pod5
+[2025-09-16 07:57:39.077] [info] > Finished in (ms): 69076429
+[2025-09-16 07:57:39.077] [info] > Simplex reads basecalled: 20226344
+[2025-09-16 07:57:39.077] [info] > Simplex reads filtered: 901
+[2025-09-16 07:57:39.077] [info] > Basecalled @ Samples/s: 3.532851e+06
+[2025-09-16 07:57:39.077] [debug] > Including Padding @ Samples/s: 5.072e+06 (69.65%)
+[2025-09-16 07:57:39.081] [debug] Deleting temporary model path: /home/user/Cysto_LMGSeq_barcode_test_
+
+

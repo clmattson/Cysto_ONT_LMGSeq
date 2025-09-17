@@ -303,7 +303,7 @@ Reverse-complemented:                   44,606 (44.6%)
 
 == Read fate breakdown ==
 Reads discarded as untrimmed:           33,310 (33.3%)
-Reads written (passing filters):        66,690 (66.7%)
+Reads written (passing favgilters):        66,690 (66.7%)
 
 Total basepairs processed:    88,277,155 bp
 Total written (filtered):     61,577,490 bp (69.8%)
@@ -563,7 +563,12 @@ porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --ver
 
 #check how many reads have internal adapters when the end size is set to 100 bp. change the min readd size kept post splitting to 50 bp:
 porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --verbosity 2 --end_threshold 60 --middle_threshold 80  and use defualts --extra_end_trim 0 --end_size 100 --min_split_read_size 50 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/wider-ends_ONT-adapters_land-pads_subset_reads.fastq  > running_porechop_wider-ends_ONT-adapt_land-pads.txt
+
+
+wc -l file.fastq | awk '{print $1 / 4}'
 #num reads: 154841
+#get avg lengths: 
+
 #avg read length is 510.433 compared to 882.772 for original subset file
 #whoa thats a ot more than the starting 100K
 
@@ -687,6 +692,41 @@ cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --revcom
 
 
 
+### OOOOOOH what if i go back and run porechop with end size ==0??
+#so can do read splitting and then just check for adapters with cutadapt??
+
+porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --verbosity 2 --end_threshold 100 --middle_threshold 80 --extra_end_trim 0 --end_size 0 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/split-only_ONT-adapters_land-pads_subset_reads.fastq  > running_porechop_split-only_ONT-adapt_land-pads.txt
+
+
+
+
+
+#tried pychopper for detecting midstrand reads
+
+#seems to only thinks that like 25% of reads are usable? weird
+
+#final thoughts for the day - are some nanopore reads reversed? idk
+
+#does porechopper search the reverse orientation? idk
+
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -736,60 +776,20 @@ rking will run for this device, which may take some time.
 [2025-09-15 07:15:53.809] [info] > Duplex rate: 10.896313%
 [2025-09-15 07:15:53.810] [info] > Basecalled @ Bases/s: 2.564030e+05
 
+#avg duplex read length:
+awk 'NR%4==2 {sum+=length($0); count++} END {if (count > 0) print "Average read length:", sum/count; else print "No reads found."}' FBC73506_bam_pass_d5fa85e0__0_DUPLEX.fastq
+=Average read length: 589.81
+
+#avg simplex reads length
+awk 'NR%4==2 {sum+=length($0); count++} END {if (count > 0) print "Average read length:", sum/count; else print "No reads found."}' FBC73506_bam_pass_d5fa85e0_b727e37a_0_SIMPLEX.fastq
+Average read length: 869.548
+
+
 
 
 
 
 #also rerunning simplex but with read splitting, for comparison to post-basecalling reads splitting (above)
-~/dorado/bin/dorado basecaller -v -r --emit-fastq --no-trim --device cuda:all -o sup_basecall_split sup pod5
-[2025-09-15 12:46:02.424] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--no-trim" "--device" "cuda:all" "-o" "sup_basecall_split" "sup" "pod5"
-[2025-09-15 12:46:02.478] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
-[2025-09-15 12:46:20.791] [info] > Creating basecall pipeline
-[2025-09-15 12:46:20.874] [info] Using CUDA devices:
-[2025-09-15 12:46:20.874] [info] cuda:0 - NVIDIA GeForce RTX 3080
-[2025-09-15 12:46:20.886] [debug] TxEncoderStack: use_koi_tiled true.
-[2025-09-15 12:46:20.886] [debug] TxEncoderStack: use_koi_volta_tiled false.
-[2025-09-15 12:46:21.458] [debug] cuda:0 memory available: 9.58GB
-[2025-09-15 12:46:21.458] [debug] cuda:0 memory limit 8.58GB
-[2025-09-15 12:46:21.458] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
-[2025-09-15 12:46:21.458] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
-[2025-09-15 12:46:21.458] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
-[2025-09-15 12:46:21.459] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
-[2025-09-15 12:46:21.666] [debug] Auto batchsize cuda:0: 32, time per chunk 0.449024 ms
-[2025-09-15 12:46:21.748] [debug] Auto batchsize cuda:0: 64, time per chunk 0.366592 ms
-[2025-09-15 12:46:21.828] [debug] Auto batchsize cuda:0: 96, time per chunk 0.317556 ms
-[2025-09-15 12:46:21.925] [debug] Auto batchsize cuda:0: 128, time per chunk 0.310182 ms
-[2025-09-15 12:46:22.042] [debug] Auto batchsize cuda:0: 160, time per chunk 0.300205 ms
-[2025-09-15 12:46:22.176] [debug] Auto batchsize cuda:0: 192, time per chunk 0.295632 ms
-[2025-09-15 12:46:22.176] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
-[2025-09-15 12:46:22.176] [debug] Largest batch size for cuda:0: 192, time per chunk 0.295632 ms
-[2025-09-15 12:46:22.176] [debug] Final batch size for cuda:0[0]: 96
-[2025-09-15 12:46:22.176] [debug] Final batch size for cuda:0[1]: 192
-[2025-09-15 12:46:22.177] [info] cuda:0 using chunk size 12288, batch size 96
-[2025-09-15 12:46:22.177] [debug] cuda:0 Model memory 6.85GB
-[2025-09-15 12:46:22.177] [debug] cuda:0 Decode memory 0.83GB
-[2025-09-15 12:46:22.383] [info] cuda:0 using chunk size 6144, batch size 192
-[2025-09-15 12:46:22.383] [debug] cuda:0 Model memory 6.85GB
-[2025-09-15 12:46:22.383] [debug] cuda:0 Decode memory 0.83GB
-[2025-09-15 12:46:22.645] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
-[2025-09-15 12:46:22.645] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
-[2025-09-15 12:46:22.645] [debug] BasecallerNode chunk size 12288
-[2025-09-15 12:46:22.645] [debug] BasecallerNode chunk size 6144
-[2025-09-15 12:46:22.647] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_65.pod5
-[2025-09-15 12:50:12.989] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_27.pod5
-[2025-09-15 13:10:28.153] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_20.pod5
-[2025-09-15 13:32:02.444] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_41.pod5
-[2025-09-15 13:49:12.765] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_68.pod5
-[2025-09-15 13:49:36.659] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_54.pod5
-[2025-09-15 13:57:39.074] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_6.pod5
-[2025-09-15 14:25:29.691] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_55.pod5
-[2025-09-15 14:32:16.264] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_51.pod5
-[2025-09-15 14:42:44.385] [debug] Load reads from file pod5/FBC73506_d5fa85e0_b727e37a_19.pod5
-[███                           ] 10% [02h:09m:47s<19h:22m:31s] Basecalling
-
-
-
-
 
 ~/dorado/bin/dorado basecaller -v -r --emit-fastq --no-trim --device cuda:all -o sup_basecall_split sup pod5
 
@@ -902,5 +902,16 @@ rking will run for this device, which may take some time.
 [2025-09-16 07:57:39.077] [info] > Basecalled @ Samples/s: 3.532851e+06
 [2025-09-16 07:57:39.077] [debug] > Including Padding @ Samples/s: 5.072e+06 (69.65%)
 [2025-09-16 07:57:39.081] [debug] Deleting temporary model path: /home/user/Cysto_LMGSeq_barcode_test_
+
+
+#avg read length with splitting turned on:
+awk 'NR%4==2 {sum+=length($0); count++} END {if (count > 0) print "Average read length:", sum/count; else print "No reads found."}' FBC73506_fastq_pass_d5fa85e0_b727e37a_0_split.fastq
+Average read length: 877.997
+
+#hmm.. kinda long. 
+#how many reads?
+20805897
+#OK ngl i was expecting it to be a lot more with splotting enabled
+
 
 

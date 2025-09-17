@@ -709,7 +709,12 @@ porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --ver
 
 #does porechopper search the reverse orientation? idk
 
-#
+#UMMM REALIZED I HAD THE ADAPTERS SET TO BE FWD/REV AND NOT BOTH FWD in porechop - oops
+
+#fixed and re-ran this
+porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/ONT-adapters-only_big-subset_reads.fastq  > pclog_ONT-adapters-only.txt
+
+#go back and search for primers in the reads where adapters ot found after trimming low quality areas
 
 
 

@@ -732,29 +732,69 @@ porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --ver
 ###ok, talked to sam, super sus that if you use cutadapt after porechop, 50% of the reads have adapters, and 50% of them were found in th RC... 
 #lets go back and try to recompile porechop with RCed adapters
 
-
+#add RC landpads and adapters, then recompile
+python3 setup.py install
 
 #porechop:
 porechop -i /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/big_subset.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq  > running_porechop_land-pads_with_revcomp.txt
 
 
+grep "adapters" running_porechop_land-pads_with_revcomp.txt
+
+#Trimming adapters from read ends
+# 26,957 / 100,000 reads had adapters trimmed from their start (1,296,843 bp removed)
+# 41,122 / 100,000 reads had adapters trimmed from their end (1,862,309 bp removed)
+#Splitting reads containing middle adapters
+#74,289 / 100,000 reads were split based on middle adapters
+
+
 #awk to look at splitted read sizes
 
 #compare % of reads longer than 1200 bp 
+#whole subset:
 awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)>1051) longer++} END {print longer/total}' ../cutadapt/big_subset.fastq
-0.24105
+#0.24105
 
-awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)>1051) longer++} END {print longer/total}' even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq
-0.0469906
+#post trim:
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)>1051) longer++} END {print longer/total}' /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq
+#0.00595968
+
 
 #% under 200
-awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)<200) longer++} END {print longer/total}' length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)<200) longer++} END {print longer/total}' /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq
+#0.0207205
 
+#just curious - % under 400
+awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)<400) longer++} END {print longer/total}' /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq
+0.449642
 
-cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq --revcomp -e 0.15 -o cutadapt-landpads-length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq > current_cutadapt_landpads_log.txt
+cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --untrimmed-output=untrimmed_landing_pads.fastq --revcomp -e 0.15 -o cutadapt-trimmed_porechop_land-pads_with_revcomp.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cutadapt_landpads_RC_log.txt
 
+#Processing single-end reads on 1 core ...
 
+#=== Summary ===
 
+#Total reads processed:                 177,023
+#Reads with adapters:                     1,497 (0.8%)
+#Reverse-complemented:                      965 (0.5%)
+
+#== Read fate breakdown ==
+#Reads discarded as untrimmed:          175,526 (99.2%)
+#Reads written (passing filters):         1,497 (0.8%)
+
+#Total basepairs processed:    79,679,874 bp
+#Total written (filtered):        788,324 bp (1.0%)
+
+#nice!!!!
+
+#ok so resulting file has 
+#    -no more landing pads, has 
+#    -0.6% of reads longer than 1200 bp and 2% of reads under 200 bp - nice
+#    -44% under 400 bp
+
+#time to search for barcodes?
+
+#use multiple adapters with cutadapt
 
 
 

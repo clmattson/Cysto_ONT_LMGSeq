@@ -796,9 +796,96 @@ cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --untrim
 
 #use multiple adapters with cutadapt
 
-cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-landpads-length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastqlength-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq > current_cutadapt_landpads_log.txt
+
+#file:cross_barcodes.fasta
+
+cutadapt -a file:cross_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-cross-demux_porechop_land-pads_with_revcomp.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cutadapt-cross-demux_landpads_RC_log.txt
+
+Total reads processed:                 177,023
+Reads with adapters:                   131,820 (74.5%)
+Reverse-complemented:                   78,137 (44.1%)
+Reads written (passing filters):       177,023 (100.0%)
+
+Total basepairs processed:    79,679,874 bp
+Total written (filtered):     79,679,874 bp (100.0%)
 
 
+#oops, also use {name} in the -o file for demuxing
+cutadapt -a file:cross_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-cross-{name}-demux_porechop_land-pads_with_revcomp.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cutadapt-cross-demux_landpads_RC_log.txt
+
+Total reads processed:                 177,023
+Reads with adapters:                   131,820 (74.5%)
+Reverse-complemented:                   78,137 (44.1%)
+Reads written (passing filters):       177,023 (100.0%)
+
+Total basepairs processed:    79,679,874 bp
+Total written (filtered):     79,679,874 bp (100.0%)
+
+
+mkdir cutadapt_demultiplexing
+mv *cutadapt-cross*
+cd cutadapt_demultiplexing
+
+for i in *.fastq; do echo "${i}"; wc -l ${i} | awk '{print $1 / 4}'; done
+
+cutadapt-cross-cross01-demux_porechop_land-pads_with_revcomp.fastq 68707
+cutadapt-cross-cross02-demux_porechop_land-pads_with_revcomp.fastq 15611
+cutadapt-cross-cross03-demux_porechop_land-pads_with_revcomp.fastq 7150
+cutadapt-cross-cross04-demux_porechop_land-pads_with_revcomp.fastq 1841
+cutadapt-cross-cross05-demux_porechop_land-pads_with_revcomp.fastq 161
+cutadapt-cross-cross06-demux_porechop_land-pads_with_revcomp.fastq 2123
+cutadapt-cross-cross07-demux_porechop_land-pads_with_revcomp.fastq 1119
+cutadapt-cross-cross08-demux_porechop_land-pads_with_revcomp.fastq 16679
+cutadapt-cross-cross09-demux_porechop_land-pads_with_revcomp.fastq 55
+cutadapt-cross-cross10-demux_porechop_land-pads_with_revcomp.fastq 5216
+cutadapt-cross-cross11-demux_porechop_land-pads_with_revcomp.fastq 668
+cutadapt-cross-cross12-demux_porechop_land-pads_with_revcomp.fastq 90
+cutadapt-cross-cross13-demux_porechop_land-pads_with_revcomp.fastq 24
+cutadapt-cross-cross14-demux_porechop_land-pads_with_revcomp.fastq 31
+cutadapt-cross-cross15-demux_porechop_land-pads_with_revcomp.fastq 8212
+cutadapt-cross-cross16-demux_porechop_land-pads_with_revcomp.fastq 24
+cutadapt-cross-cross17-demux_porechop_land-pads_with_revcomp.fastq 45
+cutadapt-cross-cross18-demux_porechop_land-pads_with_revcomp.fastq 42
+cutadapt-cross-cross19-demux_porechop_land-pads_with_revcomp.fastq 32
+cutadapt-cross-cross20-demux_porechop_land-pads_with_revcomp.fastq 3459
+cutadapt-cross-cross21-demux_porechop_land-pads_with_revcomp.fastq 92
+cutadapt-cross-cross22-demux_porechop_land-pads_with_revcomp.fastq 31
+cutadapt-cross-cross23-demux_porechop_land-pads_with_revcomp.fastq 9
+cutadapt-cross-cross24-demux_porechop_land-pads_with_revcomp.fastq 10
+cutadapt-cross-cross25-demux_porechop_land-pads_with_revcomp.fastq 11
+cutadapt-cross-cross26-demux_porechop_land-pads_with_revcomp.fastq 37
+cutadapt-cross-cross27-demux_porechop_land-pads_with_revcomp.fastq 168
+cutadapt-cross-cross28-demux_porechop_land-pads_with_revcomp.fastq 31
+cutadapt-cross-cross29-demux_porechop_land-pads_with_revcomp.fastq 131
+cutadapt-cross-cross30-demux_porechop_land-pads_with_revcomp.fastq 11
+cutadapt-cross-demux_porechop_land-pads_with_revcomp.fastq 177023
+cutadapt-cross-unknown-demux_porechop_land-pads_with_revcomp.fastq 45203
+
+
+
+for i in *.fastq; do echo "${i}"; wc -l ${i} | awk '{print $1 / 4}'; awk 'BEGIN {total=0; longer=0} NR%4==2 {total++; if (length($0)<220) longer++} END {print longer/total}' ${i}; done
+
+
+#raise error to 0.2:
+
+cutadapt -a file:cross_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.2 -o cutadapt-cross-demux-e.2_porechop_land-pads_with_revcomp.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cutadapt-cross-demux_landpads_RC_log.txt
+
+#onlt 3% more reads classified:
+Total reads processed:                 177,023
+Reads with adapters:                   137,857 (77.9%)
+Reverse-complemented:                   82,035 (46.3%)
+Reads written (passing filters):       177,023 (100.0%)
+
+Total basepairs processed:    79,679,874 bp
+Total written (filtered):     79,679,874 bp (100.0%)
+
+
+
+#can we do both with files??
+
+cutadapt -a file:cross_barcodes.fasta -g file:plaque_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-{name1}-{name2}-demux_porechop_land-pads_with_revcomp.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cutadapt-cross-plaque-demux_landpads_RC_log.txt
+
+#mehdidnt work
 
 
 

@@ -796,7 +796,7 @@ cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --untrim
 
 #use multiple adapters with cutadapt
 
-
+cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-landpads-length-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastqlength-trimmed_even-wider-ends_ONT-adapters_land-pads_subset_reads.fastq > current_cutadapt_landpads_log.txt
 
 
 

@@ -885,11 +885,163 @@ Total written (filtered):     79,679,874 bp (100.0%)
 
 cutadapt -a file:cross_barcodes.fasta -g file:plaque_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-{name1}-{name2}-demux_porechop_land-pads_with_revcomp.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cutadapt-cross-plaque-demux_landpads_RC_log.txt
 
-#mehdidnt work
+#meh didnt work
+
+
+#okay demultiplex by plaque, input = cross files
+for fastq in cutadapt-cross-cross*; 
+do cross_temp="${fastq##*cross-}";
+cross="${cross_temp%%-demux*}";
+cutadapt -g file:plaque_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-${cross}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${cross}-plaque-demux_landpads_RC_log.txt;
+done
+
+#get read counts for each file
+for fastq in *plaque*-demux*; do cross_temp="${fastq##*cutadapt-}";cross="${cross_temp%%-demux*}";count=$( wc -l ${fastq} | awk '{print $1 / 4}'); echo "${cross},${count}" >> file_counts.csv; done
+
+
+#demux on primer, input = cross-plaque files
+for fastq in *plaque*-demux*.fastq; 
+do crplq_temp="${fastq##*cutadapt-}";
+crplq="${crplq_temp%%-demux*}";
+echo "now demuxing ${fastq}";
+cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o cutadapt-${crplq}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${crplq}-segment-demux_landpads_RC_log.txt;
+done
 
 
 
+#ok going thru the file read counts, noticing some weird stuff. First, it looks like theres overlap between cross 04/08 (which were pooled for PCR2). For example, I used plaq barcodes 85-88 for cross 4 and 93-96 for cross 8. but look at this (only large seg files shown as an examp)! It doesnt seem to happen for cross 3 (plq 81-84) and 6 (plq 89-92), which were pooled but no PCR2.
+#but where are the reads for cross 6, plaques 94-96 coming from? contamination?
 
+
+cross04-plaque83-large,1
+cross04-plaque84-large,0
+cross04-plaque85-large,29
+cross04-plaque86-large,71
+cross04-plaque87-large,30
+cross04-plaque88-large,45
+cross04-plaque89-large,0
+cross04-plaque90-large,0
+cross04-plaque91-large,2
+cross04-plaque92-large,0
+cross04-plaque93-large,146
+cross04-plaque94-large,135
+cross04-plaque95-large,368
+cross04-plaque96-large,391
+
+cross08-plaque83-large,3
+cross08-plaque84-large,3
+cross08-plaque85-large,150
+cross08-plaque86-large,316
+cross08-plaque87-large,149
+cross08-plaque88-large,275
+cross08-plaque89-large,4
+cross08-plaque90-large,1
+cross08-plaque91-large,5
+cross08-plaque92-large,0
+cross08-plaque93-large,917
+cross08-plaque94-large,828
+cross08-plaque95-large,2401
+cross08-plaque96-large,2334
+
+cross03-plaque79-large,1
+cross03-plaque80-large,0
+cross03-plaque81-large,616
+cross03-plaque82-large,754
+cross03-plaque83-large,1913
+cross03-plaque84-large,1
+cross03-plaque85-large,1
+cross03-plaque86-large,0
+cross03-plaque87-large,0
+cross03-plaque88-large,0
+cross03-plaque89-large,1
+cross03-plaque90-large,2
+cross03-plaque91-large,6
+cross03-plaque92-large,0
+cross03-plaque93-large,0
+
+cross06-plaque81-large,1
+cross06-plaque82-large,2
+cross06-plaque83-large,5
+cross06-plaque84-large,0
+cross06-plaque85-large,2
+cross06-plaque86-large,1
+cross06-plaque87-large,3
+cross06-plaque88-large,2
+cross06-plaque89-large,64
+cross06-plaque90-large,168
+cross06-plaque91-large,187
+cross06-plaque92-large,280
+cross06-plaque93-large,9
+cross06-plaque94-large,8
+cross06-plaque95-large,23
+cross06-plaque96-large,19
+
+#looking further at cross6, plaques 94, 95, 96:
+grep "cross06-plaque94" segment_file_counts.csv
+cross06-plaque94,12
+cross06-plaque94-large,8
+cross06-plaque94-medium,2
+cross06-plaque94-small,1
+cross06-plaque94-unknown,1
+
+grep "cross06-plaque95" segment_file_counts.csv
+cross06-plaque95,31
+cross06-plaque95-large,23
+cross06-plaque95-medium,8
+cross06-plaque95-small,0
+cross06-plaque95-unknown,0
+
+grep "cross06-plaque96" segment_file_counts.csv
+cross06-plaque96,25
+cross06-plaque96-large,19
+cross06-plaque96-medium,5
+cross06-plaque96-small,0
+cross06-plaque96-unknown,1
+
+#Medium is usually the most abundant amplicon.. so maybe this is just a weird error thing?
+#after manual inspection of cutadapt output, hits appear real
+
+
+
+#some other weird stuff happening too. cross 8 plq 74 was a negative control. Why so many reads?
+
+cross08-plaque73-large,0
+cross08-plaque74-large,254
+cross08-plaque75-large,5
+cross08-plaque76-large,1
+#after manual inspection of cutadapt output, hits appear real
+
+
+
+#There are virtually 0 small segment reads :( like just in general..
+#M seg is the shortest amplicon so I dont *think* its due to filtering out fragments under 200 bp
+
+
+#whats this?? I didnt use cross 11?
+cross11-plaque81-large,0
+cross11-plaque82-large,78
+cross11-plaque83-large,1
+##after manual inspection of cutadapt output, identification of the F barcode (plaque 82 looks legit)
+##Ok but most of the CROSS (rev) barcode assignment looks wonky, most reads only have the following section in lowercase:
+GTGCctgaccgt
+TCGAcataccgt
+TCGAcataccgt
+CAAGcttacggt
+
+#umm ok i cant figure out where thats coming from, but seems to be happengin due to -O being too small?
+
+#did use cross 8, but not plaque 52?
+cross08-plaque51-large,0
+cross08-plaque52-large,32
+cross08-plaque53-large,1
+#manual inspection, also seems to be a weird 
+
+
+
+for fastq_file in demux_plaque_S/*.fastq; do
+plaque_reads="${fastq_file##*/}"; 
+plaque_reads="${plaque_reads#*_}"; 
+plaque_reads="${plaque_reads%%.*}"; 
 
 
 

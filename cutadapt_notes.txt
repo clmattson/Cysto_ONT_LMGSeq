@@ -792,8 +792,10 @@ cutadapt -a TTGGTGCTGATATTGC...GAAGATAGAGCGACAG -O 8 --action=lowercase --untrim
 #    -0.6% of reads longer than 1200 bp and 2% of reads under 200 bp - nice
 #    -44% under 400 bp
 
-#time to search for barcodes?
 
+
+
+#time to search for barcodes?
 #use multiple adapters with cutadapt
 
 
@@ -1042,6 +1044,73 @@ for fastq_file in demux_plaque_S/*.fastq; do
 plaque_reads="${fastq_file##*/}"; 
 plaque_reads="${plaque_reads#*_}"; 
 plaque_reads="${plaque_reads%%.*}"; 
+
+
+
+
+#ok starting over with demultiplexing, 
+mkdir second_cutadapt_demultiplexing
+
+#o=14, ~75% of 18 total bp
+cutadapt -a file:cross_barcodes.fasta -O 14 --action=lowercase --revcomp -e 0.15 -o {name}_cutadapt-lc_porechop.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/porechop_land-pads_with_revcomp.fastq > current_cross_cutadapt-lc_porechop_log.txt
+
+#plaques:
+#O=18
+for fastq in cross*.fastq; 
+do cross="${fastq%%_cutadapt*}";
+cutadapt -g file:plaque_barcodes.fasta -O 18 --action=lowercase --revcomp -e 0.15 -o ${cross}_{name}_cutadapt-lc_porechop.fastq ${fastq} > current_${cross}_plaque_cutadapt-lc_porechop_log.txt;
+done
+
+ 
+#get read counts for each file
+for fastq in cross*plaque*.fastq; 
+do cross="${fastq%%_cutadapt*}";
+count=$( wc -l ${fastq} | awk '{print $1 / 4}'); 
+echo "${cross},${count}" >> cross_plaque_read_counts.csv; done
+
+
+#still some hits that dont belong, but definitely way less:
+
+cross06_plaque88,2
+cross06_plaque89,90
+cross06_plaque90,133
+cross06_plaque91,202
+cross06_plaque92,280
+cross06_plaque93,12
+cross06_plaque94,9
+cross06_plaque95,30
+cross06_plaque96,24
+
+cross12_plaque54,0
+cross12_plaque55,0
+cross12_plaque56,15
+cross12_plaque57,0
+cross12_plaque58,0
+
+
+
+#demux on primer, input = cross-plaque files
+for fastq in *plaque*-demux*.fastq; 
+do crplq_temp="${fastq##*cutadapt-}";
+crplq="${crplq_temp%%-demux*}";
+echo "now demuxing ${fastq}";
+cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o cutadapt-${crplq}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${crplq}-segment-demux_landpads_RC_log.txt;
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1061,6 +1061,13 @@ do cross="${fastq%%_cutadapt*}";
 cutadapt -g file:plaque_barcodes.fasta -O 18 --action=lowercase --revcomp -e 0.15 -o ${cross}_{name}_cutadapt-lc_porechop.fastq ${fastq} > current_${cross}_plaque_cutadapt-lc_porechop_log.txt;
 done
 
+#um redo becuase I cant find the log files???
+#plaques:
+#O=18
+for fastq in cross??_cutadapt*.fastq; 
+do cross="${fastq%%_cutadapt*}";
+cutadapt -g file:plaque_barcodes.fasta -O 18 --action=lowercase --revcomp -e 0.15 -o ${cross}_{name}_DELETE.fastq ${fastq} > current_${cross}_plaque_cutadapt-lc_porechop_log.txt;
+done
  
 #get read counts for each file
 for fastq in cross*plaque*.fastq; 

@@ -1097,17 +1097,66 @@ cross12_plaque58,0
 
 
 #demux on primer, input = cross-plaque files
-for fastq in *plaque*-demux*.fastq; 
-do crplq_temp="${fastq##*cutadapt-}";
-crplq="${crplq_temp%%-demux*}";
-echo "now demuxing ${fastq}";
-cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o cutadapt-${crplq}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${crplq}-segment-demux_landpads_RC_log.txt;
+for fastq in cross??_plaque??_cutadapt-lc_porechop.fastq;  
+do crplq_temp="${fastq%_cutadapt-*}"; 
+#crplq="${crplq_temp%%-demux*}"; 
+echo "now demuxing ${crplq_temp}"; 
+cross_temp="${crplq_temp#*cross}"; 
+cross="${cross_temp%_plaque*}"; 
+echo "cross = ${cross}"; 
+plaque="${crplq_temp#*plaque}"; 
+echo "plaque = ${plaque}"
+cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o cross${cross}_plaque${plaque}_{name}_cutadapt-lc_porechop.fastq ${fastq} > cross${cross}_plaque${plaque}_segment_cutadapt-lc_porechop_log.txt;
 done
 
 
+for fastq in cross??_plaque??_cutadapt-lc_porechop.fastq;   
+do crplq_temp="${fastq%_cutadapt-*}";  
+echo "now demuxing ${crplq_temp}";  
+cross_temp="${crplq_temp#*cross}";  
+cross="${cross_temp%_plaque*}";  
+echo "cross = ${cross}";  
+plaque="${crplq_temp#*plaque}";  
+echo "plaque = ${plaque}"; mkdir barcode${cross}${plaque}; 
+mv cross${cross}_plaque${plaque}_medium*.fastq barcode${cross}${plaque}/barcode${cross}${plaque}_M_reads.fastq;
+mv cross${cross}_plaque${plaque}_small*.fastq barcode${cross}${plaque}/barcode${cross}${plaque}_S_reads.fastq; 
+mv cross${cross}_plaque${plaque}_large*.fastq barcode${cross}${plaque}/barcode${cross}${plaque}_L_reads.fastq; done
+
+
+#trim lower case text from fastqs
+#awk to remove lowercase 
+
+for i in barcode*/*.fastq; do filetmp="${i%.fastq*}";  echo "${filetmp}"; awk '{
+  if (NR % 4 == 2) {
+    # Sequence line
+    seq = $0
+    gsub(/[a-z]/, "", seq)
+    print seq
+  } else if (NR % 4 == 0) {
+    # Quality line
+    # Match quality scores to filtered sequence
+    n = length(seq)
+    print substr($0, 1, n)
+  } else {
+    # Header or plus line
+    print
+  }
+}' ${filetmp}.fastq > ${filetmp}_uc.fastq; done
+
+
+#ok shoullldddd be in the right format now??
 
 
 
+
+
+
+#ok jsut to test if cutaapt is workign and compare to the old data, lets move to the fortmat that works with the existing script
+
+for fastq in *plaque*-demux*.fastq; 
+do crplq_temp="${fastq##*cutadapt-}";
+crplq="${crplq_temp%%-demux*}";
+echo "now demuxing ${crplq}";
 
 
 

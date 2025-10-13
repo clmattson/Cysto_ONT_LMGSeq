@@ -1117,7 +1117,8 @@ cross_temp="${crplq_temp#*cross}";
 cross="${cross_temp%_plaque*}";  
 echo "cross = ${cross}";  
 plaque="${crplq_temp#*plaque}";  
-echo "plaque = ${plaque}"; mkdir barcode${cross}${plaque}; 
+echo "plaque = ${plaque}"; 
+mkdir barcode${cross}${plaque}; 
 mv cross${cross}_plaque${plaque}_medium*.fastq barcode${cross}${plaque}/barcode${cross}${plaque}_M_reads.fastq;
 mv cross${cross}_plaque${plaque}_small*.fastq barcode${cross}${plaque}/barcode${cross}${plaque}_S_reads.fastq; 
 mv cross${cross}_plaque${plaque}_large*.fastq barcode${cross}${plaque}/barcode${cross}${plaque}_L_reads.fastq; done
@@ -1162,13 +1163,22 @@ echo "now demuxing ${crplq}";
 
 
 
+bash genotyping_new.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/second_cutadapt_demultiplexing/ -e /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/second_cutadapt_demultiplexing/sample_list2.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/porechop/second_cutadapt_demultiplexing/cross_list.txt
 
 
+#rework the file structure to be cross/plaque
 
-
-
-
-
+for fastq in cross??_plaque??_cutadapt-lc_porechop.fastq;    
+do crplq_temp="${fastq%_cutadapt-*}";  
+echo "now demuxing ${crplq_temp}";   
+cross_temp="${crplq_temp#*cross}";   
+cross="${cross_temp%_plaque*}";   
+echo "cross = ${cross}";  
+plaque="${crplq_temp#*plaque}";   
+echo "plaque = ${plaque}"; 
+mkdir plate${cross}; 
+mkdir plate${cross}/well${plaque}; 
+mv cross${cross}_plaque${plaque}_*_cutadapt*.fastq plate${cross}/well${plaque}; done
 
 
 

@@ -53,10 +53,10 @@ do
 
 	#get different variables from sample_list.csv
  	plate="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $2}')"
-	cross="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $3}')"
-	parent1="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $4}')";
-        parent2="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $5}')"
-	plaque_number="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $6}')"
+	well="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $3}')"
+	parent1="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $5}')";
+        parent2="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $6}')"
+	plaque_number="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $7}')"
 
 
 echo
@@ -79,7 +79,7 @@ echo
 
 		#USEARCH STRAIN ASSIGNMENT!!
 		#Key change for this Oct 20 version is changing the database
-		usearch -usearch_global ${demuxed_path}/${plaque_barcode}/${plaque_barcode}_${locus}_reads.fastq -db ${demuxed_path}/${cross}/${cross}_parent_database.fasta -id 0.90 -blast6out ${demuxed_path}/${cross}/${plate}/${cross}_${plaque_number}_${locus}_90_merged.b6 -strand both
+		usearch -usearch_global ${demuxed_path}/${plaque_barcode}/${plaque_barcode}_${locus}_reads.fastq -db ${demuxed_path}/${cross}/${cross}_parent_database.fasta -id 0.90 -blast6out ${demuxed_path}/${cross}/${plate}/${cross}_${wellZ}_${locus}_90_merged.b6 -strand both
 
 	done
 

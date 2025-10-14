@@ -1184,6 +1184,7 @@ mv cross${cross}_plaque${plaque}_*_cutadapt*.fastq plate${cross}/well${plaque}; 
 
 #use bash to find and replace "cross" with "plate" and "plaque" with "well" in data filenames:
 find . -type f -name '*cross*' -name '*.fastq' -exec bash -c 'for f; do mv "$f" "${f//cross/plate}"; done' bash {} +
+find . -type f -name '*plaque*' -name '*.fastq' -exec bash -c 'for f; do mv "$f" "${f//plaque/well}"; done' bash {} +
 
 
 

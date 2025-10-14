@@ -14,7 +14,7 @@
 #fast5_pass_path=''
 demuxed_path=''
 sample_list=''
-cross_list=''
+#cross_list=''
 #s_ref_path=''
 #m_ref_path=''
 #l_ref_path=''
@@ -29,7 +29,7 @@ do
     case "${flag}" in
 	d) demuxed_path=${OPTARG};;
 	e) sample_list=${OPTARG};;
-	c) cross_list=${OPTARG};;
+	#c) cross_list=${OPTARG};;
 	#s) s_ref_path=${OPTARG};;
     #m) m_ref_path=${OPTARG};;
     #l) l_ref_path=${OPTARG};;
@@ -37,9 +37,11 @@ do
 done
 
 
-#get list of barcodes for plaques only:
+echo "get list of plate/well combinations:"
 #only works becuase of current cross vs plate terminology
-grep "cross" ${sample_list} | awk -F"," '{print $1}' >> ${demuxed_path}/plaque_barcodes.txt
+grep "coinfection" ${sample_list} | awk -F"," '{print $1","$2}' > ${demuxed_path}/plate_well.txt
+echo "plate well combos printed to plate_well.txt"
+#grep "cross"  | awk -F"," '{print $1}' >> ${demuxed_path}/plaque_barcodes.txt
 
 
 
@@ -47,39 +49,46 @@ grep "cross" ${sample_list} | awk -F"," '{print $1}' >> ${demuxed_path}/plaque_b
 
 #loop through each sample sequence data and u-search
 
-
-for plaque_barcode in `cat ${demuxed_path}/plaque_barcodes.txt`;
+for plaque in `cat ${demuxed_path}/plate_well.txt`;
 do
 
 	#get different variables from sample_list.csv
- 	plate="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $2}')"
-	well="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $3}')"
-	parent1="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $5}')";
-        parent2="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $6}')"
-	plaque_number="$(grep -m 1 ${plaque_barcode} ${sample_list} | awk -F"," '{print $7}')"
+ 	plate="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $1}')";
+	well="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $2}')";
+	coinfection="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $3}')";
+	parent1="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $4}')";
+    parent2="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $5}')";
+	plaque_number="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $7}')";
 
 
 echo
-	echo "now on plaque ${plaque_barcode}, aka plate ${plate}, cross ${cross}, parents ${parent1} x ${parent2}; and plaque # ${plaque_number}"
-	#echo "reading file ${demuxed_path}/${plaque_barcode}/${plaque_barcode}.all.fastq ; generating file ${cross}/usearch/${cross}_${sample}_98_merged.b6"
+	echo "now on reverse primer ${plate}";
+	echo "fwd primer ${well}";
+	echo "which tags plaque ${plaque_number}";
+	echo "from coinfection ${coinfection}";
+	echo "with parents ${parent1} x ${parent2}";
+	
+	#echo "reading file ${demuxed_path}/${plaque}/${plaque}.all.fastq ; generating file ${cross}/usearch/${cross}_${sample}_98_merged.b6"
 	echo 
 
-	mkdir ${demuxed_path}/${cross}/${plate}
+	#Lets organize the results by coinfection#/plate since one plate could contain plaques from multiple coinfections, or a coinfection could be split across plates
+	echo "generating output folder ${coinfection}/${plate}"
+	mkdir ${demuxed_path}/${coinfection}/${plate}
 
  	#Usearch files
 
 	#instead of hard-coding seegment names, loop thru loci to usearch
 	#can use this loop code to improve the rest of the script later :)
-	for locus_fastq in ${demuxed_path}/${plaque_barcode}/*_reads.fastq;
+	for locus_fastq in ${demuxed_path}/${plate}/${well}/*.fastq;
 	do
 		locus_basepath="${locus_fastq##*/}";
-		locus_slice1="${locus_basepath%%_reads*}";
+		locus_slice1="${locus_basepath%%_cutadapt*}";
 		locus="${locus_slice1##*_}";
 
 
 		#USEARCH STRAIN ASSIGNMENT!!
 		#Key change for this Oct 20 version is changing the database
-		usearch -usearch_global ${demuxed_path}/${plaque_barcode}/${plaque_barcode}_${locus}_reads.fastq -db ${demuxed_path}/${cross}/${cross}_parent_database.fasta -id 0.90 -blast6out ${demuxed_path}/${cross}/${plate}/${cross}_${wellZ}_${locus}_90_merged.b6 -strand both
+		usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_${well}_${locus}_90_merged.b6 -strand both
 
 	done
 
@@ -89,19 +98,21 @@ done
 #output text editing and summary:
 mkdir ${demuxed_path}/strain_assignment_output
 
-for cross in `cat ${cross_list}`;
+grep "coinfection" ${sample_list} | awk -F"," '{print $3}' | sort | uniq > coinfection_list.txt
+
+for experiment in `cat coinfection_list.txt`;
 do
         #summarize the b6 results
 
-        for b6_file in ${demuxed_path}/${cross}/${plate}/cross*_*_*_90_merged.b6;
+        for b6_file in ${demuxed_path}/${experiment}/plate*/plate*_well*_*_90_merged.b6;
         do
-		plate="${b6_file%%/cr*}"; 
+		plate="${b6_file%%/plate*}"; 
   		plate="${plate##*/}"
         #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
         echo -n -e "${b6_file##*/}"\\t"";
         wc -l ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\t" } {if($1!="0") print $1}'
         rev ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $11}' | rev | cut -d , -f 1 | sort | uniq -c | sort -nr | head -n 1 | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $1, $2}'
-        done > ${demuxed_path}/strain_assignment_output/${cross}_${plate}_strain_assignment_output.txt
+        done > ${demuxed_path}/strain_assignment_output/${experiment}_${plate}_strain_assignment_output.txt
 
 #end the cross loop
 done

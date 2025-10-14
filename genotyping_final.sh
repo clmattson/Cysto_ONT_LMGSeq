@@ -107,7 +107,8 @@ do
         for b6_file in ${demuxed_path}/${experiment}/plate*/plate*_well*_*_90_merged.b6;
         do
 		plate="${b6_file%%/plate*}"; 
-  		plate="${plate##*/}"
+  		plate="${plate##*/}";
+		echo "current plate is ${plate}";
         #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
         echo -n -e "${b6_file##*/}"\\t"";
         wc -l ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\t" } {if($1!="0") print $1}'

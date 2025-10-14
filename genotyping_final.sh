@@ -69,6 +69,7 @@ echo
 	echo "which tags plaque ${plaque_number}";
 	echo "from coinfection ${coinfection}";
 	echo "with parents ${parent1} x ${parent2}";
+	echo "and represents sample ${plaque_number}";
 	
 	#echo "reading file ${demuxed_path}/${plaque}/${plaque}.all.fastq ; generating file ${cross}/usearch/${cross}_${sample}_98_merged.b6"
 	echo 
@@ -91,7 +92,10 @@ echo
 
 		#USEARCH STRAIN ASSIGNMENT!!
 		#Key change for this Oct 20 version is changing the database
-		usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_${well}_${locus}_90_merged.b6 -strand both
+		#usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_${well}_${locus}_90_merged.b6 -strand both
+
+		#use this line instead to generate the results for comparing run 1 and 2 (uses sample name in output dfilename):
+		usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_plaque${plaque_number}_${locus}_90_merged.b6 -strand both
 
 	done
 
@@ -118,12 +122,9 @@ ls -d ${demuxed_path}/${experiment}/plate* | sort | uniq | rev | cut -d '/' -f 1
 	do
 	#summarize the b6 results
 
-        for b6_file in ${demuxed_path}/${experiment}/${plate}/plate*_well*_*_90_merged.b6;
+        for b6_file in ${demuxed_path}/${experiment}/${plate}/plate*_*_*_90_merged.b6;
         do
-		plate="${b6_file%_well*}" 
-  		plate="${plate##*/}";
-		        #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
-        echo -n -e "${b6_file##*/}"\\t"";
+		echo -n -e "${b6_file##*/}"\\t"";
         wc -l ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\t" } {if($1!="0") print $1}'
         rev ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $11}' | rev | cut -d , -f 1 | sort | uniq -c | sort -nr | head -n 1 | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $1, $2} END {if (NR == 0) print ""}';
         done > ${demuxed_path}/strain_assignment_output/${experiment}_${plate}_strain_assignment_output.txt

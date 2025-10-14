@@ -39,7 +39,9 @@ done
 
 echo "get list of plate/well combinations:"
 #only works becuase of current cross vs plate terminology
-grep "coinfection" ${sample_list} | awk -F"," '{print $1","$2}' > ${demuxed_path}/plate_well.txt
+#the following line gets only plate well combos from experimental (coinfction) samples. the one below gets all
+#grep "coinfection" ${sample_list} | awk -F"," '{print $1","$2}' > ${demuxed_path}/coinfection_plate_well.txt
+grep "plate" ${sample_list} | awk -F"," '{print $1","$2}' > ${demuxed_path}/plate_well.txt
 echo "plate well combos printed to plate_well.txt"
 #grep "cross"  | awk -F"," '{print $1}' >> ${demuxed_path}/plaque_barcodes.txt
 
@@ -73,6 +75,7 @@ echo
 
 	#Lets organize the results by coinfection#/plate since one plate could contain plaques from multiple coinfections, or a coinfection could be split across plates
 	echo "generating output folder ${coinfection}/${plate}"
+	mkdir ${demuxed_path}/${coinfection}
 	mkdir ${demuxed_path}/${coinfection}/${plate}
 
  	#Usearch files
@@ -98,23 +101,36 @@ done
 #output text editing and summary:
 mkdir ${demuxed_path}/strain_assignment_output
 
-grep "coinfection" ${sample_list} | awk -F"," '{print $3}' | sort | uniq > coinfection_list.txt
+#use first line for only coinfection samples, second for any sample type:
+#grep "coinfection" ${sample_list} | awk -F"," '{print $3}' | sort | uniq > coinfection_list.txt
+grep "plate" ${sample_list} | awk -F"," '{print $3}' | sort | uniq > experiment_list.txt
 
-for experiment in `cat coinfection_list.txt`;
+
+for experiment in `cat experiment_list.txt`;
 do
-        #summarize the b6 results
 
-        for b6_file in ${demuxed_path}/${experiment}/plate*/plate*_well*_*_90_merged.b6;
+#get list of plates, important so that the plate variable updates at the end when it spits out the data
+#first gets only from data files. second jsut gets a list of all the plates from the sample plate file: 
+ls -d ${demuxed_path}/${experiment}/plate* | sort | uniq | rev | cut -d '/' -f 1 | rev > plate_results.txt
+#grep "plate" ${sample_list} | awk -F"," '{print $1"}' > plate_results.txt
+
+	for plate in `cat plate_results.txt`;
+	do
+	#summarize the b6 results
+
+        for b6_file in ${demuxed_path}/${experiment}/${plate}/plate*_well*_*_90_merged.b6;
         do
-		plate="${b6_file%%/plate*}"; 
+		plate="${b6_file%_well*}" 
   		plate="${plate##*/}";
-		echo "current plate is ${plate}";
-        #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
+		        #echo "generating strain assignment output data in output folder for plate ${plate}, cross ${cross}!"
         echo -n -e "${b6_file##*/}"\\t"";
         wc -l ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\t" } {if($1!="0") print $1}'
-        rev ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $11}' | rev | cut -d , -f 1 | sort | uniq -c | sort -nr | head -n 1 | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $1, $2}'
+        rev ${b6_file} | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $11}' | rev | cut -d , -f 1 | sort | uniq -c | sort -nr | head -n 1 | awk 'BEGIN { OFS = "\t"; ORS = "\n"} {print $1, $2} END {if (NR == 0) print ""}';
         done > ${demuxed_path}/strain_assignment_output/${experiment}_${plate}_strain_assignment_output.txt
 
+	#end the plate loop
+	done
+	
 #end the cross loop
 done
 

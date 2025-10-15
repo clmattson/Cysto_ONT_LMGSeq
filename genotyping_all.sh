@@ -37,6 +37,18 @@ do
 done
 
 
+#MOVE EXISTING OUTPUTS and RE-SET
+
+#gets random number to move any old outputs to new temp folder:
+random_number=$RANDOM
+
+#move old outputs to random new folder so that they wont be over-written and old files wont interfere with new outputs:
+echo "moving strain_assignment_output to strain_assignment_output_${random_number} and all *.b6 files in any plate*/well* folder to strain_assignment_output_${random_number}/b6_files"
+mv ${demuxed_path}/strain_assignment_output ${demuxed_path}/strain_assignment_output_${random_number}
+mkdir ${demuxed_path}/strain_assignment_output_${random_number}/b6_files
+mv */*/*.b6 ${demuxed_path}/strain_assignment_output_${random_number}/b6_files
+
+
 echo "get list of plate/well combinations:"
 #only works becuase of current cross vs plate terminology
 #the following line gets only plate well combos from experimental (coinfction) samples. 
@@ -58,13 +70,24 @@ for plaque in `cat ${demuxed_path}/plate_well.txt`;
 do
 
 	#get different variables from sample_list.csv
- 	plate="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $1}')";
-	well="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $2}')";
+ 	#plate="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $1}')";
+	#well="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $2}')";
+
+	#get well from the list loop instead of the file, so that samples with reads assigned to them will 
+	#always be analysed, even if they are not "real" plate/well combos included on the sample sheet
+	plate="${plaque%%,*}";
+	well="${plaque#*,}";
+
+	#get other variables from sample_list.csv
 	coinfection="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $3}')";
 	parent1="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $4}')";
     parent2="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $5}')";
 	plaque_number="$(grep -m 1 ${plaque} ${sample_list} | awk -F"," '{print $7}')";
 
+	#if coinfection is empty that means that the plate/well combination being analysed wasnt included in the sample sheet
+	#the following line sets coinfection = "misassigned" if coinfection is empty. 
+	#if coinfection is not empty, it retains the existing value (set a few lines above)
+	[ -z "$coinfection" ] && coinfection="misassigned"
 
 echo
 	echo "now on reverse primer ${plate}";
@@ -97,6 +120,7 @@ echo
 		#Key change for this Oct 20 version is changing the database
 		#usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_${well}_${locus}_90_merged.b6 -strand both
 
+		#THIS LINE CANNOT GENERATE DATA FOR NEGATIVE CONTROLS OR MISASSIGNED SAMPLES
 		#use this line instead to generate the results for comparing run 1 and 2 (uses sample name in output dfilename):
 		usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_plaque${plaque_number}_${locus}_90_merged.b6 -strand both
 
@@ -112,6 +136,8 @@ mkdir ${demuxed_path}/strain_assignment_output
 #grep "coinfection" ${sample_list} | awk -F"," '{print $3}' | sort | uniq > coinfection_list.txt
 grep "plate" ${sample_list} | awk -F"," '{print $3}' | sort | uniq > experiment_list.txt
 
+#always want to analyze misassigned samples too:
+echo "misassigned" >> experiment_list.txt
 
 for experiment in `cat experiment_list.txt`;
 do

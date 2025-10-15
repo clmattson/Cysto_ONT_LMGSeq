@@ -1189,6 +1189,22 @@ find . -type f -name '*plaque*' -name '*.fastq' -exec bash -c 'for f; do mv "$f"
 
 
 
+#I think I acc deleted the read counts file. redo:
+
+#get read counts for each file
+
+#medium segs
+for fastq in plate*well*medium*.fastq; 
+do cross="${fastq%%_cutadapt*}";
+count=$( wc -l ${fastq} | awk '{print $1 / 4}'); 
+echo "${cross},${count}" >> cross_plaque_read_counts.csv; done
+
+
+
+
+
+
+
 
 
 

@@ -3,17 +3,16 @@
 
 #input to gather: 
 
-#d path to the data and working dir
-#e sample list  - CSV(!!) file (wih path) with all samples: ie barcode, cross, parent 1, parent 2
+#d path to the desired working dir
+#r path to reads  
 #c cross_list with path
 #s S genotyping locus reference path
 #m M genotyping locus reference path
 #l L genotyping locus reference path
 
 
-#fast5_pass_path=''
 demuxed_path=''
-sample_list=''
+reads=''
 #cross_list=''
 #s_ref_path=''
 #m_ref_path=''
@@ -24,11 +23,11 @@ print_usage() {
   printf "Usage: ..."
 }
 
-while getopts d:e: flag
+while getopts d:r: flag
 do
     case "${flag}" in
-	d) data_path=${OPTARG};;
-	e) sample_list=${OPTARG};;
+	d) working_dir=${OPTARG};;
+	r) reads_path=${OPTARG};;
 	#c) cross_list=${OPTARG};;
 	#s) s_ref_path=${OPTARG};;
   #m) m_ref_path=${OPTARG};;
@@ -55,6 +54,17 @@ mv */*/*.b6 ${demuxed_path}/strain_assignment_output_${random_number}/b6_files
 
 
 We will use a combination of porechop and cutadapt to demulitplex the data: 
+
+reads_name="${reads_path%.*}"
+reads_name="${reads_path##*/}"
+
+#PORECHOP - split reads on middle adapters
+porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/${reads_name}_porechop.log
+
+
+
+
+
 
 
 

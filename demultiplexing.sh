@@ -66,24 +66,37 @@ reads_name="${reads_path##*/}"
 porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/${reads_name}_porechop.log
 
 #get porechop trimming information:
+echo "Information on porechop trimming and read-splitting:"
+grep "adapters" ${working_dir}/${reads_name}_porechop.log
 
-grep "adapters"  ${working_dir}/${reads_name}_porechop.log
 
 
+#Ok lets make directories for the demuliplexing output:
+#this makes a folder for every plate barcode and a subfolder for every well barcode. could later change to do based on the files output by cutadapt instead
+for i in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 
+do mkdir "${i}"; 
+	for j in $(grep '^>' ${well_barcodes} | sed 's/^>//'); 
+	do mkdir "${i}/${j}";
+	done
+done
 
 #use plate_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt
 
-cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/{name}_${reads_name}_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/{name}_${reads_name}_porechop.log
+cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/{name}/{name}_${reads_name}_cutadapt_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/plate_${reads_name}_cutadapt_porechop.log
 
 
 #use well_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt
 
 #okay demultiplex by plaque, input = cross files
-for fastq in plate*.fastq; 
-do cross_temp="${fastq##*cross-}";
-cross="${cross_temp%%-demux*}";
-cutadapt -g file:plaque_barcodes.fasta -O 8 --action=lowercase --revcomp -e 0.15 -o cutadapt-${cross}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${cross}-plaque-demux_landpads_RC_log.txt;
-done
+
+for plate_dir in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 
+do for fastq in ${working_dir}/${plate_dir}/plate*.fastq; 
+	do plate_temp="${fastq##*/}"; 
+	plate="${plate_temp%%_*}";
+	cutadapt -g file:${well_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/${plate}/{name}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${fastq} > ${working_dir}/${plate}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+	done
+
+#ended here 10/19
 
 #get read counts for each file
 for fastq in *plaque*-demux*; do cross_temp="${fastq##*cutadapt-}";cross="${cross_temp%%-demux*}";count=$( wc -l ${fastq} | awk '{print $1 / 4}'); echo "${cross},${count}" >> file_counts.csv; done

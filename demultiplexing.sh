@@ -90,24 +90,30 @@ cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o 
 #okay demultiplex by plaque, input = cross files
 
 for plate_dir in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 
-do for fastq in ${working_dir}/${plate_dir}/plate*.fastq; 
-	do plate_temp="${fastq##*/}"; 
-	plate="${plate_temp%%_*}";
-	cutadapt -g file:${well_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/${plate}/{name}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${fastq} > ${working_dir}/${plate}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+	do for fastq in ${working_dir}/${plate_dir}/plate*.fastq; 
+		do plate_temp="${fastq##*/}"; 
+		plate="${plate_temp%%_*}";
+		cutadapt -g file:${well_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/${plate}/{name}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${fastq} > ${working_dir}/${plate}/${plate}_well_${reads_name}_cutadapt_porechop.log;
 	done
 
 #ended here 10/19
 
 #get read counts for each file
-for fastq in *plaque*-demux*; do cross_temp="${fastq##*cutadapt-}";cross="${cross_temp%%-demux*}";count=$( wc -l ${fastq} | awk '{print $1 / 4}'); echo "${cross},${count}" >> file_counts.csv; done
+	#for fastq in *plaque*-demux*; do cross_temp="${fastq##*cutadapt-}";cross="${cross_temp%%-demux*}";count=$( wc -l ${fastq} | awk '{print $1 / 4}'); echo "${cross},${count}" >> file_counts.csv; done
 
-
+for well_dir in $(grep '^>' ${well_barcodes} | sed 's/^>//'); 
 #demux on primer, input = cross-plaque files
-for fastq in *plaque*-demux*.fastq; 
-do crplq_temp="${fastq##*cutadapt-}";
-crplq="${crplq_temp%%-demux*}";
-echo "now demuxing ${fastq}";
-cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o cutadapt-${crplq}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${crplq}-segment-demux_landpads_RC_log.txt;
+	for fastq in ${working_dir}/${plate_dir}/plate*well*.fastq; 
+		do plate_temp="${fastq##*/}"; 
+		plate="${plate_temp%%_*}";
+		echo "now demuxing ${fastq}";
+		cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o cutadapt-${crplq}-{name}-demux_porechop_land-pads_with_revcomp.fastq ${fastq} > current_cutadapt-${crplq}-segment-demux_landpads_RC_log.txt;
+	done
+
+
+
+
+
 done
 
 

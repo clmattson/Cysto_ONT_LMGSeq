@@ -87,15 +87,65 @@ done
 
 #make directory for cutadapt outputs:
 mkdir -p ${working_dir}/cutadapt_outputs
+outputs="${working_dir}/cutadapt_outputs"
 
 #DEMULTIPLEXING - STEP 1 - PLATE
 #use plate_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt
-cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/cutadapt_outputs/{name}_${reads_name}_cutadapt_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/cutadapt_outputs/plate_${reads_name}_cutadapt_porechop.log
+cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${outputs}/{name}_${reads_name}_cutadapt_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${outputs}/plate_${reads_name}_cutadapt_porechop.log
+
+#Use find 
+find "${outputs}" -type f -name 'plate?_cutadapt.fastq' | while read -r plate_file_path; do
+  
+	#Move the plate_ demultiplexed files we just made into directories based off the file names:
+ 	plate_file_name="$(basename "$plate_file_path")"
+  	plate="${plate_file_name%%_*}"  
+  	plate_dir="${outputs}/${plate}";   
+ 	mkdir -p "${plate_dir}"
+  	#mkdir -p "${outputs}/${plate}";
+	mv "${plate_file_path}" "${plate_dir}/";
+	#mv "${plate_file_path}" "${outputs}/${plate}/";
+	echo "File sorted into directory by plate ID."
+
+
+  	#Ok we want to execute the well-demultiplexing step once for each plate file. so include it in this loop:
+
+	#DEMULTIPLEXING - STEP 2 - WELL
+	cutadapt -g file:${well_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_file_path} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+
+	#move plate??_well??_ demultiplexed files to well folders:
+	#plate_dir is updated for each value of plate
+	# Make sure it's a directory
+  	[ -d "$plate_dir" ] || continue
+
+	#Loop through matching files inside the plate directory
+	for plate_well_file in "$plate_dir"/plate??_well??_*.fastq; do
+    # Extract the filename
+    plate_well_file_name="$(basename "$plate_well_file")"
+
+    # Extract the well ID (e.g., well01)
+    well="${plate_well_file_name#*_}"
+    well="${well_id%%_*}"
+
+    # Create the well subdirectory
+    plate_well_dir="$plate_dir/$well"
+    mkdir -p "$plate_well_dir"
+
+    # Move the file into the well subdirectory
+    mv "$plate_well_file" "$plate_well_dir/"
+  done
+
+
+	
+
+
+  
+  done
 
 
 
 
 #DEMULTIPLEXING - STEP 2 - WELL
+
 #okay demultiplex by plaque, input = plate-demuxed files
 
 for plate_dir in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 

@@ -73,21 +73,30 @@ grep "adapters" ${working_dir}/${reads_name}_porechop.log
 
 #Ok lets make directories for the demuliplexing output:
 #this makes a folder for every plate barcode and a subfolder for every well barcode. could later change to do based on the files output by cutadapt instead
-for i in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 
-do mkdir "${i}"; 
-	for j in $(grep '^>' ${well_barcodes} | sed 's/^>//'); 
-	do mkdir "${i}/${j}";
+for plate_dir in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 
+do mkdir "${plate_dir}"; 
+	for well_dir in $(grep '^>' ${well_barcodes} | sed 's/^>//'); 
+	do mkdir "${plate_dir}/${well_dir}";
+
+
+	
+
+	
 	done
 done
 
+#make directory for cutadapt outputs:
+mkdir -p ${working_dir}/cutadapt_outputs
+
+#DEMULTIPLEXING - STEP 1 - PLATE
 #use plate_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt
+cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/cutadapt_outputs/{name}_${reads_name}_cutadapt_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/cutadapt_outputs/plate_${reads_name}_cutadapt_porechop.log
 
-cutadapt -a file:${plate_barcodes} -O 8 --action=lowercase --revcomp -e 0.15 -o ${working_dir}/{name}/{name}_${reads_name}_cutadapt_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${working_dir}/plate_${reads_name}_cutadapt_porechop.log
 
 
-#use well_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt
 
-#okay demultiplex by plaque, input = cross files
+#DEMULTIPLEXING - STEP 2 - WELL
+#okay demultiplex by plaque, input = plate-demuxed files
 
 for plate_dir in $(grep '^>' ${plate_barcodes} | sed 's/^>//'); 
 	do for fastq in ${working_dir}/${plate_dir}/plate*.fastq; 

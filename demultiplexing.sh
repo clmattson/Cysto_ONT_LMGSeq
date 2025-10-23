@@ -38,6 +38,9 @@ do
     esac
 done
 
+module load conda
+conda activate cutadapt
+
 
 #MOVE EXISTING OUTPUTS and RE-SET
 

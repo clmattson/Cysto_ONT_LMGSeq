@@ -70,13 +70,42 @@ echo "reads_name variable = ${reads_name}";
 
 #PORECHOP - split reads on middle landing pads - also trims them
 #porechop also needs to be run in the cutadapt conda environment
-porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop.fastq > ${porechop_outputs}/${reads_name}_porechop.log
+#it also seems like porechop seems to have memory issues when run on large files, lets add some parallel functionality:
+
+#number of parts to split the fastq into
+num_fastq_sections=5
+#total number of reads in the FASTQ file
+fastq_total_reads=$(wc -l ${reads_path} | awk '{print $1 / 4}')
+
+#reads (sets of 4 lines) per part
+lines_per_section=$(( (fastq_total_reads / num_fastq_sections) * 4 ))
+
+#Use split to divide the file
+split -l "${lines_per_section}" -d --additional-suffix=.fastq "${reads_path}" "${working_dir}/${reads_name}_chunk"
+
+
+#porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop.fastq > ${porechop_outputs}/${reads_name}_porechop.log
+
+
+porechop -i ${working_dir}/${reads_name}_chunk00.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk00.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk00.log & 
+porechop -i ${working_dir}/${reads_name}_chunk01.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk01.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk01.log &
+porechop -i ${working_dir}/${reads_name}_chunk02.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk02.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk02.log &
+porechop -i ${working_dir}/${reads_name}_chunk03.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk03.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk03.log &
+#porechop -i ${working_dir}/${reads_name}_chunk04.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk04.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk04.log &
+#porechop -i ${working_dir}/${reads_name}_chunk05.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk05.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk05.log &
+
+wait
+echo "All porechop chunks complete!" 
+echo "Now pasting all porechopped chunks back into one file: ${porechop_outputs}/${reads_name}_porechop.fastq"
+cat ${porechop_outputs}/${reads_name}_porechop*chunk??.fastq >> ${porechop_outputs}/${reads_name}_porechop.fastq
 
 echo "executed porechop for splitting reads on landing pads"
 
 #get porechop trimming information:
-echo "Information on porechop trimming and read-splitting:"
-grep "adapters" ${porechop_outputs}/${reads_name}_porechop.log
+echo
+echo "Information on porechop trimming and read-splitting" for each section: 
+grep "adapters" ${porechop_outputs}/${reads_name}_porechop_chunk*.log
+echo
 
 
 
@@ -102,6 +131,7 @@ echo "completed demultiplexing step 2 - cutadapt plate identification!"
 
 #Use find 
 find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate_file_path; do
+	echo
 	echo "entered cutadapt loop, plate_file_path = ${plate_file_path}"
 
 	#Move the plate_ demultiplexed files we just made into directories based off the file names:
@@ -112,13 +142,15 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
   	#mkdir -p "${cutadapt_outputs}/${plate}";
 	mv "${plate_file_path}" "${plate_dir}/";
 	#mv "${plate_file_path}" "${cutadapt_outputs}/${plate}/";
-	echo "File sorted into directory by plate ID."
-
+	echo "File sorted into directory 'plate_dir' : ${plate_dir}   "
+	echo
 
   	#Ok we want to execute the well-demultiplexing step once for each plate file. so include it in this loop:
 
 	#DEMULTIPLEXING - STEP 3 - WELL
-	cutadapt -g file:${well_barcodes} -O 14 --revcomp -e 0.15 -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_file_path} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+	echo
+	echo "executing demultiplaexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name}";
+	cutadapt -g file:${well_barcodes} -O 14 --revcomp -e 0.15 -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
 	#cutadapt -g file:${well_barcodes} -O 14 --action=lowercase --revcomp -e 0.15 -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_file_path} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
 
 	#move plate??_well??_ demultiplexed files to well folders:
@@ -129,34 +161,37 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 	#Loop through matching files inside the plate directory
 	for plate_well_file_path in "${plate_dir}"/plate??_well??_*.fastq; do
     	# Extract the filename
-    	plate_well_file_name="$(basename "$plate_well_file_path")"
+    	plate_well_file_name="$(basename "$plate_well_file_path")";
 
     	# Extract the well ID (e.g., well01)
-    	well="${plate_well_file_name#*_}"
-    	well="${well_id%%_*}"
+    	well="${plate_well_file_name#*_}";
+    	well="${well%%_*}";
+		echo "current well = ${well}";
 
     	# Create the well subdirectory
-    	plate_well_dir="$plate_dir/$well"
-    	mkdir -p "$plate_well_dir"
+    	plate_well_dir="$plate_dir/$well";
+    	mkdir -p "$plate_well_dir";
 
     	# Move the file into the well subdirectory
-    	mv "$plate_well_file" "$plate_well_dir/"
+		echo "moving ${plate_well_file_path} to ${plate_well_dir}/"
+    	mv "${plate_well_file_path}" "${plate_well_dir}/";
 
 		#while still looping thru values of plate and well, do cutadapt search for primers
 		
 		#DEMULTIPLEXING - STEP 4 - SEGMENT
 		#okay demultiplex by plaque, input = plate-demuxed files; -O is smaller bc the primers are shorter
-		cutadapt -g file:${well_barcodes} -O 10 --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_file_path} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
+		cutadapt -g file:${well_barcodes} -O 10 --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
 		#cutadapt -g file:${well_barcodes} -O 10 --action=lowercase --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_file_path} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
 	
 		#get read count in each file:
 		for fastq in ${plate_well_dir}/${plate}_${well}_*_${reads_name}_cutadapt_porechop.fastq;
 			do count=$( wc -l ${fastq} | awk '{print $1 / 4}'); 
-			echo "${cross},${count}" >> file_counts.csv;
+			echo "${cross},${count}" >> ${working_dir}/file_counts.csv;
 		done	
  	done
 done
 
+echo "Dont forget!! I moved your previous cutadapt_outputs and porechop_outputs directories to cutadapt_outputs_${random_number} & porechop_outputs_${random_number} and and all files in any plate*/well* folder :)"
 
 
 

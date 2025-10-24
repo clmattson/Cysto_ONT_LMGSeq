@@ -71,7 +71,7 @@ reads_name="${reads_path%.*}";
 reads_name="${reads_name##*/}";
 echo "reads_name variable = ${reads_name}";
 
-#PORECHOP - split reads on middle landing pads - also trims them
+#STEP 1- PORECHOP - split reads on middle landing pads - also trims them
 #porechop also needs to be run in the cutadapt conda environment
 #it also seems like porechop seems to have memory issues when run on large files, lets add some parallel functionality:
 
@@ -86,7 +86,7 @@ lines_per_section=$(( (fastq_total_reads / num_fastq_sections) * 4 ))
 #Use split to divide the file
 split -l "${lines_per_section}" -d --additional-suffix=.fastq "${reads_path}" "${working_dir}/${reads_name}_chunk"
 
-
+#to set custom 'adapters' you must edit the adapters.py file and recompile (python3 setup.py install)
 #porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop.fastq > ${porechop_outputs}/${reads_name}_porechop.log
 
 
@@ -183,9 +183,11 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 		
 		#DEMULTIPLEXING - STEP 4 - SEGMENT
 		#okay demultiplex by plaque, input = plate-demuxed files; -O is smaller bc the primers are shorter
-		cutadapt -g file:${well_barcodes} -O 10 --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
-		#cutadapt -g file:${well_barcodes} -O 10 --action=lowercase --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_file_path} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
-	
+		cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
+		#cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
+		
+		#cutadapt -g file:${well_barcodes} -O 10 --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
+		
 		#get read count in each file:
 		for fastq in ${plate_well_dir}/${plate}_${well}_*_${reads_name}_cutadapt_porechop.fastq;
 			do count=$( wc -l ${fastq} | awk '{print $1 / 4}'); 

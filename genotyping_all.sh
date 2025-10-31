@@ -49,6 +49,12 @@ mkdir ${demuxed_path}/strain_assignment_output_${random_number}/b6_files
 mv */*/*.b6 ${demuxed_path}/strain_assignment_output_${random_number}/b6_files
 
 
+reads_name=(${demuxed_path}/plate*.log)
+reads_name="${reads_name%.*}";
+reads_name="${reads_name##*/plate_}";
+echo "reads_name variable = ${reads_name}";
+
+
 echo "get list of plate/well combinations:"
 #only works becuase of current cross vs plate terminology
 #the following line gets only plate well combos from experimental (coinfction) samples. 
@@ -109,20 +115,22 @@ echo
 
 	#instead of hard-coding seegment names, loop thru loci to usearch
 	#can use this loop code to improve the rest of the script later :)
-	for locus_fastq in ${demuxed_path}/${plate}/${well}/*.fastq;
+	for locus_fastq in ${demuxed_path}/${plate}/${well}/plate*_well*_*_${reads_name}.fastq;
 	do
 		locus_basepath="${locus_fastq##*/}";
-		locus_slice1="${locus_basepath%%_cutadapt*}";
-		locus="${locus_slice1##*_}";
+		locus=$(echo "$locus_basepath" | sed -E "s/^plate[0-9]{2}_well[0-9]{2}_([a-z]+)_${reads_name}\.fastq$/\1/")
+		#locus_slice1="${locus_basepath%%_cutadapt*}";
+		#locus="${locus_slice1##*_}";
 
-
+		echo "reads_name variable = ${reads_name}";
+		cd 
 		#USEARCH STRAIN ASSIGNMENT!!
 		#Key change for this Oct 20 version is changing the database
-		#usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_${well}_${locus}_90_merged.b6 -strand both
+		#usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_${reads_name}.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_${well}_${locus}_90_merged.b6 -strand both
 
 		#THIS LINE CANNOT GENERATE DATA FOR NEGATIVE CONTROLS OR MISASSIGNED SAMPLES
 		#use this line instead to generate the results for comparing run 1 and 2 (uses sample name in output dfilename):
-		usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_cutadapt-lc_porechop.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_plaque${plaque_number}_${locus}_90_merged.b6 -strand both
+		usearch -usearch_global ${demuxed_path}/${plate}/${well}/${plate}_${well}_${locus}_${reads_name}.fastq -db ${demuxed_path}/${coinfection}/${coinfection}_parent_database_external.fasta -id 0.90 -blast6out ${demuxed_path}/${coinfection}/${plate}/${plate}_plaque${plaque_number}_${locus}_90_merged.b6 -strand both
 
 	done
 

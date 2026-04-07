@@ -1,41 +1,81 @@
-#current porechop code, within demultiplexing.sh (first real action within that script)
+#Current porechop code, within demultiplexing.sh (first real action within that script)
+# 
+# 
+    # #STEP 1- PORECHOP - split reads on middle landing pads - also trims them
+    # #porechop also needs to be run in the cutadapt conda environment
+    # #it also seems like porechop seems to have memory issues when run on large files, lets add some parallel functionality:
+    # 
+    # #number of parts to split the fastq into
+    # num_fastq_sections=5
+    # #total number of reads in the FASTQ file
+    # fastq_total_reads=$(wc -l ${reads_path} | awk '{print $1 / 4}')
+    # 
+    # #reads (sets of 4 lines) per part
+    # lines_per_section=$(( (fastq_total_reads / num_fastq_sections) * 4 ))
+    # 
+    # #Use split to divide the file
+    # split -l "${lines_per_section}" -d --additional-suffix=.fastq "${reads_path}" "${working_dir}/${reads_name}_chunk"
+    # 
+    # #to set custom 'adapters' you must edit the adapters.py file and recompile (python3 setup.py install)
+    # #porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop.fastq > ${porechop_outputs}/${reads_name}_porechop.log
+    # 
+    # 
+    # porechop -i ${working_dir}/${reads_name}_chunk00.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk00.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk00.log
+    # porechop -i ${working_dir}/${reads_name}_chunk01.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk01.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk01.log
+    # porechop -i ${working_dir}/${reads_name}_chunk02.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk02.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk02.log
+    # porechop -i ${working_dir}/${reads_name}_chunk03.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk03.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk03.log
+    # porechop -i ${working_dir}/${reads_name}_chunk04.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk04.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk04.log
+    # porechop -i ${working_dir}/${reads_name}_chunk05.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk05.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk05.log
+    # 
+    # wait
+    # echo "All porechop chunks complete!"
+    # echo "Now pasting all porechopped chunks back into one file: ${porechop_outputs}/${reads_name}_porechop.fastq"
+    # cat ${porechop_outputs}/${reads_name}_porechop*chunk??.fastq >> ${porechop_outputs}/${reads_name}_porechop.fastq
+    # 
+    # echo "executed porechop for splitting reads on landing pads"
+    # 
+    # 
+    # elif [[ "$do_porechop" == "0" ]]; then
+    # echo "You turned off porechop so we will use the existing, already-chopped reads in the porechop_outputs directory"
+# 
 
 
-        #STEP 1- PORECHOP - split reads on middle landing pads - also trims them
-        #porechop also needs to be run in the cutadapt conda environment
-        #it also seems like porechop seems to have memory issues when run on large files, lets add some parallel functionality:
+## EXPLANATION ###
 
-        #number of parts to split the fastq into
-        num_fastq_sections=5
-        #total number of reads in the FASTQ file
-        fastq_total_reads=$(wc -l ${reads_path} | awk '{print $1 / 4}')
+# General settings:
 
-        #reads (sets of 4 lines) per part
-        lines_per_section=$(( (fastq_total_reads / num_fastq_sections) * 4 ))
+    # -i ${working_dir}/${reads_name}_chunk00.fastq: #input file
 
-        #Use split to divide the file
-        split -l "${lines_per_section}" -d --additional-suffix=.fastq "${reads_path}" "${working_dir}/${reads_name}_chunk"
+    # --verbosity 2                     # Moderate logging; shows trimming and splitting decisions (default: 1)
 
-        #to set custom 'adapters' you must edit the adapters.py file and recompile (python3 setup.py install)
-        #porechop -i ${reads_path} --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop.fastq > ${porechop_outputs}/${reads_name}_porechop.log
+    # --min_trim_size 8                 # Do not trim adapters shorter than 8 bp (default: 8)
 
+# End trimming settings: 
+     
+    # --end_threshold 70                # Minimum PID to trim an adapter at read ends; stricter than default (default: 75)
 
-        porechop -i ${working_dir}/${reads_name}_chunk00.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk00.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk00.log
-        porechop -i ${working_dir}/${reads_name}_chunk01.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk01.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk01.log
-        porechop -i ${working_dir}/${reads_name}_chunk02.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk02.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk02.log
-        porechop -i ${working_dir}/${reads_name}_chunk03.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk03.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk03.log
-        porechop -i ${working_dir}/${reads_name}_chunk04.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk04.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk04.log
-        porechop -i ${working_dir}/${reads_name}_chunk05.fastq --verbosity 2 --end_threshold 70 --middle_threshold 80 --extra_end_trim 0 --end_size 150 --min_split_read_size 200 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 --min_trim_size 8 -o ${porechop_outputs}/${reads_name}_porechop_chunk05.fastq > ${porechop_outputs}/${reads_name}_porechop_chunk05.log
+    # --end_size 150                    # Search first/last 150 bp of each read for end adapters (how much of the read to consider the "end"; rest is middle/internal) (default: 150)
 
-        wait
-        echo "All porechop chunks complete!"
-        echo "Now pasting all porechopped chunks back into one file: ${porechop_outputs}/${reads_name}_porechop.fastq"
-        cat ${porechop_outputs}/${reads_name}_porechop*chunk??.fastq >> ${porechop_outputs}/${reads_name}_porechop.fastq
+    # --extra_end_trim 0                # No extra trimming beyond detected end adapter sequence (default: 0)
+    
 
-        echo "executed porechop for splitting reads on landing pads"
+# Middle trimming settings:
+
+    # --middle_threshold 80             # Minimum PID to detect internal adapters; very strict bc dont want to split reads by accident (default: 85)
+
+    # --min_split_read_size 200         # Minimum size of read fragment to keep after splitting on an internal adapter (chimeric reads) (default: 1000)
+    
+    # --extra_middle_trim_good_side 0   # No extra trimming beyond detected adapter sequence on the "good" side of a middle adapter (default: 0)
+
+    # --extra_middle_trim_bad_side 0    # No extra trimming beyond detected adapter sequence on the "bad" side of a middle adapter (default: 0)
 
 
-elif [[ "$do_porechop" == "0" ]]; then
-        echo "You turned off porechop so we will use the existing, already-chopped reads in the porechop_outputs directory"
+# Currently not in use, but available if desired: 
 
-                   
+    #  --discard_middle               Reads with middle adapters will be discarded (default: reads with middle adapters are split) 
+
+
+
+
+
+

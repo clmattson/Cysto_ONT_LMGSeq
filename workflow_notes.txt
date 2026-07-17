@@ -1,0 +1,13 @@
+steps: 
+
+1) dorado: basecalling
+
+2) bash script run_pipeline.sh
+    A) demultiplexing: demultiplexing_read_rename.sh
+        log:
+    B) genotyping: unsorted_restructure_output_with_segment_files_new_dbs_genotyping_all.sh
+        log:
+    c) parsing and stats: double_parse_cutadapt_log_fast.python
+
+3) stats: 
+        

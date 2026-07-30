@@ -5,6 +5,15 @@ steps:
 2) bash script run_pipeline.sh
     A) demultiplexing: demultiplexing_read_rename.sh
         log:
+        i) porechops at internal adapters
+        ii) demuxes by 3' barcode with cutadapt 
+            normalizes strandedness: "For a library that contains reads with mixed orientation, using --revcomp will produce output in which all reads have the same orientation." -cutadapt 5.2 manual
+        iii) demuxes by 5' barcode with cutadapt
+             normalizes strandedness: "For a library that contains reads with mixed orientation, using --revcomp will produce output in which all reads have the same orientation." -cutadapt 5.2 manual
+        iv) flags reads with barcodes that were not intentionally lib-prepped to 'misassigned'
+        v) <cysto only> bins reads by segment using primer detection via cutadapt
+        vi)
+
     B) genotyping: unsorted_restructure_output_with_segment_files_new_dbs_genotyping_all.sh
         log:
     c) parsing and stats: double_parse_cutadapt_log_fast.python

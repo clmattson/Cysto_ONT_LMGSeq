@@ -1,10 +1,11 @@
 #!/bin/bash
 
-#CM 07/31/2026: current command and flags:
-#bash demultiplexing_read_rename_filter_multiple_barcodes.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall -r /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/FBC73506_fastq_pass_9ee158db_6bd36f99_0.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta -c 0 -l 100
 
-
-
+# NEW: without this, an unmatched glob (e.g. no files matching plate??_well??_*.fastq)
+# doesn't just skip - bash leaves the literal pattern string (with the ?? still in it)
+# and loops/commands downstream try to operate on that nonexistent literal filename.
+# nullglob makes non-matching globs expand to nothing instead.
+#shopt -s nullglob
 
 get_dir_timestamp() {
     local dir="$1"
@@ -21,19 +22,14 @@ get_dir_timestamp() {
 }
 
 #input to gather:
-echo
-echo "This script will split chimeric reds with porechop and demultiplex your dual-pcr-barcoded reads with cutadapt. Reads will be output to nested folders based on their plate and well barcodes"
-echo
+
 echo "flag info:"
-echo " -d = absolute path to the desired working dir"
-echo " -r = absolute path to reads"
-echo " -p = <plate_barcodes.fasta> file with plate barcodes fasta with absolute path"
-echo " -w = <well_barcodes.fasta> file with well barcodes fasta with absolute path"
-echo " -c = do_porechop: 0 or 1 for whether or not to re-do the porechop step, 0 turns off porechop - only works if it has already been done and {working_dir}/porechop_outputs already exists"
+echo " -d = path to the desired working dir"
+echo " -r = path to reads"
+echo " -p = <plate_barcode.fasta> file with plate barcodes fasta with path"
+echo " -w = <well_barcode.fasta> file with well barcodes fasta with path"
+echo " -c = do_porechop: 0 or 1 for whether or not to re-do the porechop step"
 echo " -l = min_length: minimum desired length cutoff for filtering reads"
-echo
-echo "NOTE: don't add trailing backslashes to your paths. it shouldn't mess anything up but they arent needed and it would be best not to find out!"
-echo
 
 #do_porechop is 0 for no porechop, like if its already done 1 for yes porechop. this is for debugging by courtney
 
@@ -302,7 +298,7 @@ done
 
 #Use find
 find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate_file_path; do
-        echo "entered cutadapt loop, plate_file_path = ${plate_file_path} "
+        echo "entered well cutadapt loop, plate_file_path = ${plate_file_path} "
 
         echo
 
@@ -329,7 +325,26 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         #07-30-2026 CM update: change the 5' adapter search to cut from the RIGHTMOST match if multiple matches to the SAME 5' adapter are found in a single read
         echo "executing demultiplaexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name} "
         echo
-        cutadapt -g file:${well_barcodes};rightmost -O 14 --revcomp -e 0.15 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+
+        #70-31-2026 CM update: use an array to expand all the barcode names in well barcodes file because file: and ;rightmost arent compatible in cutadapt
+        # NEW: work around a cutadapt bug (reproduced on 5.2 and current dev build) where
+        # file:...;rightmost together crash with "unexpected keyword argument 'rightmost'".
+        # Build individual -g "name=SEQ;rightmost" args from the fasta instead of using file:.
+        declare -a well_g_args=()
+        while read -r wb_name && read -r wb_seq; do
+                wb_name="${wb_name#>}"
+                well_g_args+=(-g "${wb_name}=${wb_seq};rightmost")
+        done < "${well_barcodes}"
+
+        cutadapt "${well_g_args[@]}" -O 18 --revcomp -e 0.15 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log
+
+        # END declare/rightmost workaround code
+
+
+        # USE THIS ONE if you abandon the rightmost workaround:
+        #cutadapt -g "file:${well_barcodes};rightmost" -O 18 -e 0.15 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+
+        #cutadapt -g "GCGAGTCTTGT";rightmost -O 6 -e 0.15 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
         #cutadapt -g file:${well_barcodes} -O 14 --action=lowercase --revcomp -e 0.15 -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_file_path} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
 
         # Remove empty well FASTQs
@@ -347,22 +362,23 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         [ -d "$plate_dir" ] || continue
 
         #Loop through matching files inside the plate directory
-        for plate_well_file_path in "${plate_dir}"/plate??_well??_*.fastq; do
-        # Extract the filename
-        plate_well_file_name="$(basename "$plate_well_file_path")";
+        for plate_well_file_path in "${plate_dir}"/"${plate}"_well??_*.fastq; do
+                #[ -e "$plate_well_file_path" ] || continue
+                # Extract the filename
+                plate_well_file_name="$(basename "$plate_well_file_path")";
 
-        # Extract the well ID (e.g., well01)
-        well="${plate_well_file_name#*_}";
-        well="${well%%_*}";
-        #echo "current well = ${well}";
+                # Extract the well ID (e.g., well01)
+                well="${plate_well_file_name#*_}";
+                well="${well%%_*}";
+                #echo "current well = ${well}";
 
-        # Create the well subdirectory
-        plate_well_dir="$plate_dir/$well";
-        mkdir -p "$plate_well_dir";
+                # Create the well subdirectory
+                plate_well_dir="$plate_dir/$well";
+                mkdir -p "$plate_well_dir";
 
-        # Move the file into the well subdirectory
-        #echo "moving ${plate_well_file_path} to ${plate_well_dir}/"
-        mv "${plate_well_file_path}" "${plate_well_dir}/";
+                # Move the file into the well subdirectory
+                #echo "moving ${plate_well_file_path} to ${plate_well_dir}/"
+                mv "${plate_well_file_path}" "${plate_well_dir}/";
 
                 #while still looping thru values of plate and well, do cutadapt search for primers
 

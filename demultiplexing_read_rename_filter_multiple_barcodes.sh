@@ -411,3 +411,6 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 done
 
 echo "Dont forget!! I moved your previous cutadapt_outputs and porechop_outputs directories to cutadapt_outputs_from_${ts_cut} & porechop_outputs_from_${ts_pore} :)"
+echo
+echo
+

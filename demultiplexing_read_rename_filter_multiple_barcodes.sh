@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#CM 07/31/2026: current command and flags:
+#bash demultiplexing_read_rename_filter_multiple_barcodes.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall -r /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/FBC73506_fastq_pass_9ee158db_6bd36f99_0.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta -c 0 -l 100
+
+
 
 
 get_dir_timestamp() {
@@ -17,14 +21,19 @@ get_dir_timestamp() {
 }
 
 #input to gather:
-
+echo
+echo "This script will split chimeric reds with porechop and demultiplex your dual-pcr-barcoded reads with cutadapt. Reads will be output to nested folders based on their plate and well barcodes"
+echo
 echo "flag info:"
-echo " -d = path to the desired working dir"
-echo " -r = path to reads"
-echo " -p = <plate_barcode.fasta> file with plate barcodes fasta with path"
-echo " -w = <well_barcode.fasta> file with well barcodes fasta with path"
-echo " -c = do_porechop: 0 or 1 for whether or not to re-do the porechop step"
+echo " -d = absolute path to the desired working dir"
+echo " -r = absolute path to reads"
+echo " -p = <plate_barcodes.fasta> file with plate barcodes fasta with absolute path"
+echo " -w = <well_barcodes.fasta> file with well barcodes fasta with absolute path"
+echo " -c = do_porechop: 0 or 1 for whether or not to re-do the porechop step, 0 turns off porechop - only works if it has already been done and {working_dir}/porechop_outputs already exists"
 echo " -l = min_length: minimum desired length cutoff for filtering reads"
+echo
+echo "NOTE: don't add trailing backslashes to your paths. it shouldn't mess anything up but they arent needed and it would be best not to find out!"
+echo
 
 #do_porechop is 0 for no porechop, like if its already done 1 for yes porechop. this is for debugging by courtney
 

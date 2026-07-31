@@ -18,13 +18,13 @@ get_dir_timestamp() {
 
 #input to gather:
 
-#d path to the desired working dir
-#r path to reads
-#c plate_barcode.fasta file with path
-#c well_barcode.fasta file with path
-#s S genotyping locus reference path
-#m M genotyping locus reference path
-#l L genotyping locus reference path
+echo "flag info:"
+echo " -d = path to the desired working dir"
+echo " -r = path to reads"
+echo " -p = <plate_barcode.fasta> file with plate barcodes fasta with path"
+echo " -w = <well_barcode.fasta> file with well barcodes fasta with path"
+echo " -c = do_porechop: 0 or 1 for whether or not to re-do the porechop step"
+echo " -l = min_length: minimum desired length cutoff for filtering reads"
 
 #do_porechop is 0 for no porechop, like if its already done 1 for yes porechop. this is for debugging by courtney
 
@@ -52,9 +52,13 @@ do
     esac
 done
 
+
 #module load conda
 #conda activate cutadapt
 
+echo
+printf "Your current flag inputs:\n -d = ${working_dir}\n -r = ${reads_path}\n p = ${plate_barcodes}\n w = ${well_barcodes}\n -c = ${do_porechop}\n -l = ${min_length}"
+echo
 
 # MOVE EXISTING OUTPUTS and RE-SET
 
@@ -237,20 +241,55 @@ ls -l "$cutadapt_outputs" | wc -l
 #DEMULTIPLEXING - STEP 2 - PLATE
 #use plate_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt. Higher -O
 #07-30-2026 CM update: add length filtering - user-specified length value
-cutadapt -a file:${plate_barcodes} -O 14 --revcomp -e 0.15 --minimum-length ${min_length} --info-file ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv -o ${cutadapt_outputs}/{name}_${reads_name}_cutadapt_porechop.fastq ${porechop_outputs}/${reads_name}_porechop.fastq > ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop.log
+# --times 10: re-search each read for more adapters after trimming one, so info-file shows if a read had >1 adapter; -j 0: use all cores
+cutadapt -a file:${plate_barcodes} -O 14 --revcomp -e 0.15 --times 10 --cores=0 --minimum-length ${min_length} --info-file ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv -o ${cutadapt_outputs}/{name}_${reads_name}_cutadapt_porechop.fastq ${porechop_outputs}/${reads_name}_porechop.fastq > ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop.log
 #cutadapt -a file:${plate_barcodes} -O 14 --action=lowercase --revcomp -e 0.15 -o ${cutadapt_outputs}/{name}_${reads_name}_cutadapt_porechop.fastq ${working_dir}/${reads_name}_porechop.fastq > ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop.log
+
+echo "completed demultiplexing step 2 - cutadapt plate identification!"
+echo
+
+########################################################################
+# NEW: ADAPTER QC - keep reads with exactly 1 distinct plate adapter
+# (any repeat count); discard reads with 0 or >1 distinct adapters.
+# Uses the info-file the command above already made, no extra cutadapt run.
+########################################################################
+
+qc_info="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv"
+multi_ids="${cutadapt_outputs}/${reads_name}_multi_adapter_ids.txt"
+
+awk -F'\t' '$(NF-1) != "-1" {          # skip no-match rows (they end in ...  -1  <seq>)
+    n = split($1, a, /[ \t]/)          # read id = first whitespace token (ONT header tags ignored)
+    print a[1], $(NF-3)                # adapter name is always 3 fields from the end
+}' "$qc_info" \
+  | sort -u \
+  | awk '{print $1}' \
+  | uniq -d \
+  > "$multi_ids"
+# sort -u dedupes (id,adapter) pairs, collapsing same-adapter repeats
+# uniq -d: id still appears >1x after that dedupe = >1 DISTINCT adapter
+# no-match reads need no handling here - they never land in a plate??_*.fastq
+# file to begin with (cutadapt routes them to its own "unknown" output)
+
+n_multi=$(wc -l < "$multi_ids" 2>/dev/null || echo 0)
+echo "Adapter QC: flagged ${n_multi} reads with >1 distinct plate adapter (will be removed)"
+echo
 
 #remove fastq files with 0 reads added to them:
 for f in ${cutadapt_outputs}/plate??_*_${reads_name}_cutadapt_porechop.fastq; do
     [ -e "$f" ] || continue
+
+    # NEW: strip out flagged multi-adapter reads before the empty check below
+    if [ -s "$multi_ids" ]; then
+        filtered="${f%.fastq}_filtered.fastq"
+        seqkit grep -v -f "$multi_ids" "$f" -o "$filtered"
+        mv "$filtered" "$f"
+    fi
+
     lines=$(wc -l < "$f")
-        if [ "$lines" -lt 4 ]; then
-                rm -f "$f"
+    if [ "$lines" -lt 4 ]; then
+        rm -f "$f"
     fi
 done
-
-echo "completed demultiplexing step 2 - cutadapt plate identification!"
-echo
 
 #Use find
 find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate_file_path; do
@@ -281,7 +320,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         #07-30-2026 CM update: change the 5' adapter search to cut from the RIGHTMOST match if multiple matches to the SAME 5' adapter are found in a single read
         echo "executing demultiplaexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name} "
         echo
-        cutadapt -g file:${well_barcodes};rightmost -O 14 --revcomp -e 0.15 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
+        cutadapt -g file:${well_barcodes};rightmost -O 14 --revcomp -e 0.15 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
         #cutadapt -g file:${well_barcodes} -O 14 --action=lowercase --revcomp -e 0.15 -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_file_path} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log;
 
         # Remove empty well FASTQs
@@ -320,7 +359,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 
                 #DEMULTIPLEXING - STEP 4 - SEGMENT
                 #okay demultiplex by plaque, input = plate-demuxed files; -O is smaller bc the primers are shorter
-                cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --revcomp -e 0.15 --info-file ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
+                cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --revcomp -e 0.15 --cores=0 --info-file ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
                 #cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --action=lowercase --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
 
                 #cutadapt -g file:${well_barcodes} -O 10 --revcomp -e 0.15 -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;

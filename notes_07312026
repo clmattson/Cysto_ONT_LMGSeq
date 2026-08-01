@@ -1,0 +1,43 @@
+#Trying to debug Demultiplexing code specifically to get cut adapt to be ablerun with right most for 5 prime searching and also to remove reads that matched multiple unique adapters. 
+
+#The code runs but I have noticed in the plate the multiplexing log that number of read the log says it searched doesn't seem to match up to the percent of Reed with adopters 
+#identified and additionally way more have adapters Or seem to than did before, it's like 80%. And also strangely the unknown plate level demultiplexing fast Q seems to have like two million reads
+#Which makes the math even stranger.
+
+head -n 50 plate_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.log
+
+This is cutadapt 5.2 with Python 3.12.11
+Command line parameters: -a file:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta -O 14 --revcomp -e 0.15 --times 10 --cores=0 --minimum-length 100 --info-file /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs/plate_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop_INFO.tsv -o /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs/{name}_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/porechop_outputs/FBC73506_fastq_pass_9ee158db_6bd36f99_0_porechop.fastq
+Processing single-end reads on 16 cores ...
+
+=== Summary ===
+
+Total reads processed:               5,420,056
+Reads with adapters:                 2,804,379 (51.7%)
+Reverse-complemented:                1,810,868 (33.4%)
+
+== Read fate breakdown ==
+Reads that were too short:             302,141 (5.6%)
+Reads discarded as untrimmed:                0 (0.0%)
+Reads written (passing filters):     5,117,915 (94.4%)
+
+Total basepairs processed: 2,157,867,458 bp
+Total written (filtered):  2,060,891,128 bp (95.5%)
+
+=== Adapter plate01 ===
+
+Sequence: ATTGAGAGATATAACAGA; Type: regular 3'; Length: 18; Trimmed: 59811 times; Reverse-complemented: 39724 times
+
+#I checked to see if the unknown reads have duplicate reads, they do not: 
+grep "dna_r10.4.1" unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq |  awk '{print $1}' | uniq | wc -l
+2349304 
+
+#so there are ~2.3 million unique reads in the unknown fastq, which doesnt add up with only 5.4 million reads processed and ~85% having adapters in either the reg or rc direction. Perhaps is related to --times?
+#but i found no duplicate read ids in the unknown reads fastq:  (??)
+
+grep "dna_r10.4.1" unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq |  awk '{print $1}' | uniq -D | wc -l
+0
+
+
+ 
+

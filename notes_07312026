@@ -4,6 +4,11 @@
 #identified and additionally way more have adapters Or seem to than did before, it's like 80%. And also strangely the unknown plate level demultiplexing fast Q seems to have like two million reads
 #Which makes the math even stranger.
 
+wc -l unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq
+9397216 unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq
+
+# 9,397,216 / 4 = 2,349,304 which is way too many reads to be in the unknown folder???
+
 head -n 50 plate_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.log
 
 This is cutadapt 5.2 with Python 3.12.11
@@ -37,6 +42,20 @@ grep "dna_r10.4.1" unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_pore
 
 grep "dna_r10.4.1" unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq |  awk '{print $1}' | uniq -D | wc -l
 0
+
+#Um also, the info file has the a similar number of lines as the num of reads stated to have been processed in the log file: 
+#5,425,969 lines in info tsv vs 5,420,056 "reads processed" reported in log header
+
+wc -l *.tsv
+5425969 plate_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop_INFO.tsv
+
+# so could be that there are around 5,900 non-unique reads that were processed and therefore showed up multiple times in the log
+
+ awk '{print $1}' plate_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop_INFO.tsv | uniq -d | wc -l
+5855
+
+#ok yes, correct, nice
+
 
 
  

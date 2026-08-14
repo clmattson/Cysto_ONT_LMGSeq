@@ -43,6 +43,9 @@ grep "dna_r10.4.1" unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_pore
 grep "dna_r10.4.1" unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq |  awk '{print $1}' | uniq -D | wc -l
 0
 
+# new notes added 8/14/202 - I now see i was misunderstanding. the rev-comp reads are a fraction of the reads with adapters found, and are not 
+# meant to be added to the adapters found % for a total of ~85% of reads with adapters found. there no longer appear ot be any discrepancies
+
 #Um also, the info file has the a similar number of lines as the num of reads stated to have been processed in the log file: 
 #5,425,969 lines in info tsv vs 5,420,056 "reads processed" reported in log header
 
@@ -55,6 +58,11 @@ wc -l *.tsv
 5855
 
 #ok yes, correct, nice
+
+#pickup 8/14/2026 
+
+# wait, that doesnt make sense ... uniq -d prints only one copy of each duplicate line, while uniq -D prints every single copy of the duplicate lines. so if there is a difference
+#of about 5,900 non-unique reads, then uniq -D | wc -l should show exactly 5,913, but uniq -d | wc -l should show half of that or less. 
 
 
 

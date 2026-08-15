@@ -64,6 +64,10 @@ wc -l *.tsv
 # wait, that doesnt make sense ... uniq -d prints only one copy of each duplicate line, while uniq -D prints every single copy of the duplicate lines. so if there is a difference
 #of about 5,900 non-unique reads, then uniq -D | wc -l should show exactly 5,913, but uniq -d | wc -l should show half of that or less. 
 
+# next objective is to determine if the non-unique reads are present in the demultiplexed reads. TBH, i was expecting there to be 
+# of them than just a couple thousand of of a few million  (~6000 our of 5.5 million processed, roughly). But I guess 
+# that could still be bad if they were all from the same sample, or from one barcode, one PCR, etc. So I'd prefer to
+# still do my best to filter them out
 
 
  

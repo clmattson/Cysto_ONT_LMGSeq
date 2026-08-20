@@ -61,14 +61,45 @@ wc -l *.tsv
 
 #pickup 8/14/2026 
 
-# wait, that doesnt make sense ... uniq -d prints only one copy of each duplicate line, while uniq -D prints every single copy of the duplicate lines. so if there is a difference
-#of about 5,900 non-unique reads, then uniq -D | wc -l should show exactly 5,913, but uniq -d | wc -l should show half of that or less. 
+# wait, that doesnt make sense ... uniq -d prints only one copy of each duplicate line, 
+# while uniq -D prints every single copy of the duplicate lines. so if there is a difference
+# of about 5,900 non-unique reads, then uniq -D | wc -l should show exactly 5,913, 
+# but uniq -d | wc -l should show half of that or less. 
+
+# note added aug 19: wait im dumb, the extra 5913 lines in the info file ARE the duplicates... 
+# so since the first appearance of the read is contained in the total reads processed, only the 2nd+ 
+# appearance would be counted in the 'extra' lines in the info file. 
+# --the minimum number of reads that must have 2 hits only is 5855 - 68 = 5787, 
+# --the max number of reads that would have 2 hits only is 5854
+# --so the majority of the dup'ed reads appeared 2x, tho we dont know exactly how many appeared 2x 3x or more
 
 # next objective is to determine if the non-unique reads are present in the demultiplexed reads. TBH, i was expecting there to be 
 # of them than just a couple thousand of of a few million  (~6000 our of 5.5 million processed, roughly). But I guess 
 # that could still be bad if they were all from the same sample, or from one barcode, one PCR, etc. So I'd prefer to
 # still do my best to filter them out
 
+# so to check if the duplicates are ENTIRELY taken out of the combined output all reads sorted by plate, well, or 
+# any unknown bins, I would need to get the sum of all reads across all potential unique output bins and compare
 
- 
+BASE=/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs
+
+# check top-level unknown fastqs, num of reads not assigned to any plates (mindepth/maxdepth 1 = directly in cutadapt_outputs/)
+T1=$(wc -l unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq | awk '{print $1/4}')
+2349304
+
+# tier 2: plate-level unknown fastqs, number of reads not assigned to plates but not to any wells (directly in plateXX/, not in a wellXX/ subfolder)
+T2=$(cat plate??/plate??_unknown*.fastq | wc -l |  awk '{print $1/4}')
+1643881
+
+# tier 3: well-level base reads. ignore unknowns becuase those are left-over from the small/med/large search we are doing away with
+T3=$(cat plate??/well??/plate??_well??_F*.fastq | wc -l |  awk '{print $1/4}')
+1124730
+
+echo "TOTAL: $T1 + $T2 + $T3 =  $(( (T1+T2+T3) ))"
+TOTAL: 2349304 + 1643881 + 1124730 =  5117915
+
+# if you add in the reads that were filtered out by cutadapt becuase they were too short, you get the total reads processed
+5117915 + 302141 = 5420056 
+
+# ok so what does this mean for whether duplicated reads are being excluded from the output ....
 

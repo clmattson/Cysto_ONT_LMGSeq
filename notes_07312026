@@ -103,3 +103,74 @@ TOTAL: 2349304 + 1643881 + 1124730 =  5117915
 
 # ok so what does this mean for whether duplicated reads are being excluded from the output ....
 
+
+
+
+# 08/21/2026 added multi-hit filtering at the well level too and fixed some bugs, bc the script didnt seem to a
+# actually be succesfully filtering out the multi-hits. testing:
+
+cmatt5@c-8-50:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ wc -l FBC73506_fastq_pass_9ee158db_6bd36f99_0_multi_adapter_ids.txt
+5855 FBC73506_fastq_pass_9ee158db_6bd36f99_0_multi_adapter_ids.txt
+
+# ok same number of multi - hits at the plate level, lets check out the well level and then see if they got 
+# filtered sucessfully 
+
+# total reads assigned to plate01 before sorting into wells:
+cmatt5@c-8-50:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs/plate01$ wc -l plate01_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq | awk '{print $1/4}'
+58493
+# total reads assigned to plate01 that, during well assignment, were found to have hit to multiple wells:
+cmatt5@c-8-50:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs/plate01$ wc -l plate01_well_multi_adapter_ids.txt
+33 plate01_well_multi_adapter_ids.txt
+
+# So reads assigned to all wells + the unknowns in theory should sum to 58493 - 33  ...?
+
+# total reads sorted into all wells for plate01:
+(cutadapt) cmatt5@c-8-50:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs/plate01$ wc -l well*/plate01_well??_FBC*.fastq | awk '$2 != "total" {sum+=$1} END {print sum / 4}'
+40586
+
+# total reads for plate01 that were of unknown well:
+(cutadapt) cmatt5@c-8-50:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs/plate01$ wc -l plate01_unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq | awk '{print $1/4}'
+17874
+
+# They do add up! nice
+40586 + 17874 + 33 = 58493 
+
+# how many wells ended up with multiple-hit reads? were any enriched?
+# ok not that many at the well level (remember vs almost 6000 at the plate level): 
+(cutadapt) cmatt5@c-8-50:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ wc -l plate*/plate??_well_multi*
+   33 plate01/plate01_well_multi_adapter_ids.txt
+    0 plate02/plate02_well_multi_adapter_ids.txt
+    0 plate03/plate03_well_multi_adapter_ids.txt
+    0 plate04/plate04_well_multi_adapter_ids.txt
+    0 plate05/plate05_well_multi_adapter_ids.txt
+    0 plate06/plate06_well_multi_adapter_ids.txt
+    0 plate07/plate07_well_multi_adapter_ids.txt
+    0 plate08/plate08_well_multi_adapter_ids.txt
+    0 plate09/plate09_well_multi_adapter_ids.txt
+  267 plate10/plate10_well_multi_adapter_ids.txt
+    0 plate11/plate11_well_multi_adapter_ids.txt
+    0 plate12/plate12_well_multi_adapter_ids.txt
+    0 plate13/plate13_well_multi_adapter_ids.txt
+    0 plate14/plate14_well_multi_adapter_ids.txt
+  326 plate15/plate15_well_multi_adapter_ids.txt
+    0 plate16/plate16_well_multi_adapter_ids.txt
+    0 plate17/plate17_well_multi_adapter_ids.txt
+    0 plate18/plate18_well_multi_adapter_ids.txt
+    0 plate19/plate19_well_multi_adapter_ids.txt
+  236 plate20/plate20_well_multi_adapter_ids.txt
+    0 plate21/plate21_well_multi_adapter_ids.txt
+    0 plate22/plate22_well_multi_adapter_ids.txt
+    0 plate23/plate23_well_multi_adapter_ids.txt
+    0 plate24/plate24_well_multi_adapter_ids.txt
+  434 plate25/plate25_well_multi_adapter_ids.txt
+    0 plate26/plate26_well_multi_adapter_ids.txt
+    0 plate27/plate27_well_multi_adapter_ids.txt
+    0 plate28/plate28_well_multi_adapter_ids.txt
+    0 plate29/plate29_well_multi_adapter_ids.txt
+   98 plate30/plate30_well_multi_adapter_ids.txt
+ 1394 total
+
+
+
+
+

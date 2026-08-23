@@ -285,15 +285,20 @@ echo
 # matched anything - filtering silently ran 0 times). Real filenames are
 # plateXX_${reads_name}_cutadapt_porechop.fastq with a single underscore.
 for f in ${cutadapt_outputs}/plate??_${reads_name}_cutadapt_porechop.fastq; do
-    [ -e "$f" ] || continue
+   # [ -e "$f" ] || continue
 
     # strip out flagged multi-adapter reads before the empty check below
     if [ -s "$multi_ids" ]; then
         filtered="${f%.fastq}_filtered.fastq"
         seqkit grep -v -f "$multi_ids" "$f" -o "$filtered"
         mv "$filtered" "$f"
+    else
+        echo
+        echo "no reads were found to have matched to multiple plate barcodes"
+        echo
     fi
 
+    #delete any empty plate barcodes. 
     lines=$(wc -l < "$f")
     if [ "$lines" -lt 4 ]; then
         rm -f "$f"

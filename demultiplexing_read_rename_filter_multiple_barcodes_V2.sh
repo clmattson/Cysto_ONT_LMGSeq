@@ -360,22 +360,20 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         # above, applied to this plate's well-barcode info-file. Requires
         # --times 10 on the cutadapt call above to have anything to detect.
         ########################################################################
+    well_qc_info="${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv"
+    well_multi_ids="${plate_dir}/${plate}_well_multi_adapter_ids.txt"
 
-        well_qc_info="${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv"
-        well_multi_ids="${plate_dir}/${plate}_well_multi_adapter_ids.txt"
+    awk -F'\t' '{
+        n = split($1, a, /[ \t]/)
+        print a[1], $8
+    }' "$well_qc_info" \
+      | sort -u \
+      | awk '{print $1}' \
+      | uniq -d \
+      > "$well_multi_ids"
 
-        awk -F'\t' '$(NF-1) != "-1" {
-            n = split($1, a, /[ \t]/)
-            print a[1], $(NF-3)
-        }' "$well_qc_info" \
-          | sort -u \
-          | awk '{print $1}' \
-          | uniq -d \
-          > "$well_multi_ids"
-
-        n_well_multi=$(wc -l < "$well_multi_ids" 2>/dev/null || echo 0)
-        echo "Well adapter QC (${plate}): flagged ${n_well_multi} reads with >1 distinct well adapter (will be removed)"
-        echo
+    n_well_multi=$(wc -l < "$well_multi_ids" 2>/dev/null || echo 0)
+    echo "Well adapter QC (${plate}): flagged ${n_well_multi} reads with >1 distinct well adapter (will be removed)"
 
         if [ -s "$well_multi_ids" ]; then
             # FIXED (same glob issue as the plate-level loop): matches the real

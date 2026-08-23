@@ -81,7 +81,7 @@ wc -l *.tsv
 # so to check if the duplicates are ENTIRELY taken out of the combined output all reads sorted by plate, well, or 
 # any unknown bins, I would need to get the sum of all reads across all potential unique output bins and compare
 
-BASE=/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs
+
 
 # check top-level unknown fastqs, num of reads not assigned to any plates (mindepth/maxdepth 1 = directly in cutadapt_outputs/)
 T1=$(wc -l unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq | awk '{print $1/4}')

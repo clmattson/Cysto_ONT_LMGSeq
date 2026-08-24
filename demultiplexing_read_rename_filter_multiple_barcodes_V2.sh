@@ -262,14 +262,11 @@ echo
 qc_info="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv"
 multi_ids="${cutadapt_outputs}/${reads_name}_multi_adapter_ids.txt"
 
-awk -F'\t' '$(NF-1) != "-1" {          # skip no-match rows (they end in ...  -1  <seq>)
-    n = split($1, a, /[ \t]/)          # read id = first whitespace token (ONT header tags ignored)
-    print a[1], $(NF-3)                # adapter name is always 3 fields from the end
-}' "$qc_info" \
-  | sort -u \
-  | awk '{print $1}' \
-  | uniq -d \
-  > "$multi_ids"
+ awk -F'\t' '{
+        n = split($1, a, /[ \t]/)
+        print a[1], $8
+    }' "$well_qc_info" | sort -u | awk '{print $1}' | uniq -d > "$multi_ids"
+    
 # sort -u dedupes (id,adapter) pairs, collapsing same-adapter repeats
 # uniq -d: id still appears >1x after that dedupe = >1 DISTINCT adapter
 # no-match reads need no handling here - they never land in a plate??_*.fastq

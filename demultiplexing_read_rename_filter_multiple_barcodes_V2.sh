@@ -243,11 +243,11 @@ mkdir -p ${working_dir}/cutadapt_outputs
 cutadapt_outputs="${working_dir}/cutadapt_outputs"
 
 echo "Is the cutadapt_outputs directory variable set correctly? ~~~~cutadapt_outputs='$cutadapt_outputs'~~ and does it contain 0 things as it should? :"
-echo
-
 ls -l "$cutadapt_outputs" | wc -l
+echo 
 
 #DEMULTIPLEXING - STEP 2 - PLATE
+echo "directory made and check complete - now doing plate-level demultiplexing"
 #use plate_barcodes.fasta file to search and demultiplex PLATE barcodes with cutadapt. Higher -O
 #07-30-2026 CM update: add length filtering - user-specified length value
 # --times 10: re-search each read for more adapters after trimming one, so info-file shows if a read had >1 adapter; -j 0: use all cores
@@ -262,15 +262,17 @@ echo
 # Uses the info-file the command above already made, no extra cutadapt run.
 ########################################################################
 
-qc_info="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv"
+plate_info="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv"
 multi_ids="${cutadapt_outputs}/${reads_name}_multi_adapter_ids.txt"
 
+#at least right now, I only want to filter out read ID's that match to multiple DIFFERENT barcodes with cutadapt, 
+#but leave those that match >1x to the same barcode. So here we fetch the nonunique read names from the info file and check if they have the same match
  awk -F'\t' '{
         n = split($1, a, /[ \t]/)
         print a[1], $8
-    }' "$well_qc_info" | sort -u | awk '{print $1}' | uniq -d > "$multi_ids"
+    }' "$plate_info" | sort -u | awk '{print $1}' | uniq -d > "$plate_multi_ids"
 
-n_multi=$(wc -l < "$multi_ids" 2>/dev/null || echo 0)  # *!*! AI SAFETY-NET *!*! (2>/dev/null || echo 0 -- file is always created by the redirect above, so this fallback can't actually trigger)
+n_multi=$(wc -l < "$plate_multi_ids" 2>/dev/null || echo 0)  # *!*! AI SAFETY-NET *!*! (2>/dev/null || echo 0 -- file is always created by the redirect above, so this fallback can't actually trigger)
 echo "Adapter QC: flagged ${n_multi} reads with >1 distinct plate adapter (will be removed)"
 echo
 

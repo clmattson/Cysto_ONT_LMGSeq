@@ -256,33 +256,48 @@ cutadapt -a file:${plate_barcodes} -O 14 --revcomp -e 0.15 --times 10 --cores=0 
 echo "completed demultiplexing step 2 - cutadapt plate identification!"
 echo
 
-########################################################################
-# ADAPTER QC - keep reads with exactly 1 distinct plate adapter
-# (any repeat count); discard reads with 0 or >1 distinct adapters.
-# Uses the info-file the command above already made, no extra cutadapt run.
-########################################################################
-
+# Use the INFO .tsv file from plate demuxing with cutadapt to search for any reads that matched to more than one plate, and filter them out
 plate_info="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv"
-multi_ids="${cutadapt_outputs}/${reads_name}_multi_adapter_ids.txt"
+plate_multi_hit_ids="${cutadapt_outputs}/${reads_name}_multi_adapter_ids.txt"
 
 #at least right now, I only want to filter out read ID's that match to multiple DIFFERENT barcodes with cutadapt, 
 #but leave those that match >1x to the same barcode. So here we fetch the nonunique read names from the info file and check if they have the same match
- awk -F'\t' '{
-        n = split($1, a, /[ \t]/)
-        print a[1], $8
-    }' "$plate_info" | sort -u | awk '{print $1}' | uniq -d > "$plate_multi_ids"
+#easiest way will bepull out duplicated read names in the tsv, and then search for the barcode names that we just used to run cutadapt to see if they are unique or different
 
-n_multi=$(wc -l < "$plate_multi_ids" 2>/dev/null || echo 0)  # *!*! AI SAFETY-NET *!*! (2>/dev/null || echo 0 -- file is always created by the redirect above, so this fallback can't actually trigger)
-echo "Adapter QC: flagged ${n_multi} reads with >1 distinct plate adapter (will be removed)"
+plate_names=$(grep '^>' "$plate_barcodes" | sed 's/^>//')
+
+awk -v names="$plate_names" '
+BEGIN {
+    #add the plate names to an array, separated by newline chars
+    split(names, plate_names_array, "\n")
+    #create a lookup table of barcode names 
+    for (i in plate_names_array) valid_plates[plate_names_array[i]] = 1
+}
+{
+   #awk automatically loops thru all lines in the file
+   #within each line, loop thru every field up to the tot items in the line, uses awk $2 = $2nd item syntax
+    for (field = 2; field <= NF; field++)
+        #if the item in the line is in the plate barcode array, then print the first item in the line as well as the matched column
+        if ($field in valid_plate) {
+            print $1, $field
+            break
+        }
+}
+' "$plate_info" | sort -u > "$plate_multi_hit_pairs" #get just the list of the duplicated read/barcode hit pairs
+echo "$plate_multi_hit_pairs" > ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_multi_adapter_pairs.txt
+awk '{print $1}' "$plate_multi_hit_pairs" | uniq -d > "$plate_multi_hit_ids" #save jsut the first field of that list (the read ids)
+
+num_plate_multi=$(wc -l < "$plate_multi_hit_ids") 
+echo "We found ${num_plate_multi} reads with >1 distinct plate adapter. Now lets remove them"
 echo
 
 for f in ${cutadapt_outputs}/plate??_${reads_name}_cutadapt_porechop.fastq; do
-   # [ -e "$f" ] || continue   # *!*! AI SAFETY-NET *!*! (already commented out - glob-no-match guard)
-
-    # strip out flagged multi-adapter reads before the empty check below
-    if [ -s "$multi_ids" ]; then   # *!*! AI SAFETY-NET *!*! (guards against running seqkit with an empty filter file - kept in STRIPPED version too since seqkit's exact behavior on an empty -f file wasn't verified)
-        filtered="${f%.fastq}_filtered.fastq"
-        seqkit grep -v -f "$multi_ids" "$f" -o "$filtered"
+     # strip out flagged multi-adapter reads before the empty check below
+    if [ -s "$plate_multi_hit_ids" ]; then  #check if there are 1 or more reads flagged as hitting to multiple adapters
+        multi_plate_filtered="${f%.fastq}_filtered.fastq"
+        #use seqkit to reverse grep (aka filter) any of the multi hit reads ids
+        seqkit grep -v -f "$multi_ids" "$f" -o "$multi_plate_filtered"
+        #repplace the original fastq qith the filtered one
         mv "$filtered" "$f"
     else
         echo
@@ -297,10 +312,9 @@ for f in ${cutadapt_outputs}/plate??_${reads_name}_cutadapt_porechop.fastq; do
     fi
 done
 
-#Use find
+#Use find to loop thru the plate-demuxed files we just created
 find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate_file_path; do
         echo "entered well cutadapt loop, plate_file_path = ${plate_file_path} "
-
         echo
 
         #Move the plate_ demultiplexed files we just made into directories based off the file names:
@@ -315,16 +329,14 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         echo
 
         #Ok we want to execute the well-demultiplexing step once for each plate file. so include it in this loop:
-
         echo "we just demuxed cutadapt_outputs by PLATE, and made a new cutadapt_outputs/plate?? directory for each plate barcode. We are about to start demultiplexing by well with cutadapt.\n"
-
         echo "lets check that ${plate_dir} which we just set, exist and contains the correct number of items with ls"
         ls -1 "$plate_dir" | wc -l
 
         #DEMULTIPLEXING - STEP 3 - WELL
         #07-30-2026 CM update: change to O=18 (75%)
         #07-30-2026 CM update: change the 5' adapter search to cut from the RIGHTMOST match if multiple matches to the SAME 5' adapter are found in a single read
-        echo "executing demultiplaexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name} "
+        echo "executing demultiplexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name} "
         echo
 
         #70-31-2026 CM update: use an array to expand all the barcode names in well barcodes file because file: and ;rightmost arent compatible in cutadapt
@@ -339,6 +351,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 
         cutadapt "${well_g_args[@]}" -O 18 --revcomp -e 0.15 --times 10 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log
 
+    #!!!! multi hit well search to replace !!!
     well_qc_info="${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv"
     well_multi_ids="${plate_dir}/${plate}_well_multi_adapter_ids.txt"
 
@@ -363,6 +376,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
             done
         fi
 
+# END  !!!! multi hit well search to replace !!!
         # Remove empty well FASTQs
         for f in "${plate_dir}"/plate??_well??_${reads_name}_cutadapt_porechop.fastq; do
                 [ -e "$f" ] || continue   # *!*! AI SAFETY-NET *!*! (glob-no-match guard -- removed in STRIPPED version)

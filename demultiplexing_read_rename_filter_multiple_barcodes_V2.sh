@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # ############## Section I: collect user inputs, move existing data #################################
 
 #set up function to get creation timestamp for existing directories so that if this script is run, old data wont get overwritten
@@ -18,7 +17,7 @@ get_dir_timestamp() {
     date -d "$earliest" +"%m-%d-%Y_%H.%M"
 }
 
-#function to print messages with an extra blank line before, for readablity
+# function to print a message followed by a blank line for readability
 printf_nl() {
     printf '%s\n\n' "$*"
 }
@@ -83,30 +82,25 @@ fi
 
 reads_name="${reads_path%.*}";
 reads_name="${reads_name##*/}";
-echo "reads_name variable = ${reads_name} ";
-echo
-echo "We will now use a combination of porechop and cutadapt to demulitplex the data:"
-echo
+printf_nl "reads_name variable = ${reads_name}"
+printf_nl "We will now use a combination of porechop and cutadapt to demulitplex the data:"
 
 # ################## Section II: Porechop ############################################3
 
 if [[ "$do_porechop" == "1" ]]; then
-    echo "You turned on porechop!"
-    echo
+    printf_nl "You turned on porechop!"
           # move old porechop outputs to time stamped dir
         if [ -d "${working_dir}/porechop_outputs" ]; then
             old_dir_pore="${working_dir}/porechop_outputs"
             ts_pore=$(get_dir_timestamp "$old_dir_pore")
-            echo "FYI, a porechop_outputs dir already exists - moving existing porechop_outputs directory to porechop_outputs_from_${ts_pore}"
-            echo
+            printf_nl "FYI, a porechop_outputs dir already exists - moving existing porechop_outputs directory to porechop_outputs_from_${ts_pore}"
         mv "$old_dir_pore" "${old_dir_pore}_from_${ts_pore}"
         fi
 
         #make directory for new porechop outputs
         mkdir -p ${working_dir}/porechop_outputs
         porechop_outputs="${working_dir}/porechop_outputs"
-        echo "made new directory for porechop outputs"
-        echo
+        printf_nl "made new directory for porechop outputs"
 
         #Note: the next section of code breaks the input fastq's into chunks for porechopping
         # This is necessary because Porechop loads the entire input file into memory, which takes an enormous amt of memory for a large fastq file. It is not fixed by --threads
@@ -134,9 +128,7 @@ if [[ "$do_porechop" == "1" ]]; then
             logfile="${porechop_outputs}/${reads_name}_porechop_chunk${chunk}.log"
             fixed_out="${porechop_outputs}/${reads_name}_porechop_chunk${chunk}_unique.fastq"
 
-            echo
-            echo "Running porechop on chunk ${chunk}"
-            echo
+            printf_nl "Running porechop on chunk ${chunk}"
             
             # STEP 1: PORECHOP RUNS - change any porechop settings here!
             porechop -i "$infile" --verbosity 2 --end_threshold 70 --middle_threshold 80 \
@@ -144,21 +136,17 @@ if [[ "$do_porechop" == "1" ]]; then
                 --extra_middle_trim_good_side 0 --extra_middle_trim_bad_side 0 \
                 --min_trim_size 8 -o "$outfile" > "$logfile"
 
-            echo "Finished porechop chunk ${chunk}"
+            printf_nl "Finished porechop chunk ${chunk}"
 
             # POST-PROCESSING RUNS IN BACKGROUND - speed things up and get info on poreshopped data
             (
-                echo
-                echo "===== Porechop info for chopping of chunk ${chunk}; from log file: $logfile ====="
-                echo
-
+                
+                printf_nl "===== Porechop info for chopping of chunk ${chunk}; from log file: $logfile ====="
                 head -n 22 "$logfile"
                 echo
-
                 tail -n +23 "$logfile" | grep -F "adapters"
                 echo
-                echo
-
+                
                 # read stats BEFORE - calc total reads and % of reads longer than 1000 bp
                 #num reads
                 total_before=$(($(wc -l < "$infile") / 4))
@@ -174,11 +162,10 @@ if [[ "$do_porechop" == "1" ]]; then
 
                 echo "++++++ Read-length summary for chunk ${chunk} (what % is >1 kb?) +++++++"
                 echo "  Before Porechop: ${pct_before}% = (${long_before} / ${total_before}) "
-                echo "  After  Porechop: ${pct_after}% = (${long_after} / ${total_after}) "
+                printf_nl "  After  Porechop: ${pct_after}% = (${long_after} / ${total_after}) "
 
-                echo
                 echo "Porechopping can leave reads behind with identical names." 
-                echo "Now fixing duplicate read names for chunk ${chunk} "
+                printf_nl "Now fixing duplicate read names for chunk ${chunk} "
                 #use awk to appeand readname_<num> to read names to eliminate identical read names after porechopping 
                 awk '
                 BEGIN { FS=" "; OFS=" " }
@@ -199,22 +186,18 @@ if [[ "$do_porechop" == "1" ]]; then
             post_jobs+=($!)
 
         done
-        echo
-        echo "All porechop chunks complete!"
-        echo "Waiting for post-processing jobs to finish..."
-        echo
+        printf_nl "All porechop chunks complete!"
+        printf_nl "Waiting for post-processing jobs to finish..."
         # wait for all background post-processing jobs
         for pid in "${post_jobs[@]}"; do
             wait "$pid"
         done
 
-        echo "Now pasting all porechopped chunks back into one file: ${porechop_outputs}/${reads_name}_porechop.fastq"
-        echo
+        printf_nl "Now pasting all porechopped chunks back into one file: ${porechop_outputs}/${reads_name}_porechop.fastq"
         cat ${porechop_outputs}/${reads_name}_porechop_chunk*_unique.fastq \
             > ${porechop_outputs}/${reads_name}_porechop.fastq
 
-        echo "Porechop complete: executed porechop (original) for splitting reads on landing pads"
-        echo
+        printf_nl "Porechop complete: executed porechop (original) for splitting reads on landing pads"
 
 elif [[ "$do_porechop" == "0" ]]; then
         echo "You turned off porechop, so we will use the existing, already-chopped reads in the porechop_outputs directory"
@@ -256,11 +239,11 @@ echo "directory made and check complete - now doing plate-level demultiplexing"
 # --times 10: re-search each read for more adapters after trimming one, so info-file shows if a read had >1 adapter; -j 0: use all cores
 cutadapt -a file:${plate_barcodes} -O 14 --revcomp -e 0.15 --times 10 --cores=0 --minimum-length ${min_length} --info-file ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv -o ${cutadapt_outputs}/{name}_${reads_name}_cutadapt_porechop.fastq ${porechop_outputs}/${reads_name}_porechop.fastq > ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop.log
 
-echo "completed demultiplexing step 2 - cutadapt plate identification!"
-echo
+printf_nl "completed demultiplexing step 2 - cutadapt plate identification!"
 
 # Use the INFO .tsv file from plate demuxing with cutadapt to search for any reads that matched to more than one plate, and filter them out
 plate_info="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_INFO.tsv"
+plate_multi_hit_pairs="${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_multi_adapter_pairs.txt"
 plate_multi_hit_ids="${cutadapt_outputs}/${reads_name}_multi_adapter_ids.txt"
 
 #at least right now, I only want to filter out read ID's that match to multiple DIFFERENT barcodes with cutadapt, 
@@ -281,31 +264,27 @@ BEGIN {
    #within each line, loop thru every field up to the tot items in the line, uses awk $2 = $2nd item syntax
     for (field = 2; field <= NF; field++)
         #if the item in the line is in the plate barcode array, then print the first item in the line as well as the matched column
-        if ($field in valid_plate) {
+        if ($field in valid_plates) {
             print $1, $field
             break
         }
 }
 ' "$plate_info" | sort -u > "$plate_multi_hit_pairs" #get just the list of the duplicated read/barcode hit pairs
-echo "$plate_multi_hit_pairs" > ${cutadapt_outputs}/plate_${reads_name}_cutadapt_porechop_multi_adapter_pairs.txt
 awk '{print $1}' "$plate_multi_hit_pairs" | uniq -d > "$plate_multi_hit_ids" #save jsut the first field of that list (the read ids)
 
 num_plate_multi=$(wc -l < "$plate_multi_hit_ids") 
-echo "We found ${num_plate_multi} reads with >1 distinct plate adapter. Now lets remove them"
-echo
+printf_nl "We found ${num_plate_multi} reads with >1 distinct plate adapter. Now lets remove them"
 
 for f in ${cutadapt_outputs}/plate??_${reads_name}_cutadapt_porechop.fastq; do
      # strip out flagged multi-adapter reads before the empty check below
     if [ -s "$plate_multi_hit_ids" ]; then  #check if there are 1 or more reads flagged as hitting to multiple adapters
         multi_plate_filtered="${f%.fastq}_filtered.fastq"
         #use seqkit to reverse grep (aka filter) any of the multi hit reads ids
-        seqkit grep -v -f "$multi_ids" "$f" -o "$multi_plate_filtered"
+        seqkit grep -v -f "$plate_multi_hit_ids" "$f" -o "$multi_plate_filtered"
         #repplace the original fastq qith the filtered one
-        mv "$filtered" "$f"
+        mv "$multi_plate_filtered" "$f"
     else
-        echo
-        echo "no reads were found to have matched to multiple plate barcodes"
-        echo
+        printf_nl "no reads were found to have matched to multiple plate barcodes"
     fi
 
     #delete any empty plate barcodes. 
@@ -317,8 +296,7 @@ done
 
 #Use find to loop thru the plate-demuxed files we just created
 find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate_file_path; do
-        echo "entered well cutadapt loop, plate_file_path = ${plate_file_path} "
-        echo
+        printf_nl "entered well cutadapt loop, plate_file_path = ${plate_file_path}"
 
         #Move the plate_ demultiplexed files we just made into directories based off the file names:
         plate_file_name="$(basename "$plate_file_path")"
@@ -326,8 +304,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         plate_dir="${cutadapt_outputs}/${plate}";
         mkdir -p "${plate_dir}"
         mv "${plate_file_path}" "${plate_dir}/";
-        echo "File sorted into directory 'plate_dir' : ${plate_dir}  "
-        echo
+        printf_nl "File sorted into directory 'plate_dir' : ${plate_dir}"
 
         #Ok we want to execute the well-demultiplexing step once for each plate file. so include it in this loop:
         echo "we just demuxed cutadapt_outputs by PLATE, and made a new cutadapt_outputs/plate?? directory for each plate barcode. We are about to start demultiplexing by well with cutadapt.\n"
@@ -337,8 +314,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         #DEMULTIPLEXING - STEP 3 - WELL
         #07-30-2026 CM update: change to O=18 (75%)
         #07-30-2026 CM update: change the 5' adapter search to cut from the RIGHTMOST match if multiple matches to the SAME 5' adapter are found in a single read
-        echo "executing demultiplexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name} "
-        echo
+        printf_nl "executing demultiplexing step 3: cutadapt search for well barcodes! input file=${plate_dir}/${plate_file_name}"
 
         #70-31-2026 CM update: use an array to expand all the barcode names in well barcodes file because file: and ;rightmost arent compatible in cutadapt
         # NEW: work around a cutadapt bug (reproduced on 5.2 and current dev build) where
@@ -352,45 +328,63 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 
         cutadapt "${well_g_args[@]}" -O 18 --revcomp -e 0.15 --times 10 --cores=0 --info-file ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_dir}/${plate}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_dir}/${plate_file_name} > ${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop.log
 
-    #!!!! multi hit well search to replace !!!
-    well_qc_info="${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv"
-    well_multi_ids="${plate_dir}/${plate}_well_multi_adapter_ids.txt"
+    #Removing reads that were matched to multiple wells:
+        # Use the INFO .tsv file from well demuxing with cutadapt to search for any reads that matched to more than one well, and filter them out
+        well_info="${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_INFO.tsv"
+        well_multi_hit_pairs="${plate_dir}/${plate}_well_${reads_name}_cutadapt_porechop_multi_adapter_pairs.txt"
+        well_multi_hit_ids="${plate_dir}/${plate}_well_multi_adapter_ids.txt"
 
-    awk -F'\t' '{
-        n = split($1, a, /[ \t]/)
-        print a[1], $8
-    }' "$well_qc_info" \
-      | sort -u \
-      | awk '{print $1}' \
-      | uniq -d \
-      > "$well_multi_ids"
+        #same logic as the plate-level filter above: only filter read IDs that match multiple DIFFERENT well barcodes,
+        #leave reads that match >1x to the same barcode alone
 
-    n_well_multi=$(wc -l < "$well_multi_ids" 2>/dev/null || echo 0)  # *!*! AI SAFETY-NET *!*! (2>/dev/null || echo 0 -- same as above, file always exists by this point)
-    echo "Well adapter QC (${plate}): flagged ${n_well_multi} reads with >1 distinct well adapter (will be removed)"
+        well_names=$(grep '^>' "$well_barcodes" | sed 's/^>//')
 
-        if [ -s "$well_multi_ids" ]; then   # *!*! AI SAFETY-NET *!*! (kept in STRIPPED version too, same reasoning as the plate-level one above)
-            for f in "${plate_dir}"/"${plate}"_well??_${reads_name}_cutadapt_porechop.fastq; do
-                [ -e "$f" ] || continue   # *!*! AI SAFETY-NET *!*! (glob-no-match guard -- removed in STRIPPED version)
-                filtered="${f%.fastq}_filtered.fastq"
-                seqkit grep -v -f "$well_multi_ids" "$f" -o "$filtered"
-                mv "$filtered" "$f"
-            done
-        fi
+        awk -v names="$well_names" '
+        BEGIN {
+            #add the well names to an array, separated by newline chars
+            split(names, well_names_array, "\n")
+            #create a lookup table of barcode names
+            for (i in well_names_array) valid_wells[well_names_array[i]] = 1
+        }
+        {
+           #awk automatically loops thru all lines in the file
+           #within each line, loop thru every field up to the tot items in the line, uses awk $2 = $2nd item syntax
+            for (field = 2; field <= NF; field++)
+                #if the item in the line is in the well barcode array, then print the first item in the line as well as the matched column
+                if ($field in valid_wells) {
+                    print $1, $field
+                    break
+                }
+        }
+        ' "$well_info" | sort -u > "$well_multi_hit_pairs" #get just the list of the duplicated read/barcode hit pairs
+        awk '{print $1}' "$well_multi_hit_pairs" | uniq -d > "$well_multi_hit_ids" #save just the first field of that list (the read ids)
 
-# END  !!!! multi hit well search to replace !!!
-        # Remove empty well FASTQs
-        for f in "${plate_dir}"/plate??_well??_${reads_name}_cutadapt_porechop.fastq; do
-                [ -e "$f" ] || continue   # *!*! AI SAFETY-NET *!*! (glob-no-match guard -- removed in STRIPPED version)
-                lines=$(wc -l < "$f")
-                if [ "$lines" -lt 4 ]; then
-                        rm -f "$f"
-                fi
+        num_well_multi=$(wc -l < "$well_multi_hit_ids")
+        printf_nl "We found ${num_well_multi} reads with >1 distinct well adapter under (${plate}). Now lets remove them"
+
+        for f in "${plate_dir}"/"${plate}"_well??_${reads_name}_cutadapt_porechop.fastq; do
+             # strip out flagged multi-adapter reads before the empty check below
+            if [ -s "$well_multi_hit_ids" ]; then  #check if there are 1 or more reads flagged as hitting to multiple adapters
+                multi_well_filtered="${f%.fastq}_filtered.fastq"
+                #use seqkit to reverse grep (aka filter) any of the multi hit read ids
+                seqkit grep -v -f "$well_multi_hit_ids" "$f" -o "$multi_well_filtered"
+                #replace the original fastq with the filtered one
+                mv "$multi_well_filtered" "$f"
+            else
+                printf_nl "no reads were found to have matched to multiple well barcodes (${plate})"
+            fi
+
+            #delete any empty well fastqs
+            lines=$(wc -l < "$f")
+            if [ "$lines" -lt 4 ]; then
+                rm -f "$f"
+            fi
         done
 
         #move plate??_well??_ demultiplexed files to well folders:
         #plate_dir is updated for each value of plate
         # Make sure it's a directory
-        [ -d "$plate_dir" ] || continue   # *!*! AI SAFETY-NET *!*! (plate_dir was just created by mkdir -p a few lines above -- removed in STRIPPED version)
+        [ -d "$plate_dir" ] || continue   #  (plate_dir was just created by mkdir -p a few lines above -- removed in STRIPPED version)
 
         #Loop through matching files inside the plate directory
         for plate_well_file_path in "${plate_dir}"/"${plate}"_well??_*.fastq; do
@@ -413,31 +407,30 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
 
                 #while still looping thru values of plate and well, do cutadapt search for primers
 
-                #DEMULTIPLEXING - STEP 4 - SEGMENT
+                #DEMULTIPLEXING - STEP 4 - SEGMENT - TURN OFF FOR NOW
                 #okay demultiplex by plaque, input = plate-demuxed files; -O is smaller bc the primers are shorter
-                cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --revcomp -e 0.15 --cores=0 --info-file ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
+                #cutadapt -a small=CTTTCGTACAACCGAGTAGG...CTCCTGAAGTATCTCACGCC -a medium=CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a large=TCGATGTTCAACTACTACGC...GCGAGACTCGCTTTGC -O 10 --revcomp -e 0.15 --cores=0 --info-file ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop_INFO.tsv -o ${plate_well_dir}/${plate}_${well}_{name}_${reads_name}_cutadapt_porechop.fastq ${plate_well_dir}/${plate_well_file_name} > ${plate_well_dir}/${plate}_${well}_segment_${reads_name}_cutadapt_porechop.log;
 
                  #get read count in each file (before they are removed!):
-                for fastq in ${plate_well_dir}/${plate}_${well}_*_${reads_name}_cutadapt_porechop.fastq;
-                        do count=$( wc -l ${fastq} | awk '{print $1 / 4}');
-                        echo "${cross},${count}" >> ${working_dir}/file_counts.csv;
-                done
+                #for fastq in ${plate_well_dir}/${plate}_${well}_*_${reads_name}_cutadapt_porechop.fastq;
+                #        do count=$( wc -l ${fastq} | awk '{print $1 / 4}');
+                #        echo "${cross},${count}" >> ${working_dir}/file_counts.csv;
+                #done
 
                 # Remove empty segment FASTQs
-                for f in ${plate_well_dir}/${plate}_${well}_*_${reads_name}_cutadapt_porechop.fastq; do
-                        [ -e "$f" ] || continue   # *!*! AI SAFETY-NET *!*! (glob-no-match guard -- LEFT UNTOUCHED in STRIPPED version, this is inside the segment-binning block you asked me not to touch)
-                        lines=$(wc -l < "$f")
-                        if [ "$lines" -lt 4 ]; then
-                                rm -f "$f"
-                        fi
-                done
-
-                # If directory is now empty, delete it
-                rmdir "${plate_well_dir}" 2>/dev/null
-
-        done
+                #for f in ${plate_well_dir}/${plate}_${well}_*_${reads_name}_cutadapt_porechop.fastq; do
+                #        [ -e "$f" ] || continue   # check
+                #        lines=$(wc -l < "$f")
+                #        if [ "$lines" -lt 4 ]; then
+                #                rm -f "$f"
+                #        fi
+                #done
+               
+         # If directory is now empty, delete it
+         rmdir "${plate_well_dir}" 2>/dev/null
+       #close final re-organization loop
+       done 
+       
 done
 
-echo "Dont forget!! I moved your previous cutadapt_outputs and porechop_outputs directories to cutadapt_outputs_from_${ts_cut} & porechop_outputs_from_${ts_pore} :)"
-echo
-echo
+printf_nl "Dont forget!! I moved your previous cutadapt_outputs and porechop_outputs directories to cutadapt_outputs_from_${ts_cut} & porechop_outputs_from_${ts_pore} :)"

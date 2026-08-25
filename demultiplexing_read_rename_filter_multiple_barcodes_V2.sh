@@ -18,6 +18,10 @@ get_dir_timestamp() {
     date -d "$earliest" +"%m-%d-%Y_%H.%M"
 }
 
+#function to print messages with an extra blank line before, for readablity
+printf_nl() {
+    printf '%s\n\n' "$*"
+}
 
 #main script, input to gather:
 echo "flag info:"
@@ -87,7 +91,6 @@ echo
 # ################## Section II: Porechop ############################################3
 
 if [[ "$do_porechop" == "1" ]]; then
-    echo
     echo "You turned on porechop!"
     echo
           # move old porechop outputs to time stamped dir
@@ -322,9 +325,7 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
         plate="${plate_file_name%%_*}"
         plate_dir="${cutadapt_outputs}/${plate}";
         mkdir -p "${plate_dir}"
-        #mkdir -p "${cutadapt_outputs}/${plate}";
         mv "${plate_file_path}" "${plate_dir}/";
-        #mv "${plate_file_path}" "${cutadapt_outputs}/${plate}/";
         echo "File sorted into directory 'plate_dir' : ${plate_dir}  "
         echo
 

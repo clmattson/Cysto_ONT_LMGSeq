@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#current run:
+#bash demultiplexing_read_rename_filter_multiple_barcodes_V3.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall -r /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/FBC73506_fastq_pass_9ee158db_6bd36f99_0.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/well_barcodes.fasta -c 0 -l 100
+
 # ############## Section I: collect user inputs, move existing data #################################
 
 #set up function to get creation timestamp for existing directories so that if this script is run, old data wont get overwritten

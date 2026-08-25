@@ -286,8 +286,9 @@ for f in ${cutadapt_outputs}/plate??_${reads_name}_cutadapt_porechop.fastq; do
         seqkit grep -v -f "$plate_multi_hit_ids" "$f" -o "$multi_plate_filtered"
         #repplace the original fastq qith the filtered one
         mv "$multi_plate_filtered" "$f"
+        printf_nl "filtered reads with multiple plate hits for ${f}"
     else
-        printf_nl "no reads were found to have matched to multiple plate barcodes"
+        printf_nl "no reads were found to have matched to multiple plate barcodes for ${f}"
     fi
 
     #delete any empty plate barcodes. 
@@ -373,8 +374,9 @@ find "${cutadapt_outputs}" -type f -name 'plate??_*.fastq' | while read -r plate
                 seqkit grep -v -f "$well_multi_hit_ids" "$f" -o "$multi_well_filtered"
                 #replace the original fastq with the filtered one
                 mv "$multi_well_filtered" "$f"
+                printf_nl "filtered reads with multiple well hits for ${f}"
             else
-                printf_nl "no reads were found to have matched to multiple well barcodes (${plate})"
+                printf_nl "no reads were found to have matched to multiple well barcodes for ${f}"
             fi
 
             #delete any empty well fastqs

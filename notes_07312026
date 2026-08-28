@@ -223,3 +223,27 @@ $ well_unknowns=1640742
 echo "TOTAL: $tot_reads_too_short_100 + $plate_unknowns + $plate_multi_wc + $tot_reads_well_assigned + $well_multi_wc + $well_unknowns =  $(( (tot_reads_too_short_100+plate_unknowns+plate_multi_wc+tot_reads_well_assigned+well_multi_wc+well_unknowns) ))"
 TOTAL: 302141 + 2349304 + 5852 + 1121091 + 1395 + 1640742 =  5420525
 
+
+#whoooo! took a whole day bit finally fixed it!
+
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ wc -l FBC73506_fastq_pass_9ee158db_6bd36f99_0_multi_adapter_ids.txt
+5383 FBC73506_fastq_pass_9ee158db_6bd36f99_0_multi_adapter_ids.txt
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ cat plate??/*multi*ids*.txt | wc -l
+1395
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ well_unknown=$(cat plate??/*unknown*.fastq | wc -l | awk '{print $1/4}')                                                                                     ^[[A^[[A(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_oplate_unknown=$(wc -l unknown_FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq | awk '{print $1/4}')
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ plate_multi=$(wc -l FBC73506_fastq_pass_9ee158db_6bd36f99_0_multi_adapter_ids.txt)                                                                           (cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ well_multi=$(cat plate??/*multi*ids*.txt | wc -l)
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ well_reads=$(cat plate??/well??/plate??_well??*FBC73506_fastq_pass_9ee158db_6bd36f99_0_cutadapt_porechop.fastq | wc -l | awk '{print $1/4}')
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ echo "TOTAL: $well_reads + $well_multi + $well_unknown + $plate_multi + $plate_unknown"
+TOTAL: 1121091 + 1395 + 1640742 + 5383 FBC73506_fastq_pass_9ee158db_6bd36f99_0_multi_adapter_ids.txt + 2349304
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ plate_multi=5383
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ wc -l *bp* | awk '{print $1/4}')
+bash: syntax error near unexpected token `)'
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ wc -l *bp* | awk '{print $1/4}'
+302141
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ too_short=$(wc -l *bp* | awk '{print $1/4}')
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ echo "TOTAL: $well_reads + $well_multi + $well_unknown + $plate_multi + $plate_unknown + $too_short"
+TOTAL: 1121091 + 1395 + 1640742 + 5383 + 2349304 + 302141
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ echo "TOTAL: $well_reads + $well_multi + $well_unknown + $plate_multi + $plate_unknown =  $(( (well_reads+well_multi+well_unknown+plate_multi+plate_unknown+too_short) ))"
+TOTAL: 1121091 + 1395 + 1640742 + 5383 + 2349304 =  5420056
+
+

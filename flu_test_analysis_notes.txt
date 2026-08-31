@@ -7,5 +7,10 @@ cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam
 conda activate cysto_illumina
 
 (cysto_illumina) cmatt5@c-8-74:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/Quad_Triple_Susie_103125/Quad_Triple_Susie_103125/20251031_1301_MN23913_FBD21587_a228feed/hac_basecall$ samtools fastq Quad_Triple_Susie_calls_2025-12-17_T22-26-30.bam > Quad_Triple_Susie_calls_2025-12-17_T22-26-30.fastq.gz
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 3460081 reads
+
 
 (cysto_illumina) cmatt5@c-8-74:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall$ samtools fastq CA09xPAN99_calls_2025-12-17_T21-10-01.bam > CA09xPAN99_calls_2025-12-17_T21-10-01.fastq.gz
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 3524782 reads

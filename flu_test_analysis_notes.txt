@@ -16,9 +16,235 @@ bash demultiplexing_read_rename_filter_multiple_barcodes_V3.sh -d /group/sldmuno
 
 #had to rdo bc accidentally deleted the cutadapt outputs. redid both pore and cut since running voernight and alos forgot to log. rly dont want to have to worry about this during the shut down onnthe 2nd
 
+#location path is unwieldy:
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/Quad_Triple_Susie_103125$ mv Quad_Triple_Susie_103125/20251031_1301_MN23913_FBD21587_a228feed/hac_basecall/* .
+
+
+
+
+
+
+
+
+
+
+
+
 (cysto_illumina) cmatt5@c-8-74:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall$ samtools fastq CA09xPAN99_calls_2025-12-17_T21-10-01.bam > CA09xPAN99_calls_2025-12-17_T21-10-01.fastq.gz
 [M::bam2fq_mainloop] discarded 0 singletons
 [M::bam2fq_mainloop] processed 3524782 reads
 
 bash /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/demultiplexing_read_rename_filter_multiple_barcodes_V3.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall -r /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/CA09xPAN99_calls_2025-12-17_T21-10-01.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/well_barcodes.fasta -c 1 -l 100 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/demultiplexing_CA09xPAN99.log
+
+
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325$ mv CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/* .
+
+
+
+#genotyping
+
+start with the single coinf bc dont have to change script:
+
+#make new lib prep ref genome database
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ cat texas12.fasta singapore86.fasta > TX12_SI86_tmp.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ sed \
+-e 's/^>gb:KJ942619.*/>TX12_NP/' \
+-e 's/^>gb:KJ942618.*/>TX12_NA/' \
+-e 's/^>gb:KJ942623.*/>TX12_PB2/' \
+-e 's/^>gb:KJ942622.*/>TX12_PB1/' \
+-e 's/^>gb:KJ942616.*/>TX12_HA/' \
+-e 's/^>gb:KJ942620.*/>TX12_NS/' \
+-e 's/^>gb:KJ942617.*/>TX12_M/' \
+-e 's/^>gb:KJ942621.*/>TX12_PA/' \
+-e 's/^>gb:CY020480.*/>SI86_NP/' \
+-e 's/^>gb:CY020482.*/>SI86_PA/' \
+-e 's/^>gb:CY020479.*/>SI86_NA/' \
+-e 's/^>gb:CY020484.*/>SI86_PB2/' \
+-e 's/^>gb:CY020483.*/>SI86_PB1/' \
+-e 's/^>gb:CY020477.*/>SI86_HA/' \
+-e 's/^>gb:CY020478.*/>SI86_M/' \
+-e 's/^>gb:CY020481.*/>SI86_NS/' \
+TX12_SI86_tmp.fasta > TX12_SI86_renamed.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ grep ">" TX12_SI86_renamed.fasta
+>TX12_NP
+>TX12_NA
+>TX12_PB2
+>TX12_PB1
+>TX12_HA
+>TX12_NS
+>TX12_M
+>TX12_PA
+>SI86_NP
+>SI86_PA
+>SI86_NA
+>SI86_PB2
+>SI86_HA
+>SI86_NS
+>SI86_PB1
+>SI86_M
+
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ awk '/^>/{if(NR>1)printf "\n"; print; next} {printf "%s",$0} END{printf "\n"}' TX12_SI86_renamed.fasta > TX12_SI86_renamed_fixnls.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ cat TX12_SI86_renamed_fixnls.fasta >> all_flu_refs.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ grep ">" all_flu_refs.fasta
+>CA09_PB2
+>CA09_HA
+>CA09_M
+>CA09_NP
+>CA09_NA
+>CA09_PA
+>CA09_PB1
+>CA09_NS
+>HK68_PB1
+>HK68_HA
+>HK68_M
+>HK68_PB2
+>HK68_NP
+>HK68_NA
+>HK68_NS
+>HK68_PA
+>PAN99_PB1
+>PAN99_HA
+>PAN99_M
+>PAN99_NS
+>PAN99_NA
+>PAN99_PA
+>PAN99_PB2
+>PAN99_NP
+>TX12_NP
+>TX12_NA
+>TX12_PB2
+>TX12_PB1
+>TX12_HA
+>TX12_NS
+>TX12_M
+>TX12_PA
+>SI86_NP
+>SI86_PA
+>SI86_NA
+>SI86_PB2
+>SI86_HA
+>SI86_NS
+>SI86_PB1
+>SI86_M
+
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ awk '/^>/{if(NR>1)printf "\n"; print; next} {printf "%s",$0} END{printf "\n"}' CH83_PR8backbone_renamed.fasta > CH83_PR8backbone_renamed_fixnls.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ cat TX12_SI86_renamed_fixnls.fasta >> all_flu_refs.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ grep ">" all_flu_refs.fasta
+>CA09_PB2
+>CA09_HA
+>CA09_M
+>CA09_NP
+>CA09_NA
+>CA09_PA
+>CA09_PB1
+>CA09_NS
+>HK68_PB1
+>HK68_HA
+>HK68_M
+>HK68_PB2
+>HK68_NP
+>HK68_NA
+>HK68_NS
+>HK68_PA
+>PAN99_PB1
+>PAN99_HA
+>PAN99_M
+>PAN99_NS
+>PAN99_NA
+>PAN99_PA
+>PAN99_PB2
+>PAN99_NP
+>TX12_NP
+>TX12_NA
+>TX12_PB2
+>TX12_PB1
+>TX12_HA
+>TX12_NS
+>TX12_M
+>TX12_PA
+>SI86_NP
+>SI86_PA
+>SI86_NA
+>SI86_PB2
+>SI86_HA
+>SI86_NS
+>SI86_PB1
+>SI86_M
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ vim CH83_PR8backbone.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ mv CH83_PR8backbone.fasta CH83_PR8backbone_renamed.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ awk '/^>/{if(NR>1)printf "\n"; print; next} {printf "%s",$0} END{printf "\n"}' CH83_PR8backbone_renamed.fasta > CH83_PR8backbone_renamed_fixnls.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ cat CH83_PR8backbone_renamed_fixnls.fasta >> all_flu_refs.fasta
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ grep ">" all_flu_refs.fasta                                   >CA09_PB2
+>CA09_HA
+>CA09_M
+>CA09_NP
+>CA09_NA
+>CA09_PA
+>CA09_PB1
+>CA09_NS
+>HK68_PB1
+>HK68_HA
+>HK68_M
+>HK68_PB2
+>HK68_NP
+>HK68_NA
+>HK68_NS
+>HK68_PA
+>PAN99_PB1
+>PAN99_HA
+>PAN99_M
+>PAN99_NS
+>PAN99_NA
+>PAN99_PA
+>PAN99_PB2
+>PAN99_NP
+>TX12_NP
+>TX12_NA
+>TX12_PB2
+>TX12_PB1
+>TX12_HA
+>TX12_NS
+>TX12_M
+>TX12_PA
+>SI86_NP
+>SI86_PA
+>SI86_NA
+>SI86_PB2
+>SI86_HA
+>SI86_NS
+>SI86_PB1
+>SI86_M
+>CH83PR8_PB1
+>CH83PR8_PA
+>CH83PR8_HA
+>CH83PR8_NP
+>CH83PR8_NA
+>CH83PR8_M
+>CH83PR8_NS
+>CH83PR8_PB2
+
+#all 8 srgments for 6 paretns: CA09, PAN99, HK68, TX12, SI86, and the CH83-PR8bb strain are all presentin the lib prep:
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ grep -c ">" all_flu_refs.fasta
+48
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ grep "PB1" all_flu_refs.fasta
+>CA09_PB1
+>HK68_PB1
+>PAN99_PB1
+>TX12_PB1
+>SI86_PB1
+>CH83PR8_PB1
+
+#genotyping the single coinf run:
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/strain_assignment_output$ bash unsorted_restructure_output_with_segment_files_new_dbs_genotyping_all.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325 -e /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/sample_list_CA09xPAN99.csv -l /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/all_flu_refs.fasta 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/genotyping_log_CA09xPAN99.txt
+
+#add headers to txt files for readability
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/strain_assignment_output$ for file in *.txt; do sed -i '1i b6\tsegment\tmatch_for_segment\treads_for_assigned_par\treads_for_segment\tunsorted\tmulti_hit' ${file}; done
+
+
+
+# genotyping quad triple susie:
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/strain_assignment_output$ bash unsorted_restructure_output_with_segment_files_new_dbs_genotyping_all_more_parents.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125 -e /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/sample_list_Quad_Triple_Susie.csv -l /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/all_flu_refs.fasta 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/genotyping_log_Quad_Triple_Susie.txt
+
+#add headers to output files for readibility:
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/strain_assignment_output$ for file in *.txt; do sed -i '1i b6\tsegment\tmatch_for_segment\treads_for_assigned_par\treads_for_segment\tunsorted\tmulti_hit' ${file}; done
 

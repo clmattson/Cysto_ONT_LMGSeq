@@ -240,6 +240,11 @@ cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ gr
 #add headers to txt files for readability
 (cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/strain_assignment_output$ for file in *.txt; do sed -i '1i b6\tsegment\tmatch_for_segment\treads_for_assigned_par\treads_for_segment\tunsorted\tmulti_hit' ${file}; done
 
+#get raw read count post-demultiplexing
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs$ for fastq in plate??/well??/*.fastq; do     numreads=$(awk 'END{print NR/4}' "$fastq");     plate_well=$(dirname "$fastq" | tr '/' '_');     printf '%s,%s,%s\n' "$numreads" "$plate_well" "$(basename "$fastq")"; done > read_counts_demultiplexed_CA09xPAN99.txt
+
+
+
 
 
 # genotyping quad triple susie:
@@ -248,3 +253,5 @@ cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ gr
 #add headers to output files for readibility:
 (cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/strain_assignment_output$ for file in *.txt; do sed -i '1i b6\tsegment\tmatch_for_segment\treads_for_assigned_par\treads_for_segment\tunsorted\tmulti_hit' ${file}; done
 
+#get raw read count post-demultiplexing
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs$ for fastq in plate??/well??/*.fastq; do     numreads=$(awk 'END{print NR/4}' "$fastq");     plate_well=$(dirname "$fastq" | tr '/' '_');     printf '%s,%s,%s\n' "$numreads" "$plate_well" "$(basename "$fastq")"; done > read_counts_demultiplexed_Quad_Triple_Susie_All.txt

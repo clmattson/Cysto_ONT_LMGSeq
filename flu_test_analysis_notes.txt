@@ -16,11 +16,14 @@ bash demultiplexing_read_rename_filter_multiple_barcodes_V3.sh -d /group/sldmuno
 
 #had to rdo bc accidentally deleted the cutadapt outputs. redid both pore and cut since running voernight and alos forgot to log. rly dont want to have to worry about this during the shut down onnthe 2nd
 
-#location path is unwieldy:
+#location path is unwieldy, moved up
 cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/Quad_Triple_Susie_103125$ mv Quad_Triple_Susie_103125/20251031_1301_MN23913_FBD21587_a228feed/hac_basecall/* .
 
 
+EDIT: accidentally ran the V3 script - needed to run the VERSION 4 demultiplexing script. luckily i can do it with porechop off since there were no differences between them. 
+ALSO LOWERED MIN LENGTH TO 20 bp
 
+bash demultiplexing_read_rename_filter_multiple_barcodes_V4.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125 -r /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/Quad_Triple_Susie_calls_2025-12-17_T22-26-30.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/well_barcodes.fasta -c 0 -l 20 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/Quad_Triple_Susie_demultiplexing_V4_log
 
 
 
@@ -36,9 +39,14 @@ cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam
 
 bash /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/demultiplexing_read_rename_filter_multiple_barcodes_V3.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall -r /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/CA09xPAN99_calls_2025-12-17_T21-10-01.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/well_barcodes.fasta -c 1 -l 100 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/demultiplexing_CA09xPAN99.log
 
-
+#move up to reduce unwieldy file path
 cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/sam_basecalled_flu_runs_2025/CA09xPAN99_102325$ mv CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/hac_basecall/* .
 
+
+EDIT: accidentally ran the V3 script - needed to run the VERSION 4 demultiplexing script. luckily i can do it with porechop off since there were no differences between them. 
+ALSO LOWERED MIN LENGTH TO 20 bp
+
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325$ bash demultiplexing_read_rename_filter_multiple_barcodes_V4.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325 -r /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/CA09xPAN99_calls_2025-12-17_T21-10-01.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/well_barcodes.fasta -c 0 -l 20 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/CA09xPAN99_demultiplexing_V4_log.txt
 
 
 #genotyping

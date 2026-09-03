@@ -1,0 +1,961 @@
+base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5$ ~/dorado/bin/dorado basecaller -h
+[2025-08-05 11:54:55.187] [info] Running: "basecaller" "-h"
+Usage: dorado [--help] [--verbose]... [--device VAR] [--models-directory VAR] [--bed-file VAR] [--recursive] [--read-ids VAR] [--max-reads VAR] [--resume-from VAR] [--disable-read-splitting] [--min-qscore VAR] [--emit-moves] [--emit-fastq] [--emit-sam] [--output-dir VAR] [--reference VAR] [--mm2-opts VAR] [--modified-bases VAR...] [--modified-bases-models VAR] [--modified-bases-threshold VAR] [--modified-bases-batchsize VAR] [--kit-name VAR] [--sample-sheet VAR] [--barcode-both-ends] [--barcode-arrangement VAR] [--barcode-sequences VAR] [--primer-sequences VAR] [--no-trim] [--trim VAR] [--estimate-poly-a] [--poly-a-config VAR] [--batchsize VAR] model data
+
+Positional arguments:
+  model                       Model selection {fast,hac,sup}@v{version} for automatic model selection including modbases, or path to existing model directory. 
+  data                        The data directory or POD5 file path. 
+
+Optional arguments:
+  -h, --help                  shows help message and exits 
+  -v, --verbose               [may be repeated]
+  -x, --device                Specify CPU or GPU device: 'auto', 'cpu', 'cuda:all' or 'cuda:<device_id>[,<device_id>...]'. Specifying 'auto' will choose either 'cpu', 'metal' or 'cuda:all' depending on the presence of a GPU device. [nargs=0..1] [default: "auto"]
+  --models-directory          Optional directory to search for existing models or download new models into. [nargs=0..1] [default: "."]
+  --bed-file                  Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+
+Input data arguments (detailed usage):
+  -r, --recursive             Recursively scan through directories to load POD5 files. 
+  -l, --read-ids              A file with a newline-delimited list of reads to basecall. If not provided, all reads will be basecalled. [nargs=0..1] [default: ""]
+  -n, --max-reads             Limit the number of reads to be basecalled. [nargs=0..1] [default: 0]
+  --resume-from               Resume basecalling from the given HTS file. Fully written read records are not processed again. [nargs=0..1] [default: ""]
+  --disable-read-splitting    Disable read splitting 
+
+Output arguments (detailed usage):
+  --min-qscore                Discard reads with mean Q-score below this threshold or write them to output files marked `fail` if `--output-dir` is set. [nargs=0..1] [default: 0]
+  --emit-moves                Write the move table to the 'mv' tag. 
+  --emit-fastq                Output in fastq format. 
+  --emit-sam                  Output in SAM format. 
+  -o, --output-dir            Optional output folder which becomes the root of the nested output folder structure. 
+
+Alignment arguments (detailed usage):
+  --reference                 Path to reference for alignment. [nargs=0..1] [default: ""]
+  --mm2-opts                  Optional minimap2 options string. For multiple arguments surround with double quotes. 
+
+Modified model arguments (detailed usage):
+  --modified-bases            A space separated list of modified base codes. Choose from: pseU, inosine_m6A, 5mCG, pseU_2OmeU, inosine_m6A_2OmeA, 5mCG_5hmCG, 4mC_5mC, 2OmeG, 5mC_5hmC, 5mC, m5C, m5C_2OmeC, 6mA, m6A_DRACH, m6A. [nargs: 1 or more] 
+  --modified-bases-models     A comma separated list of modified base model paths. [nargs=0..1] [default: ""]
+  --modified-bases-threshold  The minimum predicted methylation probability for a modified base to be emitted in an all-context model, [0, 1]. 
+  --modified-bases-batchsize  The modified base models batch size. 
+
+Barcoding arguments (detailed usage):
+  --kit-name                  Enable barcoding with the provided kit name. Choose from: EXP-NBD103 EXP-NBD104 EXP-NBD114 EXP-NBD114-24 EXP-NBD196 EXP-PBC001 EXP-PBC096 SQK-16S024 SQK-16S114-24 SQK-DRB004-24 SQK-LWB001 SQK-MAB114-24 SQK-MLK111-96-XL SQK-MLK114-96-XL SQK-NBD111-24 SQK-NBD111-96 SQK-NBD114-24 SQK-NBD114-96 SQK-PBK004 SQK-PCB109 SQK-PCB110 SQK-PCB111-24 SQK-PCB114-24 SQK-RAB201 SQK-RAB204 SQK-RBK001 SQK-RBK004 SQK-RBK110-96 SQK-RBK111-24 SQK-RBK111-96 SQK-RBK114-24 SQK-RBK114-96 SQK-RLB001 SQK-RPB004 SQK-RPB114-24 TWIST-16-UDI TWIST-96A-UDI VSK-PTC001 VSK-VMK001 VSK-VMK004 VSK-VPS001. [nargs=0..1] [default: ""]
+  --sample-sheet              Path to the sample sheet to use. [nargs=0..1] [default: ""]
+  --barcode-both-ends         Require both ends of a read to be barcoded for a double ended barcode. 
+  --barcode-arrangement       Path to file with custom barcode arrangement. Requires --kit-name. 
+  --barcode-sequences         Path to file with custom barcode sequences. Requires --kit-name and --barcode-arrangement. 
+  --primer-sequences          Path to fasta file with custom primer sequences, or the name of a supported 3rd-party primer set. If specifying a supported primer set, choose from: 10X_Genomics. 
+
+Trimming arguments (detailed usage):
+  --no-trim                   Skip trimming of barcodes, adapters, and primers. If option is not chosen, trimming of all three is enabled. 
+  --trim                      Specify what to trim. Options are 'none', 'all', and 'adapters'. The default behaviour is to trim all detected adapters, primers, and barcodes. Choose 'adapters' to just trim adapters. The 'none' choice is equivelent to using --no-trim. Note that this only applies to DNA. RNA adapters are always trimmed. [nargs=0..1] [default: ""]
+
+Poly(A) arguments (detailed usage):
+  --estimate-poly-a           Estimate poly(A)/poly(T) tail lengths (beta feature). Primarily meant for cDNA and dRNA use cases. 
+  --poly-a-config             Configuration file for poly(A) estimation to change default behaviours [nargs=0..1] [default: ""]
+
+Advanced arguments (detailed usage):
+  -b, --batchsize             The number of chunks in a batch. If 0 an optimal batchsize will be selected. [nargs=0..1] [default: 0]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5$ ~/dorado/bin/dorado basecaller -v -r --emit_fastq --disable-read-splitting --no-trim -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall sup /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5
+[2025-08-05 11:58:19.586] [info] Running: "basecaller" "-v" "-r" "--emit_fastq" "--disable-read-splitting" "--no-trim" "-o" "/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall" "sup" "/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5"
+[2025-08-05 11:58:19.588] [error] Unknown argument: --emit_fastq
+Usage: dorado [--help] [--verbose]... [--device VAR] [--models-directory VAR] [--bed-file VAR] [--recursive] [--read-ids VAR] [--max-reads VAR] [--resume-from VAR] [--disable-read-splitting] [--min-qscore VAR] [--emit-moves] [--emit-fastq] [--emit-sam] [--output-dir VAR] [--reference VAR] [--mm2-opts VAR] [--modified-bases VAR...] [--modified-bases-models VAR] [--modified-bases-threshold VAR] [--modified-bases-batchsize VAR] [--kit-name VAR] [--sample-sheet VAR] [--barcode-both-ends] [--barcode-arrangement VAR] [--barcode-sequences VAR] [--primer-sequences VAR] [--no-trim] [--trim VAR] [--estimate-poly-a] [--poly-a-config VAR] [--batchsize VAR] model data
+
+Positional arguments:
+  model                       Model selection {fast,hac,sup}@v{version} for automatic model selection including modbases, or path to existing model directory. 
+  data                        The data directory or POD5 file path. 
+
+Optional arguments:
+  -h, --help                  shows help message and exits 
+  -v, --verbose               [may be repeated]
+  -x, --device                Specify CPU or GPU device: 'auto', 'cpu', 'cuda:all' or 'cuda:<device_id>[,<device_id>...]'. Specifying 'auto' will choose either 'cpu', 'metal' or 'cuda:all' depending on the presence of a GPU device. [nargs=0..1] [default: "auto"]
+  --models-directory          Optional directory to search for existing models or download new models into. [nargs=0..1] [default: "."]
+  --bed-file                  Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+
+Input data arguments (detailed usage):
+  -r, --recursive             Recursively scan through directories to load POD5 files. 
+  -l, --read-ids              A file with a newline-delimited list of reads to basecall. If not provided, all reads will be basecalled. [nargs=0..1] [default: ""]
+  -n, --max-reads             Limit the number of reads to be basecalled. [nargs=0..1] [default: 0]
+  --resume-from               Resume basecalling from the given HTS file. Fully written read records are not processed again. [nargs=0..1] [default: ""]
+  --disable-read-splitting    Disable read splitting 
+
+Output arguments (detailed usage):
+  --min-qscore                Discard reads with mean Q-score below this threshold or write them to output files marked `fail` if `--output-dir` is set. [nargs=0..1] [default: 0]
+  --emit-moves                Write the move table to the 'mv' tag. 
+  --emit-fastq                Output in fastq format. 
+  --emit-sam                  Output in SAM format. 
+  -o, --output-dir            Optional output folder which becomes the root of the nested output folder structure. 
+
+Alignment arguments (detailed usage):
+  --reference                 Path to reference for alignment. [nargs=0..1] [default: ""]
+  --mm2-opts                  Optional minimap2 options string. For multiple arguments surround with double quotes. 
+
+Modified model arguments (detailed usage):
+  --modified-bases            A space separated list of modified base codes. Choose from: pseU, inosine_m6A, 5mCG, pseU_2OmeU, inosine_m6A_2OmeA, 5mCG_5hmCG, 4mC_5mC, 2OmeG, 5mC_5hmC, 5mC, m5C, m5C_2OmeC, 6mA, m6A_DRACH, m6A. [nargs: 1 or more] 
+  --modified-bases-models     A comma separated list of modified base model paths. [nargs=0..1] [default: ""]
+  --modified-bases-threshold  The minimum predicted methylation probability for a modified base to be emitted in an all-context model, [0, 1]. 
+  --modified-bases-batchsize  The modified base models batch size. 
+
+Barcoding arguments (detailed usage):
+  --kit-name                  Enable barcoding with the provided kit name. Choose from: EXP-NBD103 EXP-NBD104 EXP-NBD114 EXP-NBD114-24 EXP-NBD196 EXP-PBC001 EXP-PBC096 SQK-16S024 SQK-16S114-24 SQK-DRB004-24 SQK-LWB001 SQK-MAB114-24 SQK-MLK111-96-XL SQK-MLK114-96-XL SQK-NBD111-24 SQK-NBD111-96 SQK-NBD114-24 SQK-NBD114-96 SQK-PBK004 SQK-PCB109 SQK-PCB110 SQK-PCB111-24 SQK-PCB114-24 SQK-RAB201 SQK-RAB204 SQK-RBK001 SQK-RBK004 SQK-RBK110-96 SQK-RBK111-24 SQK-RBK111-96 SQK-RBK114-24 SQK-RBK114-96 SQK-RLB001 SQK-RPB004 SQK-RPB114-24 TWIST-16-UDI TWIST-96A-UDI VSK-PTC001 VSK-VMK001 VSK-VMK004 VSK-VPS001. [nargs=0..1] [default: ""]
+  --sample-sheet              Path to the sample sheet to use. [nargs=0..1] [default: ""]
+  --barcode-both-ends         Require both ends of a read to be barcoded for a double ended barcode. 
+  --barcode-arrangement       Path to file with custom barcode arrangement. Requires --kit-name. 
+  --barcode-sequences         Path to file with custom barcode sequences. Requires --kit-name and --barcode-arrangement. 
+  --primer-sequences          Path to fasta file with custom primer sequences, or the name of a supported 3rd-party primer set. If specifying a supported primer set, choose from: 10X_Genomics. 
+
+Trimming arguments (detailed usage):
+  --no-trim                   Skip trimming of barcodes, adapters, and primers. If option is not chosen, trimming of all three is enabled. 
+  --trim                      Specify what to trim. Options are 'none', 'all', and 'adapters'. The default behaviour is to trim all detected adapters, primers, and barcodes. Choose 'adapters' to just trim adapters. The 'none' choice is equivelent to using --no-trim. Note that this only applies to DNA. RNA adapters are always trimmed. [nargs=0..1] [default: ""]
+
+Poly(A) arguments (detailed usage):
+  --estimate-poly-a           Estimate poly(A)/poly(T) tail lengths (beta feature). Primarily meant for cDNA and dRNA use cases. 
+  --poly-a-config             Configuration file for poly(A) estimation to change default behaviours [nargs=0..1] [default: ""]
+
+Advanced arguments (detailed usage):
+  -b, --batchsize             The number of chunks in a batch. If 0 an optimal batchsize will be selected. [nargs=0..1] [default: 0]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5$ ~/dorado/bin/dorado basecaller -v -r --emit-fastq --disable-read-splitting --no-trim -o /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall sup /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5
+[2025-08-05 15:13:07.056] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--disable-read-splitting" "--no-trim" "-o" "/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall" "sup" "/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5"
+[2025-08-05 15:13:07.132] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2025-08-05 15:13:25.270] [info] > Creating basecall pipeline
+[2025-08-05 15:13:25.372] [info] Using CUDA devices:
+[2025-08-05 15:13:25.372] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2025-08-05 15:13:25.384] [debug] TxEncoderStack: use_koi_tiled true.
+[2025-08-05 15:13:25.384] [debug] TxEncoderStack: use_koi_volta_tiled false.
+[2025-08-05 15:13:25.908] [debug] cuda:0 memory available: 9.61GB
+[2025-08-05 15:13:25.908] [debug] cuda:0 memory limit 8.61GB
+[2025-08-05 15:13:25.908] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
+[2025-08-05 15:13:25.908] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
+[2025-08-05 15:13:25.908] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
+[2025-08-05 15:13:25.908] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
+[2025-08-05 15:13:26.108] [debug] Auto batchsize cuda:0: 32, time per chunk 0.447744 ms
+[2025-08-05 15:13:26.189] [debug] Auto batchsize cuda:0: 64, time per chunk 0.367296 ms
+[2025-08-05 15:13:26.272] [debug] Auto batchsize cuda:0: 96, time per chunk 0.340907 ms
+[2025-08-05 15:13:26.370] [debug] Auto batchsize cuda:0: 128, time per chunk 0.303301 ms
+[2025-08-05 15:13:26.487] [debug] Auto batchsize cuda:0: 160, time per chunk 0.298271 ms
+[2025-08-05 15:13:26.620] [debug] Auto batchsize cuda:0: 192, time per chunk 0.293747 ms
+[2025-08-05 15:13:26.620] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
+[2025-08-05 15:13:26.620] [debug] Largest batch size for cuda:0: 192, time per chunk 0.293747 ms
+[2025-08-05 15:13:26.620] [debug] Final batch size for cuda:0[0]: 96
+[2025-08-05 15:13:26.620] [debug] Final batch size for cuda:0[1]: 192
+[2025-08-05 15:13:26.621] [info] cuda:0 using chunk size 12288, batch size 96
+[2025-08-05 15:13:26.621] [debug] cuda:0 Model memory 6.85GB
+[2025-08-05 15:13:26.621] [debug] cuda:0 Decode memory 0.83GB
+[2025-08-05 15:13:26.824] [info] cuda:0 using chunk size 6144, batch size 192
+[2025-08-05 15:13:26.824] [debug] cuda:0 Model memory 6.85GB
+[2025-08-05 15:13:26.824] [debug] cuda:0 Decode memory 0.83GB
+[2025-08-05 15:13:27.084] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2025-08-05 15:13:27.084] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2025-08-05 15:13:27.084] [debug] BasecallerNode chunk size 12288
+[2025-08-05 15:13:27.084] [debug] BasecallerNode chunk size 6144
+[2025-08-05 15:13:27.085] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_39.pod5
+[2025-08-05 15:13:27.334] [debug] Creating output folder: '/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_basecall/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_2306_MN23913_FBC73506_d5fa85e0/fastq_pass'. Length:313
+[2025-08-05 15:29:52.260] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_19.pod5
+[2025-08-05 15:52:39.957] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_6.pod5
+[2025-08-05 16:20:25.054] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_67.pod5
+[2025-08-05 16:21:52.581] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_9.pod5
+debug[] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_21.pod5 
+[2025-08-05 17:09:33.148] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_49.pod5
+[2025-08-05 17:21:43.594] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_26.pod5
+[2025-08-05 17:41:37.095] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_22.pod5
+[2025-08-05 18:04:10.488] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_47.pod5
+[2025-08-05 18:17:39.382] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_46.pod5
+[2025-08-05 18:30:33.109] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_3.pod5
+[2025-08-05 19:02:33.273] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_56.pod5
+[2025-08-05 19:05:52.186] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_51.pod5
+[2025-08-05 19:16:17.364] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_57.pod5
+[2025-08-05 19:18:53.074] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_43.pod5
+[2025-08-05 19:33:29.772] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_55.pod5
+[2025-08-05 19:40:15.986] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_65.pod5
+[2025-08-05 19:44:17.131] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_23.pod5
+[2025-08-05 20:03:53.536] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_8.pod5
+[2025-08-05 20:31:30.038] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_13.pod5
+[2025-08-05 20:56:20.293] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_7.pod5
+[2025-08-05 21:23:55.112] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_52.pod5
+[2025-08-05 21:36:21.238] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_50.pod5
+[2025-08-05 21:47:41.336] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_68.pod5
+[2025-08-05 21:48:06.418] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_5.pod5
+[2025-08-05 22:16:57.140] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_64.pod5
+[2025-08-05 22:18:19.865] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_41.pod5
+[2025-08-05 22:35:28.360] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_30.pod5
+[2025-08-05 22:56:36.290] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_27.pod5
+[2025-08-05 23:16:49.105] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_31.pod5
+[2025-08-05 23:32:27.026] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_14.pod5
+[2025-08-05 23:56:16.355] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_62.pod5
+[2025-08-05 23:58:19.690] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_16.pod5
+[2025-08-06 00:22:33.849] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_1.pod5
+[2025-08-06 00:55:14.845] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_63.pod5
+[2025-08-06 00:57:08.598] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_29.pod5
+[2025-08-06 01:16:40.239] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_20.pod5
+[2025-08-06 01:38:12.103] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_17.pod5
+[2025-08-06 01:59:47.882] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_61.pod5
+[2025-08-06 02:02:00.910] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_28.pod5
+[2025-08-06 02:21:21.052] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_24.pod5
+[2025-08-06 02:42:51.575] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_36.pod5
+[2025-08-06 03:01:04.444] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_12.pod5
+[2025-08-06 03:25:53.769] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_35.pod5
+[2025-08-06 03:42:39.327] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_59.pod5
+[2025-08-06 03:45:10.090] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_15.pod5
+[2025-08-06 04:08:32.406] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_10.pod5
+[2025-08-06 04:37:13.017] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_25.pod5
+[2025-08-06 04:58:14.466] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_33.pod5
+[2025-08-06 05:17:00.316] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_54.pod5
+[2025-08-06 05:24:33.759] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_18.pod5
+[2025-08-06 05:46:02.686] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_53.pod5
+[2025-08-06 05:52:12.555] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_48.pod5
+[2025-08-06 06:05:06.690] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_34.pod5
+[2025-08-06 06:21:42.808] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_38.pod5
+[2025-08-06 06:37:43.594] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_37.pod5
+[2025-08-06 06:54:14.331] [debug] Load reads from fil--min-qscoree /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_2.pod5
+[2025-08-06 07:26:45.011] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_44.pod5
+[2025-08-06 07:40:23.142] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_58.pod5
+[2025-08-06 07:42:40.079] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_66.pod5
+[2025-08-06 07:43:44.127] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_40.pod5
+[2025-08-06 07:58:17.681] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_4.pod5
+[2025-08-06 08:28:49.617] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_0.pod5
+[2025-08-06 09:01:45.110] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_11.pod5
+[2025-08-06 09:28:47.542] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_32.pod5
+[2025-08-06 09:45:10.330] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_42.pod5
+[2025-08-06 10:01:59.666] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_45.pod5
+[2025-08-06 10:16:08.300] [debug] Load reads from file /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/FBC73506_d5fa85e0_b727e37a_60.pod5
+[2025-08-06 10:21:25.785] [info] > Finished in (ms): 68878700
+[2025-08-06 10:21:25.785] [info] > Simplex reads basecalled: 20226344
+[2025-08-06 10:21:25.785] [info] > Basecalled @ Samples/s: 3.542993e+06
+[2025-08-06 10:21:25.785] [debug] > Including Padding @ Samples/s: 5.087e+06 (69.65%)
+[2025-08-06 10:21:25.787] [debug] Deleting temporary model path: /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/pod5/.temp_dorado_model-fd6d9b5f09752f45
+[2025-08-06 10:21:25.791] [info] > Finished
+
+
+
+
+
+
+############### more courtney notes #####################################3
+## just copy pasting old terminal outputs for safekeeping:
+
+O---o
+ O-o   welcome ~ cmatt ~ to
+  O      __                 _    _ _
+ o-O    / _|               | |  | (_)
+o---O  | |_ _ __ __ _ _ __ | | _| |_ _ __
+O---o  |  _| '__/ _` | '_ \| |/ / | | '_ \
+ O-o   | | | | | (_| | | | |   <| | | | | |
+  O    |_| |_|  \__,_|_| |_|_|\_\_|_|_| |_|
+ o-O   .hpc.ucdavis.edu ~ node "franklin"
+o---O
+O---o  Fri, 13 Feb 2026 16:23:15 -0800
+ O-o   Ubuntu 22.04.5 LTS ~ Linux 6.5.0-45-generic
+  O    QEMU Virtual CPU version 2.5+ (x1) ~ 12G of 31G RAM used
+ o-O   Support at hpc-help@ucdavis.edu ~ hpc-franklin-announce@ucdavis.edu
+o---O  Changelog: https://docs.hpc.ucdavis.edu/maintenance/december-2025/
+
+Last login: Fri Feb 13 16:20:50 2026 from 169.237.98.13
+Loading openmpi/default
+  Loading requirement: ucx/1.14.1
+
+***** Slurm resources available to you.
+Default account: sldmunozgrp
+                         |   Account Limits   |
+Account      Partition   | CPUs  MEM(G) GPUs  |
+-----------------------------------------------
+sldmunozgrp⁺ high        | 512   2,048  0     | 
+sldmunozgrp⁺ low         | *     *      *     | 
+sldmunozgrp⁺ mmgdept-gpu | *     *      *     | 
+⁺ default account. Use --account=... to use resources from other accounts.
+* in a column means no limits of this type.
+
+cmatt5@franklin:~$ cd group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+-bash: cd: group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu: No such file or directory
+cmatt5@franklin:~$ cd group/sldmunozgrp/cysto_LMGSeq08-25
+-bash: cd: group/sldmunozgrp/cysto_LMGSeq08-25: No such file or directory
+cmatt5@franklin:~$ cd /group/sldmunozgrp/cysto_LMGSeq08-25
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25$ cd Feb_cysto_flu/
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu$ cd ~
+cmatt5@franklin:~$ cd /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu$ exit
+logout
+Connection to franklin.hpc.ucdavis.edu closed.
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ scp FBC73506_pass_9ee158db_6bd36f99_2* cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+ssh: Could not resolve hostname franklin: Temporary failure in name resolution
+lost connection
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ scp FBC73506_pass_9ee158db_6bd36f99_2* cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu -v
+-v: No such file or directory
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ scp -v  FBC73506_pass_9ee158db_6bd36f99_2* cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+Executing: program /usr/bin/ssh host franklin, user cmatt5, command scp -v -d -t /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+OpenSSH_8.2p1 Ubuntu-4ubuntu0.13, OpenSSL 1.1.1f  31 Mar 2020
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: /etc/ssh/ssh_config line 19: include /etc/ssh/ssh_config.d/*.conf matched no files
+debug1: /etc/ssh/ssh_config line 21: Applying options for *
+ssh: Could not resolve hostname franklin: Temporary failure in name resolution
+lost connection
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ sftp FBC73506_pass_9ee158db_6bd36f99_2* cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu 
+usage: sftp [-46aCfpqrv] [-B buffer_size] [-b batchfile] [-c cipher]
+          [-D sftp_server_path] [-F ssh_config] [-i identity_file]
+          [-J destination] [-l limit] [-o ssh_option] [-P port]
+          [-R num_requests] [-S program] [-s subsystem | sftp_server]
+          destination
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ cho "put " | sftp cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+ssh: Could not resolve hostname franklin: Temporary failure in name resolution
+Connection closed.  
+Connection closed
+
+Command 'cho' not found, did you mean:
+
+  command 'chr' from snap chr (0.80.4)
+  command 'echo' from deb coreutils (8.30-3ubuntu2)
+  command 'who' from deb coreutils (8.30-3ubuntu2)
+  command 'cht' from deb chemtool (1.6.14-5)
+  command 'co' from deb rcs (5.9.4-6)
+  command 'cdo' from deb cdo (1.9.9~rc1-1)
+
+See 'snap info <snapname>' for additional versions.
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ echo "put FBC73506_pass_9ee158db_6bd36f99_48.fastq.gz" | sftp cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu
+ssh: Could not resolve hostname franklin: Temporary failure in name resolution
+Connection closed.  
+Connection closed
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ scp FBC73506_pass_9ee158db_6bd36f99_2* cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu 
+ssh: Could not resolve hostname franklin: Temporary failure in name resolution
+lost connection
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ ~/dorado/bin/dorado basecaller -h
+[2026-02-17 12:12:25.152] [info] Running: "basecaller" "-h"
+Usage: dorado [--help] [--verbose]... [--device VAR] [--models-directory VAR] [--bed-file VAR] [--recursive] [--read-ids VAR] [--max-reads VAR] [--resume-from VAR] [--disable-read-splitting] [--min-qscore VAR] [--emit-moves] [--emit-fastq] [--emit-sam] [--output-dir VAR] [--reference VAR] [--mm2-opts VAR] [--modified-bases VAR...] [--modified-bases-models VAR] [--modified-bases-threshold VAR] [--modified-bases-batchsize VAR] [--kit-name VAR] [--sample-sheet VAR] [--barcode-both-ends] [--barcode-arrangement VAR] [--barcode-sequences VAR] [--primer-sequences VAR] [--no-trim] [--trim VAR] [--estimate-poly-a] [--poly-a-config VAR] [--batchsize VAR] model data
+
+Positional arguments:
+  model                       Model selection {fast,hac,sup}@v{version} for automatic model selection including modbases, or path to existing model directory. 
+  data                        The data directory or POD5 file path. 
+
+Optional arguments:
+  -h, --help                  shows help message and exits 
+  -v, --verbose               [may be repeated]
+  -x, --device                Specify CPU or GPU device: 'auto', 'cpu', 'cuda:all' or 'cuda:<device_id>[,<device_id>...]'. Specifying 'auto' will choose either 'cpu', 'metal' or 'cuda:all' depending on the presence of a GPU device. [nargs=0..1] [default: "auto"]
+  --models-directory          Optional directory to search for existing models or download new models into. [nargs=0..1] [default: "."]
+  --bed-file                  Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+
+Input data arguments (detailed usage):
+  -r, --recursive             Recursively scan through directories to load POD5 files. 
+  -l, --read-ids              A file with a newline-delimited list of reads to basecall. If not provided, all reads will be basecalled. [nargs=0..1] [default: ""]
+  -n, --max-reads             Limit the number of reads to be basecalled. [nargs=0..1] [default: 0]
+  --resume-from               Resume basecalling from the given HTS file. Fully written read records are not processed again. [nargs=0..1] [default: ""]
+  --disable-read-splitting    Disable read splitting 
+
+Output arguments (detailed usage):
+  --min-qscore                Discard reads with mean Q-score below this threshold or write them to output files marked `fail` if `--output-dir` is set. [nargs=0..1] [default: 0]
+  --emit-moves                Write the move table to the 'mv' tag. 
+  --emit-fastq                Output in fastq format. 
+  --emit-sam                  Output in SAM format. 
+  -o, --output-dir            Optional output folder which becomes the root of the nested output folder structure. 
+
+Alignment arguments (detailed usage):
+  --reference                 Path to reference for alignment. [nargs=0..1] [default: ""]
+  --mm2-opts                  Optional minimap2 options string. For multiple arguments surround with double quotes. 
+
+Modified model arguments (detailed usage):
+  --modified-bases            A space separated list of modified base codes. Choose from: pseU, inosine_m6A, 5mCG, pseU_2OmeU, inosine_m6A_2OmeA, 5mCG_5hmCG, 4mC_5mC, 2OmeG, 5mC_5hmC, 5mC, m5C, m5C_2OmeC, 6mA, m6A_DRACH, m6A. [nargs: 1 or more] 
+  --modified-bases-models     A comma separated list of modified base model paths. [nargs=0..1] [default: ""]
+  --modified-bases-threshold  The minimum predicted methylation probability for a modified base to be emitted in an all-context model, [0, 1]. 
+  --modified-bases-batchsize  The modified base models batch size. 
+
+Barcoding arguments (detailed usage):
+  --kit-name                  Enable barcoding with the provided kit name. Choose from: EXP-NBD103 EXP-NBD104 EXP-NBD114 EXP-NBD114-24 EXP-NBD196 EXP-PBC001 EXP-PBC096 SQK-16S024 SQK-16S114-24 SQK-DRB004-24 SQK-LWB001 SQK-MAB114-24 SQK-MLK111-96-XL SQK-MLK114-96-XL SQK-NBD111-24 SQK-NBD111-96 SQK-NBD114-24 SQK-NBD114-96 SQK-PBK004 SQK-PCB109 SQK-PCB110 SQK-PCB111-24 SQK-PCB114-24 SQK-RAB201 SQK-RAB204 SQK-RBK001 SQK-RBK004 SQK-RBK110-96 SQK-RBK111-24 SQK-RBK111-96 SQK-RBK114-24 SQK-RBK114-96 SQK-RLB001 SQK-RPB004 SQK-RPB114-24 TWIST-16-UDI TWIST-96A-UDI VSK-PTC001 VSK-VMK001 VSK-VMK004 VSK-VPS001. [nargs=0..1] [default: ""]
+  --sample-sheet              Path to the sample sheet to use. [nargs=0..1] [default: ""]
+  --barcode-both-ends         Require both ends of a read to be barcoded for a double ended barcode. 
+  --barcode-arrangement       Path to file with custom barcode arrangement. Requires --kit-name. 
+  --barcode-sequences         Path to file with custom barcode sequences. Requires --kit-name and --barcode-arrangement. 
+  --primer-sequences          Path to fasta file with custom primer sequences, or the name of a supported 3rd-party primer set. If specifying a supported primer set, choose from: 10X_Genomics. 
+
+Trimming arguments (detailed usage):
+  --no-trim                   Skip trimming of barcodes, adapters, and primers. If option is not chosen, trimming of all three is enabled. 
+  --trim                      Specify what to trim. Options are 'none', 'all', and 'adapters'. The default behaviour is to trim all detected adapters, primers, and barcodes. Choose 'adapters' to just trim adapters. The 'none' choice is equivelent to using --no-trim. Note that this only applies to DNA. RNA adapters are always trimmed. [nargs=0..1] [default: ""]
+
+Poly(A) arguments (detailed usage):
+  --estimate-poly-a           Estimate poly(A)/poly(T) tail lengths (beta feature). Primarily meant for cDNA and dRNA use cases. 
+  --poly-a-config             Configuration file for poly(A) estimation to change default behaviours [nargs=0..1] [default: ""]
+
+Advanced arguments (detailed usage):
+  -b, --batchsize             The number of chunks in a batch. If 0 an optimal batchsize will be selected. [nargs=0..1] [default: 0]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/fastq_pass$ cd ..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ~/dorado/bin/dorado basecaller -v -r --emit_fastq --disable_read_splitting --no_trim -o /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/po
+pod5/                                         pore_activity_FBC73506_9ee158db_6bd36f99.csv  
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ~/dorado/bin/dorado basecaller -v -r --emit_fastq --disable_read_splitting --no_trim -o /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/po
+pod5/                                         pore_activity_FBC73506_9ee158db_6bd36f99.csv  
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ~/dorado/bin/dorado basecaller -v -r --emit_fastq --disable_read_splitting --no_trim -o /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5
+[2026-02-17 12:31:44.308] [info] Running: "basecaller" "-v" "-r" "--emit_fastq" "--disable_read_splitting" "--no_trim" "-o" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5"
+[2026-02-17 12:31:44.326] [error] data: 1 argument(s) expected. 0 provided.
+Usage: dorado [--help] [--verbose]... [--device VAR] [--models-directory VAR] [--bed-file VAR] [--recursive] [--read-ids VAR] [--max-reads VAR] [--resume-from VAR] [--disable-read-splitting] [--min-qscore VAR] [--emit-moves] [--emit-fastq] [--emit-sam] [--output-dir VAR] [--reference VAR] [--mm2-opts VAR] [--modified-bases VAR...] [--modified-bases-models VAR] [--modified-bases-threshold VAR] [--modified-bases-batchsize VAR] [--kit-name VAR] [--sample-sheet VAR] [--barcode-both-ends] [--barcode-arrangement VAR] [--barcode-sequences VAR] [--primer-sequences VAR] [--no-trim] [--trim VAR] [--estimate-poly-a] [--poly-a-config VAR] [--batchsize VAR] model data
+
+Positional arguments:
+  model                       Model selection {fast,hac,sup}@v{version} for automatic model selection including modbases, or path to existing model directory. 
+  data                        The data directory or POD5 file path. 
+
+Optional arguments:
+  -h, --help                  shows help message and exits 
+  -v, --verbose               [may be repeated]
+  -x, --device                Specify CPU or GPU device: 'auto', 'cpu', 'cuda:all' or 'cuda:<device_id>[,<device_id>...]'. Specifying 'auto' will choose either 'cpu', 'metal' or 'cuda:all' depending on the presence of a GPU device. [nargs=0..1] [default: "auto"]
+  --models-directory          Optional directory to search for existing models or download new models into. [nargs=0..1] [default: "."]
+  --bed-file                  Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+
+Input data arguments (detailed usage):
+  -r, --recursive             Recursively scan through directories to load POD5 files. 
+  -l, --read-ids              A file with a newline-delimited list of reads to basecall. If not provided, all reads will be basecalled. [nargs=0..1] [default: ""]
+  -n, --max-reads             Limit the number of reads to be basecalled. [nargs=0..1] [default: 0]
+  --resume-from               Resume basecalling from the given HTS file. Fully written read records are not processed again. [nargs=0..1] [default: ""]
+  --disable-read-splitting    Disable read splitting 
+
+Output arguments (detailed usage):
+  --min-qscore                Discard reads with mean Q-score below this threshold or write them to output files marked `fail` if `--output-dir` is set. [nargs=0..1] [default: 0]
+  --emit-moves                Write the move table to the 'mv' tag. 
+  --emit-fastq                Output in fastq format. 
+  --emit-sam                  Output in SAM format. 
+  -o, --output-dir            Optional output folder which becomes the root of the nested output folder structure. 
+
+Alignment arguments (detailed usage):
+  --reference                 Path to reference for alignment. [nargs=0..1] [default: ""]
+  --mm2-opts                  Optional minimap2 options string. For multiple arguments surround with double quotes. 
+
+Modified model arguments (detailed usage):
+  --modified-bases            A space separated list of modified base codes. Choose from: pseU, inosine_m6A, 5mCG, pseU_2OmeU, inosine_m6A_2OmeA, 5mCG_5hmCG, 4mC_5mC, 2OmeG, 5mC_5hmC, 5mC, m5C, m5C_2OmeC, 6mA, m6A_DRACH, m6A. [nargs: 1 or more] 
+  --modified-bases-models     A comma separated list of modified base model paths. [nargs=0..1] [default: ""]
+  --modified-bases-threshold  The minimum predicted methylation probability for a modified base to be emitted in an all-context model, [0, 1]. 
+  --modified-bases-batchsize  The modified base models batch size. 
+
+Barcoding arguments (detailed usage):
+  --kit-name                  Enable barcoding with the provided kit name. Choose from: EXP-NBD103 EXP-NBD104 EXP-NBD114 EXP-NBD114-24 EXP-NBD196 EXP-PBC001 EXP-PBC096 SQK-16S024 SQK-16S114-24 SQK-DRB004-24 SQK-LWB001 SQK-MAB114-24 SQK-MLK111-96-XL SQK-MLK114-96-XL SQK-NBD111-24 SQK-NBD111-96 SQK-NBD114-24 SQK-NBD114-96 SQK-PBK004 SQK-PCB109 SQK-PCB110 SQK-PCB111-24 SQK-PCB114-24 SQK-RAB201 SQK-RAB204 SQK-RBK001 SQK-RBK004 SQK-RBK110-96 SQK-RBK111-24 SQK-RBK111-96 SQK-RBK114-24 SQK-RBK114-96 SQK-RLB001 SQK-RPB004 SQK-RPB114-24 TWIST-16-UDI TWIST-96A-UDI VSK-PTC001 VSK-VMK001 VSK-VMK004 VSK-VPS001. [nargs=0..1] [default: ""]
+  --sample-sheet              Path to the sample sheet to use. [nargs=0..1] [default: ""]
+  --barcode-both-ends         Require both ends of a read to be barcoded for a double ended barcode. 
+  --barcode-arrangement       Path to file with custom barcode arrangement. Requires --kit-name. 
+  --barcode-sequences         Path to file with custom barcode sequences. Requires --kit-name and --barcode-arrangement. 
+  --primer-sequences          Path to fasta file with custom primer sequences, or the name of a supported 3rd-party primer set. If specifying a supported primer set, choose from: 10X_Genomics. 
+
+Trimming arguments (detailed usage):
+  --no-trim                   Skip trimming of barcodes, adapters, and primers. If option is not chosen, trimming of all three is enabled. 
+  --trim                      Specify what to trim. Options are 'none', 'all', and 'adapters'. The default behaviour is to trim all detected adapters, primers, and barcodes. Choose 'adapters' to just trim adapters. The 'none' choice is equivelent to using --no-trim. Note that this only applies to DNA. RNA adapters are always trimmed. [nargs=0..1] [default: ""]
+
+Poly(A) arguments (detailed usage):
+  --estimate-poly-a           Estimate poly(A)/poly(T) tail lengths (beta feature). Primarily meant for cDNA and dRNA use cases. 
+  --poly-a-config             Configuration file for poly(A) estimation to change default behaviours [nargs=0..1] [default: ""]
+
+Advanced arguments (detailed usage):
+  -b, --batchsize             The number of chunks in a batch. If 0 an optimal batchsize will be selected. [nargs=0..1] [default: 0]
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ~/dorado/bin/dorado basecaller -v -r --emit_fastq --disable_read_splitting --no_trim -o /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/
+[2026-02-17 12:32:19.187] [info] Running: "basecaller" "-v" "-r" "--emit_fastq" "--disable_read_splitting" "--no_trim" "-o" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/"
+[2026-02-17 12:32:19.189] [error] data: 1 argument(s) expected. 0 provided.
+Usage: dorado [--help] [--verbose]... [--device VAR] [--models-directory VAR] [--bed-file VAR] [--recursive] [--read-ids VAR] [--max-reads VAR] [--resume-from VAR] [--disable-read-splitting] [--min-qscore VAR] [--emit-moves] [--emit-fastq] [--emit-sam] [--output-dir VAR] [--reference VAR] [--mm2-opts VAR] [--modified-bases VAR...] [--modified-bases-models VAR] [--modified-bases-threshold VAR] [--modified-bases-batchsize VAR] [--kit-name VAR] [--sample-sheet VAR] [--barcode-both-ends] [--barcode-arrangement VAR] [--barcode-sequences VAR] [--primer-sequences VAR] [--no-trim] [--trim VAR] [--estimate-poly-a] [--poly-a-config VAR] [--batchsize VAR] model data
+
+Positional arguments:
+  model                       Model selection {fast,hac,sup}@v{version} for automatic model selection including modbases, or path to existing model directory. 
+  data                        The data directory or POD5 file path. 
+
+Optional arguments:
+  -h, --help                  shows help message and exits 
+  -v, --verbose               [may be repeated]
+  -x, --device                Specify CPU or GPU device: 'auto', 'cpu', 'cuda:all' or 'cuda:<device_id>[,<device_id>...]'. Specifying 'auto' will choose either 'cpu', 'metal' or 'cuda:all' depending on the presence of a GPU device. [nargs=0..1] [default: "auto"]
+  --models-directory          Optional directory to search for existing models or download new models into. [nargs=0..1] [default: "."]
+  --bed-file                  Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+
+Input data arguments (detailed usage):
+  -r, --recursive             Recursively scan through directories to load POD5 files. 
+  -l, --read-ids              A file with a newline-delimited list of reads to basecall. If not provided, all reads will be basecalled. [nargs=0..1] [default: ""]
+  -n, --max-reads             Limit the number of reads to be basecalled. [nargs=0..1] [default: 0]
+  --resume-from               Resume basecalling from the given HTS file. Fully written read records are not processed again. [nargs=0..1] [default: ""]
+  --disable-read-splitting    Disable read splitting 
+
+Output arguments (detailed usage):
+  --min-qscore                Discard reads with mean Q-score below this threshold or write them to output files marked `fail` if `--output-dir` is set. [nargs=0..1] [default: 0]
+  --emit-moves                Write the move table to the 'mv' tag. 
+  --emit-fastq                Output in fastq format. 
+  --emit-sam                  Output in SAM format. 
+  -o, --output-dir            Optional output folder which becomes the root of the nested output folder structure. 
+
+Alignment arguments (detailed usage):
+  --reference                 Path to reference for alignment. [nargs=0..1] [default: ""]
+  --mm2-opts                  Optional minimap2 options string. For multiple arguments surround with double quotes. 
+
+Modified model arguments (detailed usage):
+  --modified-bases            A space separated list of modified base codes. Choose from: pseU, inosine_m6A, 5mCG, pseU_2OmeU, inosine_m6A_2OmeA, 5mCG_5hmCG, 4mC_5mC, 2OmeG, 5mC_5hmC, 5mC, m5C, m5C_2OmeC, 6mA, m6A_DRACH, m6A. [nargs: 1 or more] 
+  --modified-bases-models     A comma separated list of modified base model paths. [nargs=0..1] [default: ""]
+  --modified-bases-threshold  The minimum predicted methylation probability for a modified base to be emitted in an all-context model, [0, 1]. 
+  --modified-bases-batchsize  The modified base models batch size. 
+
+Barcoding arguments (detailed usage):
+  --kit-name                  Enable barcoding with the provided kit name. Choose from: EXP-NBD103 EXP-NBD104 EXP-NBD114 EXP-NBD114-24 EXP-NBD196 EXP-PBC001 EXP-PBC096 SQK-16S024 SQK-16S114-24 SQK-DRB004-24 SQK-LWB001 SQK-MAB114-24 SQK-MLK111-96-XL SQK-MLK114-96-XL SQK-NBD111-24 SQK-NBD111-96 SQK-NBD114-24 SQK-NBD114-96 SQK-PBK004 SQK-PCB109 SQK-PCB110 SQK-PCB111-24 SQK-PCB114-24 SQK-RAB201 SQK-RAB204 SQK-RBK001 SQK-RBK004 SQK-RBK110-96 SQK-RBK111-24 SQK-RBK111-96 SQK-RBK114-24 SQK-RBK114-96 SQK-RLB001 SQK-RPB004 SQK-RPB114-24 TWIST-16-UDI TWIST-96A-UDI VSK-PTC001 VSK-VMK001 VSK-VMK004 VSK-VPS001. [nargs=0..1] [default: ""]
+  --sample-sheet              Path to the sample sheet to use. [nargs=0..1] [default: ""]
+  --barcode-both-ends         Require both ends of a read to be barcoded for a double ended barcode. 
+  --barcode-arrangement       Path to file with custom barcode arrangement. Requires --kit-name. 
+  --barcode-sequences         Path to file with custom barcode sequences. Requires --kit-name and --barcode-arrangement. 
+  --primer-sequences          Path to fasta file with custom primer sequences, or the name of a supported 3rd-party primer set. If specifying a supported primer set, choose from: 10X_Genomics. 
+
+Trimming arguments (detailed usage):
+  --no-trim                   Skip trimming of barcodes, adapters, and primers. If option is not chosen, trimming of all three is enabled. 
+  --trim                      Specify what to trim. Options are 'none', 'all', and 'adapters'. The default behaviour is to trim all detected adapters, primers, and barcodes. Choose 'adapters' to just trim adapters. The 'none' choice is equivelent to using --no-trim. Note that this only applies to DNA. RNA adapters are always trimmed. [nargs=0..1] [default: ""]
+
+Poly(A) arguments (detailed usage):
+  --estimate-poly-a           Estimate poly(A)/poly(T) tail lengths (beta feature). Primarily meant for cDNA and dRNA use cases. 
+  --poly-a-config             Configuration file for poly(A) estimation to change default behaviours [nargs=0..1] [default: ""]
+
+Advanced arguments (detailed usage):
+  -b, --batchsize             The number of chunks in a batch. If 0 an optimal batchsize will be selected. [nargs=0..1] [default: 0]
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ cd pod5/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ ls
+FBC73506_9ee158db_6bd36f99_0.pod5   FBC73506_9ee158db_6bd36f99_26.pod5  FBC73506_9ee158db_6bd36f99_42.pod5  FBC73506_9ee158db_6bd36f99_59.pod5
+FBC73506_9ee158db_6bd36f99_10.pod5  FBC73506_9ee158db_6bd36f99_27.pod5  FBC73506_9ee158db_6bd36f99_43.pod5  FBC73506_9ee158db_6bd36f99_5.pod5
+FBC73506_9ee158db_6bd36f99_11.pod5  FBC73506_9ee158db_6bd36f99_28.pod5  FBC73506_9ee158db_6bd36f99_44.pod5  FBC73506_9ee158db_6bd36f99_60.pod5
+FBC73506_9ee158db_6bd36f99_12.pod5  FBC73506_9ee158db_6bd36f99_29.pod5  FBC73506_9ee158db_6bd36f99_45.pod5  FBC73506_9ee158db_6bd36f99_61.pod5
+FBC73506_9ee158db_6bd36f99_13.pod5  FBC73506_9ee158db_6bd36f99_2.pod5   FBC73506_9ee158db_6bd36f99_46.pod5  FBC73506_9ee158db_6bd36f99_62.pod5
+FBC73506_9ee158db_6bd36f99_14.pod5  FBC73506_9ee158db_6bd36f99_30.pod5  FBC73506_9ee158db_6bd36f99_47.pod5  FBC73506_9ee158db_6bd36f99_63.pod5
+FBC73506_9ee158db_6bd36f99_15.pod5  FBC73506_9ee158db_6bd36f99_31.pod5  FBC73506_9ee158db_6bd36f99_48.pod5  FBC73506_9ee158db_6bd36f99_64.pod5
+FBC73506_9ee158db_6bd36f99_16.pod5  FBC73506_9ee158db_6bd36f99_32.pod5  FBC73506_9ee158db_6bd36f99_49.pod5  FBC73506_9ee158db_6bd36f99_65.pod5
+FBC73506_9ee158db_6bd36f99_17.pod5  FBC73506_9ee158db_6bd36f99_33.pod5  FBC73506_9ee158db_6bd36f99_4.pod5   FBC73506_9ee158db_6bd36f99_66.pod5
+FBC73506_9ee158db_6bd36f99_18.pod5  FBC73506_9ee158db_6bd36f99_34.pod5  FBC73506_9ee158db_6bd36f99_50.pod5  FBC73506_9ee158db_6bd36f99_67.pod5
+FBC73506_9ee158db_6bd36f99_19.pod5  FBC73506_9ee158db_6bd36f99_35.pod5  FBC73506_9ee158db_6bd36f99_51.pod5  FBC73506_9ee158db_6bd36f99_68.pod5
+FBC73506_9ee158db_6bd36f99_1.pod5   FBC73506_9ee158db_6bd36f99_36.pod5  FBC73506_9ee158db_6bd36f99_52.pod5  FBC73506_9ee158db_6bd36f99_69.pod5
+FBC73506_9ee158db_6bd36f99_20.pod5  FBC73506_9ee158db_6bd36f99_37.pod5  FBC73506_9ee158db_6bd36f99_53.pod5  FBC73506_9ee158db_6bd36f99_6.pod5
+FBC73506_9ee158db_6bd36f99_21.pod5  FBC73506_9ee158db_6bd36f99_38.pod5  FBC73506_9ee158db_6bd36f99_54.pod5  FBC73506_9ee158db_6bd36f99_70.pod5
+FBC73506_9ee158db_6bd36f99_22.pod5  FBC73506_9ee158db_6bd36f99_39.pod5  FBC73506_9ee158db_6bd36f99_55.pod5  FBC73506_9ee158db_6bd36f99_71.pod5
+FBC73506_9ee158db_6bd36f99_23.pod5  FBC73506_9ee158db_6bd36f99_3.pod5   FBC73506_9ee158db_6bd36f99_56.pod5  FBC73506_9ee158db_6bd36f99_7.pod5
+FBC73506_9ee158db_6bd36f99_24.pod5  FBC73506_9ee158db_6bd36f99_40.pod5  FBC73506_9ee158db_6bd36f99_57.pod5  FBC73506_9ee158db_6bd36f99_8.pod5
+FBC73506_9ee158db_6bd36f99_25.pod5  FBC73506_9ee158db_6bd36f99_41.pod5  FBC73506_9ee158db_6bd36f99_58.pod5  FBC73506_9ee158db_6bd36f99_9.pod5
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ cd ..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ~/dorado/bin/dorado basecaller -v -r --emit_fastq --disable_read_splitting --no_trim -o /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/
+[2026-02-17 12:33:37.449] [info] Running: "basecaller" "-v" "-r" "--emit_fastq" "--disable_read_splitting" "--no_trim" "-o" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall" "sup" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/"
+[2026-02-17 12:33:37.456] [error] Unknown argument: --emit_fastq
+Usage: dorado [--help] [--verbose]... [--device VAR] [--models-directory VAR] [--bed-file VAR] [--recursive] [--read-ids VAR] [--max-reads VAR] [--resume-from VAR] [--disable-read-splitting] [--min-qscore VAR] [--emit-moves] [--emit-fastq] [--emit-sam] [--output-dir VAR] [--reference VAR] [--mm2-opts VAR] [--modified-bases VAR...] [--modified-bases-models VAR] [--modified-bases-threshold VAR] [--modified-bases-batchsize VAR] [--kit-name VAR] [--sample-sheet VAR] [--barcode-both-ends] [--barcode-arrangement VAR] [--barcode-sequences VAR] [--primer-sequences VAR] [--no-trim] [--trim VAR] [--estimate-poly-a] [--poly-a-config VAR] [--batchsize VAR] model data
+
+Positional arguments:
+  model                       Model selection {fast,hac,sup}@v{version} for automatic model selection including modbases, or path to existing model directory. 
+  data                        The data directory or POD5 file path. 
+
+Optional arguments:
+  -h, --help                  shows help message and exits 
+  -v, --verbose               [may be repeated]
+  -x, --device                Specify CPU or GPU device: 'auto', 'cpu', 'cuda:all' or 'cuda:<device_id>[,<device_id>...]'. Specifying 'auto' will choose either 'cpu', 'metal' or 'cuda:all' depending on the presence of a GPU device. [nargs=0..1] [default: "auto"]
+  --models-directory          Optional directory to search for existing models or download new models into. [nargs=0..1] [default: "."]
+  --bed-file                  Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+
+Input data arguments (detailed usage):
+  -r, --recursive             Recursively scan through directories to load POD5 files. 
+  -l, --read-ids              A file with a newline-delimited list of reads to basecall. If not provided, all reads will be basecalled. [nargs=0..1] [default: ""]
+  -n, --max-reads             Limit the number of reads to be basecalled. [nargs=0..1] [default: 0]
+  --resume-from               Resume basecalling from the given HTS file. Fully written read records are not processed again. [nargs=0..1] [default: ""]
+  --disable-read-splitting    Disable read splitting 
+
+Output arguments (detailed usage):
+  --min-qscore                Discard reads with mean Q-score below this threshold or write them to output files marked `fail` if `--output-dir` is set. [nargs=0..1] [default: 0]
+  --emit-moves                Write the move table to the 'mv' tag. 
+  --emit-fastq                Output in fastq format. 
+  --emit-sam                  Output in SAM format. 
+  -o, --output-dir            Optional output folder which becomes the root of the nested output folder structure. 
+
+Alignment arguments (detailed usage):
+  --reference                 Path to reference for alignment. [nargs=0..1] [default: ""]
+  --mm2-opts                  Optional minimap2 options string. For multiple arguments surround with double quotes. 
+
+Modified model arguments (detailed usage):
+  --modified-bases            A space separated list of modified base codes. Choose from: pseU, inosine_m6A, 5mCG, pseU_2OmeU, inosine_m6A_2OmeA, 5mCG_5hmCG, 4mC_5mC, 2OmeG, 5mC_5hmC, 5mC, m5C, m5C_2OmeC, 6mA, m6A_DRACH, m6A. [nargs: 1 or more] 
+  --modified-bases-models     A comma separated list of modified base model paths. [nargs=0..1] [default: ""]
+  --modified-bases-threshold  The minimum predicted methylation probability for a modified base to be emitted in an all-context model, [0, 1]. 
+  --modified-bases-batchsize  The modified base models batch size. 
+
+Barcoding arguments (detailed usage):
+  --kit-name                  Enable barcoding with the provided kit name. Choose from: EXP-NBD103 EXP-NBD104 EXP-NBD114 EXP-NBD114-24 EXP-NBD196 EXP-PBC001 EXP-PBC096 SQK-16S024 SQK-16S114-24 SQK-DRB004-24 SQK-LWB001 SQK-MAB114-24 SQK-MLK111-96-XL SQK-MLK114-96-XL SQK-NBD111-24 SQK-NBD111-96 SQK-NBD114-24 SQK-NBD114-96 SQK-PBK004 SQK-PCB109 SQK-PCB110 SQK-PCB111-24 SQK-PCB114-24 SQK-RAB201 SQK-RAB204 SQK-RBK001 SQK-RBK004 SQK-RBK110-96 SQK-RBK111-24 SQK-RBK111-96 SQK-RBK114-24 SQK-RBK114-96 SQK-RLB001 SQK-RPB004 SQK-RPB114-24 TWIST-16-UDI TWIST-96A-UDI VSK-PTC001 VSK-VMK001 VSK-VMK004 VSK-VPS001. [nargs=0..1] [default: ""]
+  --sample-sheet              Path to the sample sheet to use. [nargs=0..1] [default: ""]
+  --barcode-both-ends         Require both ends of a read to be barcoded for a double ended barcode. 
+  --barcode-arrangement       Path to file with custom barcode arrangement. Requires --kit-name. 
+  --barcode-sequences         Path to file with custom barcode sequences. Requires --kit-name and --barcode-arrangement. 
+  --primer-sequences          Path to fasta file with custom primer sequences, or the name of a supported 3rd-party primer set. If specifying a supported primer set, choose from: 10X_Genomics. 
+
+Trimming arguments (detailed usage):
+  --no-trim                   Skip trimming of barcodes, adapters, and primers. If option is not chosen, trimming of all three is enabled. 
+  --trim                      Specify what to trim. Options are 'none', 'all', and 'adapters'. The default behaviour is to trim all detected adapters, primers, and barcodes. Choose 'adapters' to just trim adapters. The 'none' choice is equivelent to using --no-trim. Note that this only applies to DNA. RNA adapters are always trimmed. [nargs=0..1] [default: ""]
+
+Poly(A) arguments (detailed usage):
+  --estimate-poly-a           Estimate poly(A)/poly(T) tail lengths (beta feature). Primarily meant for cDNA and dRNA use cases. 
+  --poly-a-config             Configuration file for poly(A) estimation to change default behaviours [nargs=0..1] [default: ""]
+
+Advanced arguments (detailed usage):
+  -b, --batchsize             The number of chunks in a batch. If 0 an optimal batchsize will be selected. [nargs=0..1] [default: 0]
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ~/dorado/bin/dorado basecaller -v -r --emit-fastq --disable-read-splitting --no-trim -o /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/
+[2026-02-17 12:34:12.464] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--disable-read-splitting" "--no-trim" "-o" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall" "sup" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/"
+[2026-02-17 12:34:12.556] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2026-02-17 12:34:30.803] [info] > Creating basecall pipeline
+[2026-02-17 12:34:30.942] [info] Using CUDA devices:
+[2026-02-17 12:34:30.942] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2026-02-17 12:34:30.966] [debug] TxEncoderStack: use_koi_tiled true.
+[2026-02-17 12:34:30.966] [debug] TxEncoderStack: use_koi_volta_tiled false.
+[2026-02-17 12:34:31.573] [debug] cuda:0 memory available: 9.55GB
+[2026-02-17 12:34:31.573] [debug] cuda:0 memory limit 8.55GB
+[2026-02-17 12:34:31.573] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
+[2026-02-17 12:34:31.573] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
+[2026-02-17 12:34:31.573] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
+[2026-02-17 12:34:31.575] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
+[2026-02-17 12:34:31.859] [debug] Auto batchsize cuda:0: 32, time per chunk 0.448828 ms
+[2026-02-17 12:34:31.945] [debug] Auto batchsize cuda:0: 64, time per chunk 0.367134 ms
+[2026-02-17 12:34:32.023] [debug] Auto batchsize cuda:0: 96, time per chunk 0.308299 ms
+[2026-02-17 12:34:32.118] [debug] Auto batchsize cuda:0: 128, time per chunk 0.302303 ms
+[2026-02-17 12:34:32.237] [debug] Auto batchsize cuda:0: 160, time per chunk 0.297434 ms
+[2026-02-17 12:34:32.372] [debug] Auto batchsize cuda:0: 192, time per chunk 0.291653 ms
+[2026-02-17 12:34:32.372] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
+[2026-02-17 12:34:32.372] [debug] Largest batch size for cuda:0: 192, time per chunk 0.291653 ms
+[2026-02-17 12:34:32.372] [debug] Final batch size for cuda:0[0]: 96
+[2026-02-17 12:34:32.372] [debug] Final batch size for cuda:0[1]: 192
+[2026-02-17 12:34:32.373] [info] cuda:0 using chunk size 12288, batch size 96
+[2026-02-17 12:34:32.373] [debug] cuda:0 Model memory 6.85GB
+[2026-02-17 12:34:32.373] [debug] cuda:0 Decode memory 0.83GB
+[2026-02-17 12:34:32.579] [info] cuda:0 using chunk size 6144, batch size 192
+[2026-02-17 12:34:32.579] [debug] cuda:0 Model memory 6.85GB
+[2026-02-17 12:34:32.579] [debug] cuda:0 Decode memory 0.83GB
+[2026-02-17 12:34:32.843] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-02-17 12:34:32.843] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-02-17 12:34:32.843] [debug] BasecallerNode chunk size 12288
+[2026-02-17 12:34:32.843] [debug] BasecallerNode chunk size 6144
+[2026-02-17 12:34:32.844] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_12.pod5
+[2026-02-17 12:34:33.094] [debug] Creating output folder: '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_pass'. Length:337
+[2026-02-17 12:38:59.525] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_18.pod5
+[2026-02-17 12:42:42.591] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_43.pod5
+[2026-02-17 12:43:10.797] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_71.pod5
+[2026-02-17 12:43:27.690] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_30.pod5
+[2026-02-17 12:47:14.357] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_51.pod5
+[2026-02-17 12:47:25.928] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_35.pod5
+[2026-02-17 12:48:07.390] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_67.pod5
+[2026-02-17 12:48:23.814] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_36.pod5
+[2026-02-17 12:49:12.957] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_69.pod5
+[2026-02-17 12:49:34.946] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_23.pod5
+[2026-02-17 12:51:56.101] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_59.pod5
+[2026-02-17 12:51:56.546] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_28.pod5
+[2026-02-17 12:53:43.719] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_52.pod5
+[2026-02-17 12:53:54.145] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_57.pod5
+[2026-02-17 12:54:01.574] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_20.pod5
+[2026-02-17 12:56:35.347] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_48.pod5
+[2026-02-17 12:56:51.139] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_66.pod5
+[2026-02-17 12:57:01.571] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_29.pod5
+[2026-02-17 12:58:17.520] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_46.pod5
+[2026-02-17 12:58:24.003] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_63.pod5
+[2026-02-17 12:58:34.720] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_33.pod5
+[2026-02-17 12:59:25.517] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_13.pod5
+[2026-02-17 13:04:05.842] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_1.pod5
+[2026-02-17 13:12:36.167] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_61.pod5
+[2026-02-17 13:12:36.178] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_15.pod5
+[2026-02-17 13:16:16.824] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_47.pod5
+[2026-02-17 13:16:20.020] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_4.pod5
+[2026-02-17 13:23:01.662] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_27.pod5
+[2026-02-17 13:24:50.724] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_32.pod5
+[2026-02-17 13:26:18.292] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_45.pod5
+[2026-02-17 13:26:41.084] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_26.pod5
+[2026-02-17 13:28:39.110] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_24.pod5
+[2026-02-17 13:31:04.980] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_49.pod5
+[2026-02-17 13:31:19.077] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_31.pod5
+[2026-02-17 13:33:13.727] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_37.pod5
+[2026-02-17 13:36:46.283] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_38.pod5
+[2026-02-17 13:37:42.743] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_16.pod5
+[2026-02-17 13:41:53.804] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_10.pod5
+[2026-02-17 13:46:35.443] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_2.pod5
+[2026-02-17 13:54:06.007] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_56.pod5
+[2026-02-17 13:54:15.079] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_14.pod5
+[2026-02-17 13:57:44.140] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_50.pod5
+[2026-02-17 13:57:51.242] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_64.pod5
+[2026-02-17 13:57:55.926] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_62.pod5
+[2026-02-17 13:58:02.444] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_39.pod5
+[2026-02-17 13:59:20.705] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_70.pod5
+[2026-02-17 13:59:39.504] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_6.pod5
+[2026-02-17 14:05:45.718] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_17.pod5
+[2026-02-17 14:09:42.428] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_3.pod5
+[2026-02-17 14:17:40.178] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_65.pod5
+[2026-02-17 14:17:47.789] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_9.pod5
+[2026-02-17 14:22:55.468] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_25.pod5
+[2026-02-17 14:25:26.812] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_7.pod5
+[2026-02-17 14:33:54.365] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_21.pod5
+[2026-02-17 14:36:03.992] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_58.pod5
+[2026-02-17 14:36:13.308] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_68.pod5
+[2026-02-17 14:36:33.975] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_8.pod5
+[2026-02-17 14:42:11.397] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_55.pod5
+[2026-02-17 14:42:17.126] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_5.pod5
+[2026-02-17 14:47:57.463] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_54.pod5
+[2026-02-17 14:48:02.138] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_40.pod5
+[2026-02-17 14:49:06.806] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_42.pod5
+[2026-02-17 14:49:41.982] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_44.pod5
+[2026-02-17 14:50:11.081] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_19.pod5
+[2026-02-17 14:53:56.789] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_34.pod5
+[2026-02-17 14:54:46.174] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_41.pod5
+[2026-02-17 14:55:37.752] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_0.pod5
+[2026-02-17 15:05:21.506] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_22.pod5
+[2026-02-17 15:07:57.500] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_60.pod5
+[2026-02-17 15:07:59.585] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_53.pod5
+[2026-02-17 15:08:03.786] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_11.pod5
+[2026-02-17 15:13:21.354] [info] > Finished in (ms): 9528509
+[2026-02-17 15:13:21.354] [info] > Simplex reads basecalled: 3175875
+[2026-02-17 15:13:21.354] [info] > Basecalled @ Samples/s: 3.543132e+06
+[2026-02-17 15:13:21.354] [debug] > Including Padding @ Samples/s: 5.076e+06 (69.80%)
+[2026-02-17 15:13:21.358] [debug] Deleting temporary model path: /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/.temp_dorado_model-9322c9c789c7003f
+[2026-02-17 15:13:21.386] [info] > Finished
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ls
+barcode_alignment_FBC73506_9ee158db_6bd36f99.tsv  pod5                                          sample_sheet_FBC73506_20260212_1205_9ee158db.csv
+fastq_fail                                        pore_activity_FBC73506_9ee158db_6bd36f99.csv  sequencing_summary_FBC73506_9ee158db_6bd36f99.txt
+fastq_pass                                        report_FBC73506_20260212_1344_9ee158db.html   sup_basecall
+final_summary_FBC73506_9ee158db_6bd36f99.txt      report_FBC73506_20260212_1344_9ee158db.json   throughput_FBC73506_9ee158db_6bd36f99.csv
+other_reports                                     report_FBC73506_20260212_1344_9ee158db.md
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ cd sup_basecall/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall$ ls
+CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall$ cd CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_pass/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_pass$ ls
+FBC73506_fastq_pass_9ee158db_6bd36f99_0.fastq
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_pass$ cd ../../..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026$ cd ..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/sup_basecall$ cd ..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ cd ../../..
+
+
+
+
+
+
+
+
+
+######################### end copy-paste ##########################3
+
+
+
+
+######## Courtney Notes ######### 06-01-2026 ################# re-do basecalling with quality filter changed from default - use output dir instead of just file name
+
+#min Q score of 8 is the default during the run with fast basecalling. 
+#also specified more exact model bc it prompted me to via an error: 
+[2026-06-01 14:50:25.535] [error] Failed to determine sequencing chemistry from data. Please select a model by path
+
+used dorado  download to detect model to download bc you have to do that now iguess:
+
+~/dorado/bin/dorado download --model sup --data pod5/
+
+~/dorado/bin/dorado download --model sup --data pod5/
+[2026-06-01 14:54:20.773] [info] Running: "download" "--model" "sup" "--data" "pod5/"
+[2026-06-01 14:54:20.810] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2026-06-01 14:54:39.493] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0' into '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/dna_r10.4.1_e8.2_400bps_sup@v5.2.0'
+[2026-06-01 14:54:39.494] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1 with httplib
+[2026-06-01 14:54:44.428] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1' into '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1'
+[2026-06-01 14:54:44.429] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1 with httplib
+[2026-06-01 14:54:49.354] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1' into '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1'
+[2026-06-01 14:54:49.354] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1 with httplib
+[2026-06-01 14:54:54.285] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1' into '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1'
+[2026-06-01 14:54:54.286] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1 with httplib
+[2026-06-01 14:54:57.916] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1' into '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1'
+[2026-06-01 14:54:57.916] [info]  - downloading dna_r10.4.1_e8.2_5khz_stereo@v1.4 with httplib
+[2026-06-01 14:55:00.778] [info] Downloaded model: 'dna_r10.4.1_e8.2_5khz_stereo@v1.4' into '/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/dna_r10.4.1_e8.2_5khz_stereo@v1.4'
+
+#then run this (uses same model as the above run of the basecaller):
+
+~/dorado/bin/dorado basecaller -v -r --emit-fastq --min-qscore 8 --disable-read-splitting --no-trim --output-dir /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/
+
+
+#output:
+
+[2026-06-01 15:05:56.792] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--min-qscore" "8" "--disable-read-splitting" "--no-trim" "--output-dir" "/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall" "sup" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/"
+[2026-06-01 15:05:56.850] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2026-06-01 15:06:15.013] [info] > Creating basecall pipeline
+[2026-06-01 15:06:15.103] [info] Using CUDA devices:
+[2026-06-01 15:06:15.103] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2026-06-01 15:06:15.139] [debug] TxEncoderStack: use_koi_tiled true.
+[2026-06-01 15:06:15.139] [debug] TxEncoderStack: use_koi_volta_tiled false.
+[2026-06-01 15:06:15.749] [debug] cuda:0 memory available: 9.55GB
+[2026-06-01 15:06:15.749] [debug] cuda:0 memory limit 8.55GB
+[2026-06-01 15:06:15.749] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
+[2026-06-01 15:06:15.749] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
+[2026-06-01 15:06:15.749] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
+[2026-06-01 15:06:15.750] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
+[2026-06-01 15:06:16.047] [debug] Auto batchsize cuda:0: 32, time per chunk 0.448583 ms
+[2026-06-01 15:06:16.132] [debug] Auto batchsize cuda:0: 64, time per chunk 0.367042 ms
+[2026-06-01 15:06:16.210] [debug] Auto batchsize cuda:0: 96, time per chunk 0.311445 ms
+[2026-06-01 15:06:16.306] [debug] Auto batchsize cuda:0: 128, time per chunk 0.307992 ms
+[2026-06-01 15:06:16.425] [debug] Auto batchsize cuda:0: 160, time per chunk 0.300544 ms
+[2026-06-01 15:06:16.560] [debug] Auto batchsize cuda:0: 192, time per chunk 0.294091 ms
+[2026-06-01 15:06:16.560] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
+[2026-06-01 15:06:16.560] [debug] Largest batch size for cuda:0: 192, time per chunk 0.294091 ms
+[2026-06-01 15:06:16.560] [debug] Final batch size for cuda:0[0]: 96
+[2026-06-01 15:06:16.560] [debug] Final batch size for cuda:0[1]: 192
+[2026-06-01 15:06:16.561] [info] cuda:0 using chunk size 12288, batch size 96
+[2026-06-01 15:06:16.561] [debug] cuda:0 Model memory 6.85GB
+[2026-06-01 15:06:16.561] [debug] cuda:0 Decode memory 0.83GB
+[2026-06-01 15:06:16.767] [info] cuda:0 using chunk size 6144, batch size 192
+[2026-06-01 15:06:16.767] [debug] cuda:0 Model memory 6.85GB
+[2026-06-01 15:06:16.767] [debug] cuda:0 Decode memory 0.83GB
+[2026-06-01 15:06:17.032] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-06-01 15:06:17.032] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-06-01 15:06:17.032] [debug] BasecallerNode chunk size 12288
+[2026-06-01 15:06:17.032] [debug] BasecallerNode chunk size 6144
+[2026-06-01 15:06:17.033] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_12.pod5
+[2026-06-01 15:06:17.285] [debug] Creating output folder: '/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_pass'. Length:327
+[2026-06-01 15:06:17.285] [debug] Creating output folder: '/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_fail'. Length:327
+
+
+
+
+
+full copy/paste:
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ ~/dorado/bin/dorado basecaller -v -r --emit-fastq --min-qscore 8 --disable-read-splitting --no-trim --output-dir /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall sup /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/
+[2026-06-01 15:05:56.792] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--min-qscore" "8" "--disable-read-splitting" "--no-trim" "--output-dir" "/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall" "sup" "/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/"
+[2026-06-01 15:05:56.850] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2026-06-01 15:06:15.013] [info] > Creating basecall pipeline
+[2026-06-01 15:06:15.103] [info] Using CUDA devices:
+[2026-06-01 15:06:15.103] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2026-06-01 15:06:15.139] [debug] TxEncoderStack: use_koi_tiled true.
+[2026-06-01 15:06:15.139] [debug] TxEncoderStack: use_koi_volta_tiled false.
+[2026-06-01 15:06:15.749] [debug] cuda:0 memory available: 9.55GB
+[2026-06-01 15:06:15.749] [debug] cuda:0 memory limit 8.55GB
+[2026-06-01 15:06:15.749] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
+[2026-06-01 15:06:15.749] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
+[2026-06-01 15:06:15.749] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
+[2026-06-01 15:06:15.750] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
+[2026-06-01 15:06:16.047] [debug] Auto batchsize cuda:0: 32, time per chunk 0.448583 ms
+[2026-06-01 15:06:16.132] [debug] Auto batchsize cuda:0: 64, time per chunk 0.367042 ms
+[2026-06-01 15:06:16.210] [debug] Auto batchsize cuda:0: 96, time per chunk 0.311445 ms
+[2026-06-01 15:06:16.306] [debug] Auto batchsize cuda:0: 128, time per chunk 0.307992 ms
+[2026-06-01 15:06:16.425] [debug] Auto batchsize cuda:0: 160, time per chunk 0.300544 ms
+[2026-06-01 15:06:16.560] [debug] Auto batchsize cuda:0: 192, time per chunk 0.294091 ms
+[2026-06-01 15:06:16.560] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
+[2026-06-01 15:06:16.560] [debug] Largest batch size for cuda:0: 192, time per chunk 0.294091 ms
+[2026-06-01 15:06:16.560] [debug] Final batch size for cuda:0[0]: 96
+[2026-06-01 15:06:16.560] [debug] Final batch size for cuda:0[1]: 192
+[2026-06-01 15:06:16.561] [info] cuda:0 using chunk size 12288, batch size 96
+[2026-06-01 15:06:16.561] [debug] cuda:0 Model memory 6.85GB
+[2026-06-01 15:06:16.561] [debug] cuda:0 Decode memory 0.83GB
+[2026-06-01 15:06:16.767] [info] cuda:0 using chunk size 6144, batch size 192
+[2026-06-01 15:06:16.767] [debug] cuda:0 Model memory 6.85GB
+[2026-06-01 15:06:16.767] [debug] cuda:0 Decode memory 0.83GB
+[2026-06-01 15:06:17.032] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-06-01 15:06:17.032] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-06-01 15:06:17.032] [debug] BasecallerNode chunk size 12288
+[2026-06-01 15:06:17.032] [debug] BasecallerNode chunk size 6144
+[2026-06-01 15:06:17.033] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_12.pod5
+[2026-06-01 15:06:17.285] [debug] Creating output folder: '/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_pass'. Length:327
+[2026-06-01 15:06:17.285] [debug] Creating output folder: '/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0/sup_Q_basecall/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_2140_MN23913_FBC73506_9ee158db/fastq_fail'. Length:327
+[2026-06-01 15:10:47.295] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_18.pod5             
+[2026-06-01 15:14:35.506] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_43.pod5             
+[2026-06-01 15:15:04.593] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_71.pod5             
+[2026-06-01 15:15:22.021] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_30.pod5             
+[2026-06-01 15:19:17.614] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_51.pod5             
+[2026-06-01 15:19:29.197] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_35.pod5             
+[2026-06-01 15:20:12.408] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_67.pod5             
+[2026-06-01 15:20:29.490] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_36.pod5             
+[2026-06-01 15:21:20.693] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_69.pod5             
+[2026-06-01 15:21:43.582] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_23.pod5             
+[2026-06-01 15:24:10.989] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_59.pod5             
+[2026-06-01 15:24:11.456] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_28.pod5             
+[2026-06-01 15:26:03.484] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_52.pod5             
+[2026-06-01 15:26:14.404] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_57.pod5             
+[2026-06-01 15:26:22.170] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_20.pod5             
+[2026-06-01 15:29:03.619] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_48.pod5             
+[2026-06-01 15:29:20.035] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_66.pod5             
+[2026-06-01 15:29:30.951] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_29.pod5             
+[2026-06-01 15:30:50.472] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_46.pod5             
+[2026-06-01 15:30:57.235] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_63.pod5             
+[2026-06-01 15:31:08.751] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_33.pod5             
+[2026-06-01 15:32:01.589] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_13.pod5             
+[2026-06-01 15:36:54.514] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_1.pod5              
+[2026-06-01 15:45:48.561] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_61.pod5             
+[2026-06-01 15:45:48.572] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_15.pod5
+[2026-06-01 15:49:39.534] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_47.pod5             
+[2026-06-01 15:49:43.093] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_4.pod5              
+[2026-06-01 15:56:43.215] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_27.pod5             
+[2026-06-01 15:58:37.149] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_32.pod5             
+[2026-06-01 16:00:08.592] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_45.pod5             
+[2026-06-01 16:00:32.691] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_26.pod5             
+[2026-06-01 16:02:35.833] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_24.pod5             
+[2026-06-01 16:05:08.489] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_49.pod5             
+[2026-06-01 16:05:23.258] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_31.pod5             
+[2026-06-01 16:07:23.687] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_37.pod5             
+[2026-06-01 16:11:05.822] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_38.pod5             
+[2026-06-01 16:12:05.023] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_16.pod5             
+[2026-06-01 16:16:26.865] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_10.pod5             
+[2026-06-01 16:21:21.302] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_2.pod5              
+[2026-06-01 16:29:12.334] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_56.pod5             
+[2026-06-01 16:29:21.365] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_14.pod5             
+[2026-06-01 16:33:00.066] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_50.pod5             
+[2026-06-01 16:33:07.484] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_64.pod5             
+[2026-06-01 16:33:12.354] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_62.pod5             
+[2026-06-01 16:33:19.381] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_39.pod5             
+[2026-06-01 16:34:40.786] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_70.pod5             
+[2026-06-01 16:35:00.343] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_6.pod5              
+[2026-06-01 16:41:23.112] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_17.pod5             
+[2026-06-01 16:45:30.153] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_3.pod5              
+[2026-06-01 16:53:49.517] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_65.pod5             
+[2026-06-01 16:53:57.238] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_9.pod5              
+[2026-06-01 16:59:19.079] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_25.pod5             
+[2026-06-01 17:01:57.249] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_7.pod5              
+[2026-06-01 17:10:47.369] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_21.pod5             
+[2026-06-01 17:13:02.658] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_58.pod5             
+[2026-06-01 17:13:12.403] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_68.pod5             
+[2026-06-01 17:13:33.970] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_8.pod5              
+[2026-06-01 17:19:26.312] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_55.pod5             
+[2026-06-01 17:19:32.291] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_5.pod5              
+[2026-06-01 17:25:26.930] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_54.pod5             
+[2026-06-01 17:25:32.037] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_40.pod5             
+[2026-06-01 17:26:39.438] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_42.pod5             
+[2026-06-01 17:27:16.136] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_44.pod5             
+[2026-06-01 17:27:46.402] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_19.pod5             
+[2026-06-01 17:31:41.136] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_34.pod5             
+[2026-06-01 17:32:32.713] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_41.pod5             
+[2026-06-01 17:33:26.268] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_0.pod5              
+[2026-06-01 17:43:33.490] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_22.pod5             
+[2026-06-01 17:46:15.731] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_60.pod5             
+[2026-06-01 17:46:17.903] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_53.pod5             
+[2026-06-01 17:46:22.042] [debug] Load reads from file /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/FBC73506_9ee158db_6bd36f99_11.pod5             
+[2026-06-01 17:51:53.012] [info] > Finished in (ms): 9935978
+[2026-06-01 17:51:53.012] [info] > Simplex reads basecalled: 3175875
+[2026-06-01 17:51:53.014] [info] > Basecalled @ Samples/s: 3.397830e+06
+[2026-06-01 17:51:53.014] [debug] > Including Padding @ Samples/s: 4.868e+06 (69.80%)
+[2026-06-01 17:51:53.016] [debug] Deleting temporary model path: /mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5/.temp_dorado_model-b4f398f816d4d532
+[2026-06-01 17:51:53.042] [info] > Finished
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ cd..
+cd..: command not found
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ cd ..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ls
+barcode_alignment_FBC73506_9ee158db_6bd36f99.tsv  dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1  fastq_pass                                    pore_activity_FBC73506_9ee158db_6bd36f99.csv  sample_sheet_FBC73506_20260212_1205_9ee158db.csv
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0                dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1         final_summary_FBC73506_9ee158db_6bd36f99.txt  report_FBC73506_20260212_1344_9ee158db.html   sequencing_summary_FBC73506_9ee158db_6bd36f99.txt
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1     dna_r10.4.1_e8.2_5khz_stereo@v1.4                 other_reports                                 report_FBC73506_20260212_1344_9ee158db.json   sup_basecall
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1    fastq_fail                                        pod5                                          report_FBC73506_20260212_1344_9ee158db.md     throughput_FBC73506_9ee158db_6bd36f99.csv
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ cd pod5/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ ls
+FBC73506_9ee158db_6bd36f99_0.pod5   FBC73506_9ee158db_6bd36f99_1.pod5   FBC73506_9ee158db_6bd36f99_2.pod5   FBC73506_9ee158db_6bd36f99_3.pod5   FBC73506_9ee158db_6bd36f99_4.pod5   FBC73506_9ee158db_6bd36f99_5.pod5   FBC73506_9ee158db_6bd36f99_6.pod5
+FBC73506_9ee158db_6bd36f99_10.pod5  FBC73506_9ee158db_6bd36f99_20.pod5  FBC73506_9ee158db_6bd36f99_30.pod5  FBC73506_9ee158db_6bd36f99_40.pod5  FBC73506_9ee158db_6bd36f99_50.pod5  FBC73506_9ee158db_6bd36f99_60.pod5  FBC73506_9ee158db_6bd36f99_70.pod5
+FBC73506_9ee158db_6bd36f99_11.pod5  FBC73506_9ee158db_6bd36f99_21.pod5  FBC73506_9ee158db_6bd36f99_31.pod5  FBC73506_9ee158db_6bd36f99_41.pod5  FBC73506_9ee158db_6bd36f99_51.pod5  FBC73506_9ee158db_6bd36f99_61.pod5  FBC73506_9ee158db_6bd36f99_71.pod5
+FBC73506_9ee158db_6bd36f99_12.pod5  FBC73506_9ee158db_6bd36f99_22.pod5  FBC73506_9ee158db_6bd36f99_32.pod5  FBC73506_9ee158db_6bd36f99_42.pod5  FBC73506_9ee158db_6bd36f99_52.pod5  FBC73506_9ee158db_6bd36f99_62.pod5  FBC73506_9ee158db_6bd36f99_7.pod5
+FBC73506_9ee158db_6bd36f99_13.pod5  FBC73506_9ee158db_6bd36f99_23.pod5  FBC73506_9ee158db_6bd36f99_33.pod5  FBC73506_9ee158db_6bd36f99_43.pod5  FBC73506_9ee158db_6bd36f99_53.pod5  FBC73506_9ee158db_6bd36f99_63.pod5  FBC73506_9ee158db_6bd36f99_8.pod5
+FBC73506_9ee158db_6bd36f99_14.pod5  FBC73506_9ee158db_6bd36f99_24.pod5  FBC73506_9ee158db_6bd36f99_34.pod5  FBC73506_9ee158db_6bd36f99_44.pod5  FBC73506_9ee158db_6bd36f99_54.pod5  FBC73506_9ee158db_6bd36f99_64.pod5  FBC73506_9ee158db_6bd36f99_9.pod5
+FBC73506_9ee158db_6bd36f99_15.pod5  FBC73506_9ee158db_6bd36f99_25.pod5  FBC73506_9ee158db_6bd36f99_35.pod5  FBC73506_9ee158db_6bd36f99_45.pod5  FBC73506_9ee158db_6bd36f99_55.pod5  FBC73506_9ee158db_6bd36f99_65.pod5
+FBC73506_9ee158db_6bd36f99_16.pod5  FBC73506_9ee158db_6bd36f99_26.pod5  FBC73506_9ee158db_6bd36f99_36.pod5  FBC73506_9ee158db_6bd36f99_46.pod5  FBC73506_9ee158db_6bd36f99_56.pod5  FBC73506_9ee158db_6bd36f99_66.pod5
+FBC73506_9ee158db_6bd36f99_17.pod5  FBC73506_9ee158db_6bd36f99_27.pod5  FBC73506_9ee158db_6bd36f99_37.pod5  FBC73506_9ee158db_6bd36f99_47.pod5  FBC73506_9ee158db_6bd36f99_57.pod5  FBC73506_9ee158db_6bd36f99_67.pod5
+FBC73506_9ee158db_6bd36f99_18.pod5  FBC73506_9ee158db_6bd36f99_28.pod5  FBC73506_9ee158db_6bd36f99_38.pod5  FBC73506_9ee158db_6bd36f99_48.pod5  FBC73506_9ee158db_6bd36f99_58.pod5  FBC73506_9ee158db_6bd36f99_68.pod5
+FBC73506_9ee158db_6bd36f99_19.pod5  FBC73506_9ee158db_6bd36f99_29.pod5  FBC73506_9ee158db_6bd36f99_39.pod5  FBC73506_9ee158db_6bd36f99_49.pod5  FBC73506_9ee158db_6bd36f99_59.pod5  FBC73506_9ee158db_6bd36f99_69.pod5
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/pod5$ cd ..
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ cd /mnt/data0/MinION_reads/
+Adenosine_081525/                         core-dump-db/                             persistence/                              Quad_Triple_Susie_103125/                 rpc-certs/                                
+CA09xPAN99_102325/                        Cysto_LMGSeq_barcode_test_07302025/       pings/                                    queued_reads/                             user_scripts/                             
+CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/ intermediate/                             presets/                                  reads/                                    
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ cd /mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025$ ls
+Cysto_LMGSeq_barcode_test_07302025
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025$ cd Cysto_LMGSeq_barcode_test_07302025/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025$ ls
+20250730_1606_MN23913_FBC73506_d5fa85e0
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025$ cd 20250730_1606_MN23913_FBC73506_d5fa85e0/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ ls
+sup_Q_basecall
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ mv sup_Q_basecall/ ../../../CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/^C
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ 
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ mv sup_Q_basecall/ ../../../CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_
+CM_HIvsLOW_basecalling_terminal_save_dorado.txt  CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/        
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ mv sup_Q_basecall/ ../../../CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ ls
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ ls
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Cysto_LMGSeq_barcode_test_07302025/Cysto_LMGSeq_barcode_test_07302025/20250730_1606_MN23913_FBC73506_d5fa85e0$ cd ../../../CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/CM_HIvsLOW_CA66coinfs_SG_RTtest_02122026/20260212_1340_MN23913_FBC73506_9ee158db$ ls
+barcode_alignment_FBC73506_9ee158db_6bd36f99.tsv  dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1     other_reports                                 report_FBC73506_20260212_1344_9ee158db.md          throughput_FBC73506_9ee158db_6bd36f99.csv
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0                dna_r10.4.1_e8.2_5khz_stereo@v1.4             pod5                                          sample_sheet_FBC73506_20260212_1205_9ee158db.csv
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1     fastq_fail                                    pore_activity_FBC73506_9ee158db_6bd36f99.csv  sequencing_summary_FBC73506_9ee158db_6bd36f99.txt
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1    fastq_pass                                    report_FBC73506_20260212_1344_9ee158db.html   sup_basecall
+dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1  final_summary_FBC73506_9ee158db_6bd36f99.txt  report_FBC73506_20260212_1344_9ee158db.json   sup_Q_basecall
+
+

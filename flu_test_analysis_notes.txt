@@ -269,7 +269,62 @@ cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025$ gr
 
 #re-do basecalling with sup 
 #first need to convert fast5s to pod5s:
+#fast5_fail
 (base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ pod5 convert fast5 --output converted_pod5s/ fast5_fail/*/*.fast5
-(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ pod5 convert fast5 --output converted_pass_pod5s/ fast5_pass/*/*.fast5
+Converting 152 Fast5s: 100%|###################################################################################################| 261548/261548 [01:40<00:00, 2611.07Reads/s]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ pod5 inspect reads output.pod5 | wc -l
+261549
+
+#fast5_pass:
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ pod5 convert fast5 --output converted_pass_pod5s.pod5/ fast5_pass/*/*.fast5
+Converting 885 Fast5s: 100%|#################################################################################################| 3240440/3240440 [18:41<00:00, 2888.13Reads/s]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ pod5 inspect reads converted_pass_pod5s.pod5 | wc -l
+3240441
+
+#combine with pod5 merge:
+
+#pod5 merge
+#pod5 merge is a tool for merging multiple .pod5 files into one monolithic pod5 file. The contents of the input files are checked for duplicate read_ids to avoid accidentally merging identical reads. To override this check set the argument -D / --duplicate_ok
+
+#Merge a pair of pod5 files
+#pod5 merge example_1.pod5 example_2.pod5 --output merged.pod5
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ mv converted_pass_pod5s.pod5 converted_pod5s/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ cd converted_pod5s/
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ ls
+converted_pass_pod5s.pod5  output.pod5
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ pod5 merge converted_pass_pod5s.pod5 output.pod5  --output CA09xPAN99_102325_all.pod5
+Merging reads from 2 files
+Merging:   0%|                                                                                                                                      | 0/2 [01:31<?, ?File/s]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ pod5 inspect reads CA09xPAN99_102325_all.pod5 | wc -l
+3501989
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ ls
+CA09xPAN99_102325_all.pod5  converted_pass_pod5s.pod5  output.pod5
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ rm *t*.pod5
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ ls
+CA09xPAN99_102325_all.pod5
+
+
+#basecalling:
+#get model:
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ ls
+CA09xPAN99_102325_all.pod5
+rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s$ ~/dorado/bin/dorado download --model sup --data CA09xPAN99_102325_all.pod5
+[2026-09-03 13:26:06.233] [info] Running: "download" "--model" "sup" "--data" "CA09xPAN99_102325_all.pod5"
+[2026-09-03 13:26:06.241] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2026-09-03 13:26:25.655] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0' into '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/dna_r10.4.1_e8.2_400bps_sup@v5.2.0'
+[2026-09-03 13:26:25.655] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1 with httplib
+[2026-09-03 13:26:30.786] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1' into '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_4mC_5mC@v1'
+[2026-09-03 13:26:30.787] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1 with httplib
+[2026-09-03 13:26:36.172] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1' into '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mC_5hmC@v1'
+[2026-09-03 13:26:36.172] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1 with httplib
+[2026-09-03 13:26:41.089] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1' into '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_5mCG_5hmCG@v1'
+[2026-09-03 13:26:41.090] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1 with httplib
+[2026-09-03 13:26:46.364] [info] Downloaded model: 'dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1' into '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/dna_r10.4.1_e8.2_400bps_sup@v5.2.0_6mA@v1'
+[2026-09-03 13:26:46.365] [info]  - downloading dna_r10.4.1_e8.2_5khz_stereo@v1.4 with httplib
+[2026-09-03 13:26:49.230] [info] Downloaded model: 'dna_r10.4.1_e8.2_5khz_stereo@v1.4' into '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/dna_r10.4.1_e8.2_5khz_stereo@v1.4'
+
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ mkdir sup_Q_basecall
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ ~/dorado/bin/dorado basecaller -v -r --emit-fastq --min-qscore 8 --disable-read-splitting --no-trim --output-dir /mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/sup_Q_basecall/ sup /mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/
 
 

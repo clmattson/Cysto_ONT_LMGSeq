@@ -285,9 +285,67 @@ bash unsorted_restructure_output_with_segment_files_new_dbs_genotyping_all_more_
 bash unsorted_restructure_output_with_segment_files_new_dbs_genotyping_all_more_parents_V2.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125 -e /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/sample_list_Quad_Triple_Susie.csv -l /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/all_flu_refs.fasta 2>&1 | tee /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/genotyping_add_notmatched-more-parents_log_Quad_Triple_Susie.txt
 
 
+#get fastas from fastqs for blasting:
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/coinfection$ ls plate01/*notmatched* | head
+plate01/plate01_well01_notmatched.fastq
+plate01/plate01_well02_notmatched.fastq
+plate01/plate01_well03_notmatched.fastq
+plate01/plate01_well04_notmatched.fastq
+
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/coinfection$ for fastq in plate??/plate??_well??_notmatched.fastq; do
+    seqtk seq -A "$fastq" > "${fastq%.fastq}.fasta"
+done
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/coinfection$ ls plate01/*notmatched* | head
+plate01/plate01_well01_notmatched.fasta
+plate01/plate01_well01_notmatched.fastq
+plate01/plate01_well02_notmatched.fasta
+plate01/plate01_well02_notmatched.fastq
+
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/coinfection$ cd ../misassigned/
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/misassigned$ for fastq in plate??/plate??_well??_notmatched.fastq; do     seqtk seq -A "$fastq" > "${fastq%.fastq}.fasta"; done
 
 
 
+
+
+
+
+
+
+
+#convert other run CA09 x PAN99 to fastas too:
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/coinfection$ for fastq in plate??/plate??_well??_notmatched.fastq; do
+    seqtk seq -A "$fastq" > "${fastq%.fastq}.fasta"
+done
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/misassigned$ for fastq in plate??/plate??_well??_notmatched.fastq; do     seqtk seq -A "$fastq" > "${fastq%.fastq}.fasta"; done
+
+#blast against virus database, pre-installed on franklin!
+
+#restart in tmux session and srun with way more cores:
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325$ srun -c 30 -t 24:00:00 --mem=50000 --partition=low --pty /bin/bash
+
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/coinfection$ for fasta in plate??/plate??_well??_notmatched.fasta; do [ -s "$fasta" ] || continue; out="${fasta%.fasta}_blastn_viruses.tsv"; blastn -query "$fasta" -db /share/databases/blast/nt_viruses -num_threads 60 -evalue 1e-10 -max_target_seqs 1 -outfmt "6 qseqid sseqid pident length evalue bitscore staxid stitle" -out "$out"; echo "blasted $fasta -> $out"; done
+
+(cutadapt) cmatt5@c-7-70:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/coinfection$ for fasta in plate??/plate??_well??_notmatched.fasta; do [ -s "$fasta" ] || continue; out="${fasta%.fasta}_blastn_viruses.tsv"; blastn -query "$fasta" -db /share/databases/blast/nt_viruses -num_threads 60 -evalue 1e-10 -max_target_seqs 1 -outfmt "6 qseqid sseqid pident length evalue bitscore staxid stitle" -out "$out"; echo "blasted $fasta -> $out"; done
+
+
+#taking forever and it looks like all of the hits are flu. lets try making a blast db with the existing refs:
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs$ makeblastdb \
+    -in all_flu_refs.fasta -dbtype nucl -out all_flu_refs_blast_nt_db
+
+
+Building a new DB, current time: 09/04/2026 00:00:08
+New DB name:   /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/all_flu_refs_blast_nt_db
+New DB title:  all_flu_refs.fasta
+Sequence type: Nucleotide
+Keep MBits: T
+Maximum file size: 3000000000B
+Adding sequences from FASTA; added 48 sequences in 0.0243421 seconds.
+
+
+
+
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/coinfection$ for fasta in plate??/plate??_well??_notmatched.fasta; do [ -s "$fasta" ] || continue; out="${fasta%.fasta}_blastn_flu.tsv"; blastn -query "$fasta" -db all_flu_refs_blast_nt_db -num_threads 60 -evalue 1e-10 -max_target_seqs 1 -outfmt "6 qseqid sseqid pident length evalue bitscore staxid stitle" -out "$out"; echo "blasted $fasta -> $out"; done
 
 
 
@@ -357,5 +415,61 @@ rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_14
 
 (base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ mkdir sup_Q_basecall
 (base) user@sdm-rosalind:/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7$ ~/dorado/bin/dorado basecaller -v -r --emit-fastq --min-qscore 8 --disable-read-splitting --no-trim --output-dir /mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/sup_Q_basecall/ sup /mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/
+[2026-09-03 13:32:11.117] [info] Running: "basecaller" "-v" "-r" "--emit-fastq" "--min-qscore" "8" "--disable-read-splitting" "--no-trim" "--output-dir" "/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/sup_Q_basecall/" "sup" "/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/"
+[2026-09-03 13:32:11.162] [info]  - downloading dna_r10.4.1_e8.2_400bps_sup@v5.2.0 with httplib
+[2026-09-03 13:32:30.357] [info] > Creating basecall pipeline
+[2026-09-03 13:32:30.449] [info] Using CUDA devices:
+[2026-09-03 13:32:30.449] [info] cuda:0 - NVIDIA GeForce RTX 3080
+[2026-09-03 13:32:30.472] [debug] TxEncoderStack: use_koi_tiled true.
+[2026-09-03 13:32:30.472] [debug] TxEncoderStack: use_koi_volta_tiled false.
+[2026-09-03 13:32:31.073] [debug] cuda:0 memory available: 9.55GB
+[2026-09-03 13:32:31.073] [debug] cuda:0 memory limit 8.55GB
+[2026-09-03 13:32:31.073] [debug] cuda:0 maximum safe estimated batch size at chunk size 12288 is 96
+[2026-09-03 13:32:31.073] [debug] cuda:0 maximum safe estimated batch size at chunk size 6144 is 192
+[2026-09-03 13:32:31.073] [debug] Auto batchsize cuda:0: testing up to 192 in steps of 32
+[2026-09-03 13:32:31.074] [info] Calculating optimized batch size for GPU "NVIDIA GeForce RTX 3080" and model dna_r10.4.1_e8.2_400bps_sup@v5.2.0. Full benchmarking will run for this device, which may take some time.
+[2026-09-03 13:32:31.366] [debug] Auto batchsize cuda:0: 32, time per chunk 0.448736 ms
+[2026-09-03 13:32:31.451] [debug] Auto batchsize cuda:0: 64, time per chunk 0.366464 ms
+[2026-09-03 13:32:31.533] [debug] Auto batchsize cuda:0: 96, time per chunk 0.340232 ms
+[2026-09-03 13:32:31.636] [debug] Auto batchsize cuda:0: 128, time per chunk 0.328592 ms
+[2026-09-03 13:32:31.754] [debug] Auto batchsize cuda:0: 160, time per chunk 0.297109 ms
+[2026-09-03 13:32:31.889] [debug] Auto batchsize cuda:0: 192, time per chunk 0.292981 ms
+[2026-09-03 13:32:31.889] [debug] Adding chunk timings to internal cache for GPU NVIDIA GeForce RTX 3080, model dna_r10.4.1_e8.2_400bps_sup@v5.2.0 (6 entries)
+[2026-09-03 13:32:31.889] [debug] Largest batch size for cuda:0: 192, time per chunk 0.292981 ms
+[2026-09-03 13:32:31.889] [debug] Final batch size for cuda:0[0]: 96
+[2026-09-03 13:32:31.889] [debug] Final batch size for cuda:0[1]: 192
+[2026-09-03 13:32:31.890] [info] cuda:0 using chunk size 12288, batch size 96
+[2026-09-03 13:32:31.890] [debug] cuda:0 Model memory 6.85GB
+[2026-09-03 13:32:31.890] [debug] cuda:0 Decode memory 0.83GB
+[2026-09-03 13:32:32.095] [info] cuda:0 using chunk size 6144, batch size 192
+[2026-09-03 13:32:32.095] [debug] cuda:0 Model memory 6.85GB
+[2026-09-03 13:32:32.095] [debug] cuda:0 Decode memory 0.83GB
+[2026-09-03 13:32:32.344] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-09-03 13:32:32.344] [info]  - Note: FASTQ output is not recommended as not all data can be preserved.
+[2026-09-03 13:32:32.344] [debug] BasecallerNode chunk size 12288
+[2026-09-03 13:32:32.344] [debug] BasecallerNode chunk size 6144
+[2026-09-03 13:32:32.345] [debug] Load reads from file /mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/converted_pod5s/CA09xPAN99_102325_all.pod5
+[2026-09-03 13:32:32.603] [debug] Creating output folder: '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/sup_Q_basecall/CA09xPAN99_102325/20251023_2109_MN23913_FBC73471_b46f3ee7/fastq_fail'. Length:229
+[2026-09-03 13:32:32.603] [debug] Creating output folder: '/mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/sup_Q_basecall/CA09xPAN99_102325/20251023_2109_MN23913_FBC73471_b46f3ee7/fastq_pass'. Length:229
+[2026-09-03 19:01:43.856] [info] > Finished in (ms): 19751497
+[2026-09-03 19:01:43.856] [info] > Simplex reads basecalled: 3501988
+[2026-09-03 19:01:43.856] [info] > Basecalled @ Samples/s: 3.678135e+06
+[2026-09-03 19:01:43.856] [debug] > Including Padding @ Samples/s: 4.704e+06 (78.19%)
+[2026-09-03 19:01:43.859] [debug] Deleting temporary model path: /mnt/data0/MinION_reads/CA09xPAN99_102325/CA09xPAN99_102325/20251023_1409_MN23913_FBC73471_b46f3ee7/.temp_dorado_model-249d92b0eab6b60f
+[2026-09-03 19:01:43.864] [info] > Finished
 
+
+#redo basecalling for the quad_triple_run
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Quad_Triple_Susie_103125/Quad_Triple_Susie_103125/20251031_1301_MN23913_FBD21587_a228feed$ pod5 convert fast5 --output converted_fail_pod5s fast5_fail/*/*.fast5
+Converting 162 Fast5s: 100%|###################################################################################################| 315807/315807 [02:00<00:00, 2620.09Reads/s]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Quad_Triple_Susie_103125/Quad_Triple_Susie_103125/20251031_1301_MN23913_FBD21587_a228feed$ pod5 convert fast5 --output converted_pass_pod5s fast5_pass/*/*.fast5
+Converting 868 Fast5s: 100%|#################################################################################################| 3115637/3115637 [18:40<00:00, 2779.52Reads/s]
+(base) user@sdm-rosalind:/mnt/data0/MinION_reads/Quad_Triple_Susie_103125/Quad_Triple_Susie_103125/20251031_1301_MN23913_FBD21587_a228feed/converted_pod5s$ merge converted_pass_pod5s.pod5 converted_fail_pod5s.pod5 --output Quad_Triple_Susie103125_all.pod5   
+Merging reads from 2 files
+Merging:  50%|###############################################################                                                               | 1/2 [00:00<00:00,  9.95File/s]
+POD5 has encountered an error: 'IOError: Error writing bytes to file. Detail: [errno 28] No space left on device'
+
+For detailed information set POD5_DEBUG=1'
+Merging:  50%|###############################################################                                                               | 1/2 [01:11<01:11, 71.69s/File]
+(
 

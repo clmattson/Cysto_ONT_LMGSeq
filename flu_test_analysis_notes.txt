@@ -342,15 +342,16 @@ Keep MBits: T
 Maximum file size: 3000000000B
 Adding sequences from FASTA; added 48 sequences in 0.0243421 seconds.
 
+#blast against the custom flu db only:
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/coinfection$ for fasta in plate??/plate??_well??_notmatched.fasta; do [ -s "$fasta" ] || continue; out="${fasta%.fasta}_blastn_flu.tsv"; blastn -query "$fasta" -db all_flu_refs_blast_nt_db -num_threads 60 -evalue 1e-10 -max_target_seqs 1 -max_hsps 1 -outfmt "6 qseqid sseqid pident length evalue bitscore staxid stitle" -out "$out"; echo "blasted $fasta -> $out"; done
+
+#hmm .. looks liek a lot of them are just actually flu? :/
+
+#RUN THIS TO PICK UP
+(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/coinfection/plate02$ for i in *flu*.tsv; do wcl=$(wc -l ${i} | awk '{print $1}'); grepc=$(grep -c "PAN" ${i}); echo "$wcl, $grepc, $i" >> not_matched_matches_to_PAN99.csv; done
 
 
-
-(cutadapt) cmatt5@c-8-46:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/cutadapt_outputs/coinfection$ for fasta in plate??/plate??_well??_notmatched.fasta; do [ -s "$fasta" ] || continue; out="${fasta%.fasta}_blastn_flu.tsv"; blastn -query "$fasta" -db all_flu_refs_blast_nt_db -num_threads 60 -evalue 1e-10 -max_target_seqs 1 -outfmt "6 qseqid sseqid pident length evalue bitscore staxid stitle" -out "$out"; echo "blasted $fasta -> $out"; done
-
-
-
-
-
+#repeated in quad triple susie
 
 
 

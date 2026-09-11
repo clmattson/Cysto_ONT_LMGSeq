@@ -134,38 +134,112 @@ The second command should print `PCR2_landing_pads` and `PCR2_landing_pads_revco
 
 ## Step 3: Understanding the scripts
 
-- `demultiplexing.sh` - runs porechop then cutadapt to demultiplex reads by plate and well
-- `genotyping.sh` - runs usearch (and optionally blastn) to assign a strain/segment identity
-  to each demultiplexed well
-- `sbatch_demultiplexing.sh` / `sbatch_genotyping.sh` - sbatch wrappers for running each step
-  as a cluster job instead of interactively
-- `run_pipeline_sbatch.sh` - runs both steps back to back in a single sbatch job
+Each script prints its flags near the top as well (if you run the script on its own) and also have the info stored as comments near the top of the script files.
 
-Each script prints its flags near the top if you're unsure what to pass in, and will prompt
-you interactively for anything you leave out - except the sbatch scripts, which need every
-flag passed explicitly up front, since there's no one there to answer a prompt once a job is
-queued.
+a) `demultiplexing.sh` - runs porechop then cutadapt to demultiplex reads by plate and well
+   inputs:
+    -d = absolute path to the desired working dir
+    -r = absolute path to reads
+    -p = <plate_barcode.fasta> file with plate barcodes fasta with absolute path
+    -w = <well_barcode.fasta> file with well barcodes fasta with absolute path
+    -c = do_porechop: 0 or 1 for whether or not to re-do the porechop step
+    -l = min_length: minimum desired length cutoff for filtering reads
+
+  outputs: 
+    porechop_outputs
+    data: 
+    logfiles:
+    cutadapt_outputs
+    data:  
+    logfiles:
+
+b) `genotyping.sh` - runs usearch (and optionally blastn) to assign a segment and strain identity to each demultiplexed well
+    
+  inputs:
+    -d - path to the working directory that CONTAINS cutadapt_outputs and porechop_outputs - this is the SAME working directory you passed to the demultiplexing script
+    -s - sample list  - CSV(!!) file (wih path) with all samples: ie barcode, cross, parent 1, parent 2"
+    -l - library prep database = a fasta file with one reference genome each for ALL strains included in the library prep. Indiv sample strain assignment datbases get built from this. Include one reference per strain per genome segment and name them like this: 
+      >Strain_Seg 
+      ATCGATCGATGC....
+    -b - do_blast: 0 or 1 only - enter 1 if you want to blast the reads that usearch didn't match to any ref. 
+
+  outputs:   
+    genotyping_outputs
+      coinfection/positive/negative/misassigned folders with .b6 output files from usearch, sorted by experiment type
+        data:
+        log files:
+      strain_assignment_output
+        data:  
+        log files:
+
+c) `sbatch_demultiplexing.sh` / `sbatch_genotyping.sh` - sbatch wrappers for running the steps separately as a slurm job instead of interactively
+  inputs and outputs are essentially the same as above, plus a log for the slurm job
+d) `run_pipeline_sbatch.sh` - runs both steps back to back in a single sbatch 
+  inputs and outputs are essentially the same as above but combined (so you must provide all of the flags for both), plus a log for the slurm job
+
 
 ## Step 4: Get your data and supporting files
 
 You'll need all of the following before running the pipeline:
 
 ### a) Basecalled reads
-A single fastq file containing all quality-passed reads (see Step 2e).
+A single fastq file containing all quality-passed reads (see Step 2e). It is best to name it something meaningful, like "Experiment1_MM_DD_YYYY_Name.fastq" if possible
 
 ### b) Barcode files
-Two fasta files: one with plate barcode sequences, one with well barcode sequences. Each
-fasta header is the barcode's name (e.g. `>plate01`, `>well01`) and the sequence below it is
-the actual barcode sequence.
+Two fasta files are alread privided: plate_barcodes.fasta and well_barcodes.fasta. These have just the sequences of just the unique identifier portion of the LMGSeq PCR primer sequences. Each fasta header is the barcode's name (e.g. `>plate01`, `>well01`) and the sequence below it is the actual barcode sequence.
 
 ### c) Sample list CSV
-A CSV listing every plate/well combination and what it is: sample type (positive, negative,
-coinfection, or misassigned) and the parent strain(s) involved.
+A CSV listing every plate/well combination and what it is: sample type (positive, negative, coinfection, or misassigned) and the parent strain(s) involved.
+
+The sample list must have the following columns. `plate` and `well` refer to the barcode numbers assigned to the sample at library prep. `parentX` is the name of the parent REFERENCE in the database, and `parentX_label` can be another name if you would like. If a particular sample does not have a relevant entry for a particular column, please make sure leave it blank.
+
+i) plate,well,type,parent1,parent2,parent3,parent4,parent1_label,parent2_label,parent3_label,parent4_label
+
+ii) Rows 1-3 show the layout for coinfection samples with TWO parents:
+plate01,well01,coinfection,HK68,PAN99,,,HK68,PAN99,,
+plate01,well02,coinfection,HK68,PAN99,,,HK68,PAN99,,
+plate01,well03,coinfection,HK68,PAN99,,,HK68,PAN99,,
+
+iii) Rows 4-6 show the layout for coinfection samples with THREE parents:
+plate03,well10,coinfection,PAN99,SI86,TX12,,PAN99,SI86,TX12,
+plate03,well11,coinfection,PAN99,SI86,TX12,,PAN99,SI86,TX12,
+plate03,well12,coinfection,PAN99,SI86,TX12,,PAN99,SI86,TX12,
+
+iv) Rows 6-9 show the layout for coinfection samples with FOUR parents:
+plate04,well70,coinfection,CH83PR8,SI86,TX12,CA09,CH83PR8,SI86,TX12,CA09
+plate04,well71,coinfection,CH83PR8,SI86,TX12,CA09,CH83PR8,SI86,TX12,CA09
+plate04,well72,coinfection,CH83PR8,SI86,TX12,CA09,CH83PR8,SI86,TX12,CA09
+
+v) Rows 10 and 11 show the layout for positive control samples (ie not coinfections - single strain stocks, supernatants/lysates, or plaques):
+plate15,well94,positive,PAN99,,,,PAN99,,,,
+plate15,well95,positive,TX12,,,,TX12,,,,
+
+vi) Rows 12 and 13 show the layout for negative control samples (ie water or buffer controls):
+plate15,well96,negative,,,,,NFW_1,,,,
+plate25,well78,negative,,,,,NFW_2,,,,
+
+vii) Rows 14-16 show coinfection samples where the parent and parent label differ, because I included coinfections with different mutant strains but wanted to usearch them all against the reference for phi6:
+plate20,well01,coinfection,PHI6,CA68,4267LP1,CA68
+plate21,well02,coinfection,PHI6,CA68,4267LP3,CA68
+plate22,well03,coinfection,PHI6,CA68,4267LP5,CA68
+
+
+So all of these rows would get combined into one file that looks like this:
+
+
 
 ### d) Library prep reference database
 A single fasta file containing every reference genome used anywhere in this library prep.
-One reference per strain per genome segment, named `>Strain_Segment` - for example
-`>PAN99_M`, `>CA09_NP`.
+One reference per strain per genome segment, named `>Strain_Segment` - for example:
+```
+>Strain_Seg 
+TCGATCGATGCATCGATCGATGCATCGATCGATGCATCGATCGATGCA
+>PAN99_M
+CGATCGATGCATCGATCGATGCATCGATCGATGCATCGATCGATCGAT
+>CA09_NP
+ATCGATCGATGCATCGATCGATGCATCGATCGATGCATCGATCGATGC
 
-Once you have all four of these, you're ready to run `demultiplexing.sh` followed by
-`genotyping.sh`.
+
+
+Once you have all four of these files, you're ready to run `demultiplexing.sh` followed by
+`genotyping.sh`

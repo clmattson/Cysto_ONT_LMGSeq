@@ -1,0 +1,20 @@
+Full cutadapt-stage script output is being saved to: /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/cutadapt_screen.log
+
+(cutadapt itself also writes its own per-plate/per-well .log files inside cutadapt_outputs - this file is the script's own narration, not a replacement for those)
+
+Is the cutadapt_outputs directory variable set correctly? ~~~~cutadapt_outputs='/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs'~~ and does it contain 0 things as it should? :
+2
+
+directory made and check complete - now doing plate-level demultiplexing
+Run "cutadapt --help" to see command-line options.
+See https://cutadapt.readthedocs.io/ for full documentation.
+
+cutadapt: error: argument -m/--minimum-length: expected one argument
+completed demultiplexing step 2 - cutadapt plate identification!
+
+awk: cmd. line:6: fatal: cannot open file `/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/_cutadapt_under__bp.fastq' for reading: No such file or directory
+We found 0 reads with >1 distinct plate adapter (excluding those already removed for being too short). Now lets remove them
+
+no reads were found to have matched to multiple plate barcodes for /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/plate??__cutadapt_porechop.fastq
+demultiplexing_log2_and_check.sh: line 429: /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/cutadapt_outputs/plate??__cutadapt_porechop.fastq: No such file or directory
+demultiplexing_log2_and_check.sh: line 430: [: : integer expression expected

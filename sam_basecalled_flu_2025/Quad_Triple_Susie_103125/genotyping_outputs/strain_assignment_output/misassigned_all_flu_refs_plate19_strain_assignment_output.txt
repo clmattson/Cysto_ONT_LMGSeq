@@ -1,0 +1,2 @@
+plate19_well45_90_merged.b6	M	PAN99_M	1	1	0	0
+plate19_well60_90_merged.b6	M	PAN99_M	1	1	0	0

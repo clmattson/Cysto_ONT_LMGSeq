@@ -1,0 +1,9 @@
+plate07_well06_90_merged.b6	NONE	NONE	0	0	1	0
+plate07_well17_90_merged.b6	NONE	NONE	0	0	1	0
+plate07_well21_90_merged.b6	NONE	NONE	0	0	1	0
+plate07_well50_90_merged.b6	NONE	NONE	0	0	1	0
+plate07_well56_90_merged.b6	NONE	NONE	0	0	1	0
+plate07_well65_90_merged.b6	NONE	NONE	0	0	1	0
+plate07_well67_90_merged.b6	M	PAN99_M	1	1	0	0
+plate07_well72_90_merged.b6	M	PAN99_M	1	1	0	0
+plate07_well89_90_merged.b6	NONE	NONE	0	0	1	0

@@ -1,0 +1,8 @@
+plate24_well09_90_merged.b6	PA	TX12_PA	1	1	0	0
+plate24_well27_90_merged.b6	NP	PAN99_NP	1	1	0	0
+plate24_well29_90_merged.b6	PA	TX12_PA	1	1	0	0
+plate24_well39_90_merged.b6	PA	HK68_PA	1	1	1	0
+plate24_well53_90_merged.b6	PB1	PAN99_PB1	1	1	0	0
+plate24_well56_90_merged.b6	M	PAN99_M	1	1	1	0
+plate24_well69_90_merged.b6	PA	TX12_PA	1	1	0	0
+plate24_well91_90_merged.b6	NS	PAN99_NS	1	1	0	0

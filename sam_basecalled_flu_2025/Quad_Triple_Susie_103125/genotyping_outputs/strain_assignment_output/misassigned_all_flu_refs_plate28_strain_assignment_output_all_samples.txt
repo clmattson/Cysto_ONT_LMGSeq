@@ -1,0 +1,15 @@
+plate28_well07_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well18_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well37_90_merged.b6	NA	HK68_NA	1	1	0	0
+plate28_well40_90_merged.b6	NS	PAN99_NS	1	1	1	0
+plate28_well44_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well46_90_merged.b6	NS	PAN99_NS	1	1	2	0
+plate28_well54_90_merged.b6	NONE	NONE	0	0	2	0
+plate28_well72_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well74_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well79_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well85_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well89_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate28_well91_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well92_90_merged.b6	NONE	NONE	0	0	1	0
+plate28_well94_90_merged.b6	NONE	NONE	0	0	1	0

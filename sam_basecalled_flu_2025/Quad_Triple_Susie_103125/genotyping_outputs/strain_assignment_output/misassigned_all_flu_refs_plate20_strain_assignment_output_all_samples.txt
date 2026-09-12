@@ -1,0 +1,11 @@
+plate20_well06_90_merged.b6	M	PAN99_M	1	1	1	0
+plate20_well18_90_merged.b6	PB2	PAN99_PB2	1	1	0	0
+plate20_well21_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate20_well24_90_merged.b6	NONE	NONE	0	0	1	0
+plate20_well37_90_merged.b6	M	PAN99_M	1	1	1	0
+plate20_well40_90_merged.b6	NONE	NONE	0	0	1	0
+plate20_well52_90_merged.b6	PB2	PAN99_PB2	1	1	0	0
+plate20_well59_90_merged.b6	NA	PAN99_NA	1	1	0	0
+plate20_well63_90_merged.b6	M	PAN99_M	1	1	0	0
+plate20_well69_90_merged.b6	M	PAN99_M	1	1	0	0
+plate20_well91_90_merged.b6	NP	PAN99_NP	1	1	0	0

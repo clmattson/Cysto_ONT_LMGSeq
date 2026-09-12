@@ -1,0 +1,10 @@
+plate22_well24_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well27_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well38_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well40_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well44_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well67_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well83_90_merged.b6	PB1	HK68_PB1	1	1	0	0
+plate22_well86_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well92_90_merged.b6	NONE	NONE	0	0	1	0
+plate22_well93_90_merged.b6	NONE	NONE	0	0	1	0

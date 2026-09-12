@@ -1,0 +1,22 @@
+
+[1m[4mLoading reads[0m
+/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125//Quad_Triple_Susie_calls_2025-12-17_T22-26-30_chunk05.fastq
+1 reads loaded
+
+
+[1m[4mLooking for known adapter sets[0m
+0 / 1 (0.0%)1 / 1 (100.0%)1 / 1 (100.0%)
+                                        Best               [0m
+                                        read       Best    [0m
+                                        start      read end[0m
+  [4mSet                                   %ID        %ID     [0m
+  PCR2_landing_pads                         68.8       68.4
+  PCR2_landing_pads_revcomp                 70.6       75.0
+
+
+No adapters found - output reads are unchanged from input reads
+
+[1m[4mSaving trimmed reads to file[0m
+
+Saved result to /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/Quad_Triple_Susie_103125/porechop_outputs/Quad_Triple_Susie_calls_2025-12-17_T22-26-30_porechop_chunk05.fastq
+

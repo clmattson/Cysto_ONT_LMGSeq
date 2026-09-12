@@ -1,0 +1,8 @@
+plate12_well06_90_merged.b6	PB2	PAN99_PB2	1	1	1	0
+plate12_well20_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate12_well26_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate12_well29_90_merged.b6	M	PAN99_M	1	1	0	0
+plate12_well38_90_merged.b6	M	PAN99_M	1	1	0	0
+plate12_well53_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate12_well65_90_merged.b6	PB1	PAN99_PB1	1	1	0	0
+plate12_well86_90_merged.b6	M	PAN99_M	1	1	0	0

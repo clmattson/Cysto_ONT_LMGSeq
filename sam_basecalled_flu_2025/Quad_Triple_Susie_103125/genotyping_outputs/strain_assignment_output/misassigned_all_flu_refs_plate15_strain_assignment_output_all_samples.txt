@@ -1,0 +1,4 @@
+plate15_well37_90_merged.b6	NONE	NONE	0	0	1	0
+plate15_well70_90_merged.b6	NP	PAN99_NP	1	1	0	0
+plate15_well79_90_merged.b6	NONE	NONE	0	0	1	0
+plate15_well85_90_merged.b6	NONE	NONE	0	0	2	0

@@ -1,0 +1,4 @@
+plate28_well37_90_merged.b6	NA	HK68_NA	1	1	0	0
+plate28_well40_90_merged.b6	NS	PAN99_NS	1	1	1	0
+plate28_well46_90_merged.b6	NS	PAN99_NS	1	1	2	0
+plate28_well89_90_merged.b6	NS	PAN99_NS	1	1	0	0

@@ -1,0 +1,3 @@
+plate30_well29_90_merged.b6	M	PAN99_M	1	1	0	0
+plate30_well43_90_merged.b6	NONE	NONE	0	0	2	0
+plate30_well53_90_merged.b6	NONE	NONE	0	0	2	0

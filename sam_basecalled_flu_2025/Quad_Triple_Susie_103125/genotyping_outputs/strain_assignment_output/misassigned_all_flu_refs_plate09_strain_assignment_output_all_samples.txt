@@ -1,0 +1,2 @@
+plate09_well37_90_merged.b6	NONE	NONE	0	0	1	0
+plate09_well44_90_merged.b6	NONE	NONE	0	0	2	0

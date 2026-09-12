@@ -1,0 +1,2 @@
+plate07_well67_90_merged.b6	M	PAN99_M	1	1	0	0
+plate07_well72_90_merged.b6	M	PAN99_M	1	1	0	0

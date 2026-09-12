@@ -1,0 +1,12 @@
+plate05_well01_90_merged.b6	M	PAN99_M	1	1	0	0
+plate05_well14_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate05_well20_90_merged.b6	M	PAN99_M	1	1	1	0
+plate05_well26_90_merged.b6	PA	TX12_PA	1	1	0	0
+plate05_well28_90_merged.b6	PA	TX12_PA	1	1	1	0
+plate05_well36_90_merged.b6	M	SI86_M	1	1	0	0
+plate05_well37_90_merged.b6	M	PAN99_M	1	1	1	0
+plate05_well39_90_merged.b6	PB1	TX12_PB1	1	1	1	0
+plate05_well42_90_merged.b6	PA	PAN99_PA	1	1	0	0
+plate05_well65_90_merged.b6	PA	TX12_PA	1	1	0	0
+plate05_well65_90_merged.b6	PB1	PAN99_PB1	1	1	0	0
+plate05_well79_90_merged.b6	M	HK68_M	1	1	0	0

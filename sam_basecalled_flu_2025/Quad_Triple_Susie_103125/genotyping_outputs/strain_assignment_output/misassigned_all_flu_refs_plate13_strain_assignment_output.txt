@@ -1,0 +1,4 @@
+plate13_well03_90_merged.b6	NS	PAN99_NS	1	1	0	0
+plate13_well37_90_merged.b6	NA	HK68_NA	1	1	0	0
+plate13_well82_90_merged.b6	NA	PAN99_NA	1	1	0	0
+plate13_well86_90_merged.b6	PA	PAN99_PA	1	1	0	0

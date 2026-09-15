@@ -365,11 +365,26 @@ Adding sequences from FASTA; added 48 sequences in 0.0243421 seconds.
 #made a bunch of edits to scripts - now getting sbatch wrappers going and also getting on github
 
 
+re-ran CA09xPAN99 under new, finalized scripts via the full sbatch 
+
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325$ 
+sbatch run_demux_and_genotp_sbatch.sh  -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/  \
+-r /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/CA09xPAN99_calls_2025-12-17_T21-10-01.fastq  \
+-p /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/plate_barcodes.fasta   \
+-w /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/well_barcodes.fasta  \
+-c 1 \
+-l 50 \
+-s /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/sample_list_CA09xPAN99.csv \
+-e /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/all_flu_refs.fasta  \
+-b 1 
 
 
 
 
 
+
+
+######################################################################################################################################3
 #re-do basecalling with sup 
 #first need to convert fast5s to pod5s:
 #fast5_fail
@@ -486,4 +501,28 @@ POD5 has encountered an error: 'IOError: Error writing bytes to file. Detail: [e
 For detailed information set POD5_DEBUG=1'
 Merging:  50%|###############################################################                                                               | 1/2 [01:11<01:11, 71.69s/File]
 (
+#######################################################################################################################################
+
+
+
+
+
+#met with sam (week of ~9/8 - 9/15) 
+issues to check up on:
+wierd thing with uni orimers being present only in the rc dir. lets see if the same is true of cystos? 
+
+
+Run the combo cysto/flu data with the new, finalized pipeline, both to test andd to get the data!
+
+
+
+
+#look for the M and L cysto GSP primers (as linked adapters) via cutadapt. Could have incl S butthere were seemingly very few S reads :/
+
+
+
+
+
+
+
 

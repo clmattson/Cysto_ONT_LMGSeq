@@ -1,0 +1,12 @@
+
+
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325$ 
+sbatch run_demux_sbatch.sh  -d /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/  \
+-r /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/CA09xPAN99_calls_2025-12-17_T21-10-01.fastq  \
+-p /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/plate_barcodes.fasta   \
+-w /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/well_barcodes.fasta  \
+-c 1 \
+-l 50 \
+-s /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/sample_list_CA09xPAN99.csv \
+-e /group/sldmunozgrp/cysto_LMGSeq08-25/sam_basecalled_flu_2025/CA09xPAN99_102325/all_flu_refs.fasta  \
+-b 1 

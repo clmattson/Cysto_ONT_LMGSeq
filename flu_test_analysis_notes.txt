@@ -514,13 +514,12 @@ wierd thing with uni orimers being present only in the rc dir. lets see if the s
 
 Run the combo cysto/flu data with the new, finalized pipeline, both to test andd to get the data!
 
-
+sbatch run_demux_and_genotp_sbatch.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/ -r /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/FBC73506_fastq_pass_9ee158db_6bd36f99_0.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/plate_barcodes.fasta  -w /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/well_barcodes.fasta  -c 1  -l 50 -s /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/full_sample_list.csv -f /group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/all_lib_prep_parents.fasta -b 1
 
 
 #look for the M and L cysto GSP primers (as linked adapters) via cutadapt. Could have incl S butthere were seemingly very few S reads :/
 
-
-
+for i in plate??/well??/plate??_well??_*.fastq; do cutadapt -a CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a ATACTACACCTTACTTGGTGAGC...GACAATACCGCCGTAGCG -a TCGATGTTCAACTACTACGC...TCGATGTTCAACTACTACGC -a GCAAAGCGAGTCTCGC...GCGTAGTAGTTGAACATCGA -e 0.15 -o ${i}_cysto_M_LGSPs_O9.fastq $i --untrimmed-output=${i}_cysto_M_L_untrimmed_O9.fastq --action=lowercase >${i}_O9_cutadapt.log; done
 
 
 

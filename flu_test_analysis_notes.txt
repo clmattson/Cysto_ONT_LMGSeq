@@ -519,7 +519,124 @@ sbatch run_demux_and_genotp_sbatch.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/Fe
 
 #look for the M and L cysto GSP primers (as linked adapters) via cutadapt. Could have incl S butthere were seemingly very few S reads :/
 
-for i in plate??/well??/plate??_well??_*.fastq; do cutadapt -a CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a ATACTACACCTTACTTGGTGAGC...GACAATACCGCCGTAGCG -a TCGATGTTCAACTACTACGC...TCGATGTTCAACTACTACGC -a GCAAAGCGAGTCTCGC...GCGTAGTAGTTGAACATCGA -e 0.15 -o ${i}_cysto_M_LGSPs_O9.fastq $i --untrimmed-output=${i}_cysto_M_L_untrimmed_O9.fastq --action=lowercase >${i}_O9_cutadapt.log; done
+for i in plate??/well??/plate??_well??_*.fastq; do cutadapt -a CGCTACGGCGGTATTGTC...GCTCACCAAGTAAGGTGTAGTAT -a ATACTACACCTTACTTGGTGAGC...GACAATACCGCCGTAGCG -a TCGATGTTCAACTACTACGC...TCGATGTTCAACTACTACGC -a GCAAAGCGAGTCTCGC...GCGTAGTAGTTGAACATCGA -e 0.15 -O 9 -o ${i}_cysto_M_L_O9.fastq $i --untrimmed-output=${i}_cysto_M_L_O9_untrimmed.fastq --action=lowercase >${i}_M_L_O9_cutadapt.screen.log; done
+
+
+#looks lieke same pattern occurs for the cysto reads but all of them vasically match the fwd direction instead. idk, not sure it seems like an issue to me
+
+
+
+#lets move onto the issue of the failed wells. 
+generate a read counts file for the flu_cysto_data from feb 2026:
+
+for f in plate??/well??/plate??_well??_*porechop.fastq; do     echo "$(( $(wc -l < "$f") / 4 )),$f"; done > feb_cysto_flu_sup_read_counts.txt
+
+
+#edited sams R read count QC script to check out the well count stats for my old data.
+new script saved on franklin as read_count_loop_qc.R
+
+output of R QC loop script:
+#note: i think you need to go thru and make sure its only checking on wells that were SUPPOSED to be included? not all 96 were included in the cysto run.
+
+(ont-lmgseq) cmatt5@c-8-62:/group/sldmunozgrp/cysto_LMGSeq08-25/Feb_cysto_flu/sup_basecall/cutadapt_outputs$ Rscript read_count_loop_qc.R
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+# A tibble: 29 × 3
+   plate   total_reads n_wells
+   <chr>         <int>   <int>
+ 1 plate01       40853      55
+ 2 plate02         231      30
+ 3 plate03           9       5
+ 4 plate04          11       9
+ 5 plate05           9       6
+ 6 plate06          13       9
+ 7 plate07         188      12
+ 8 plate08           7       6
+ 9 plate09           7       7
+10 plate10      194208      37
+# ℹ 19 more rows
+
+
+============================================================
+QC for plate01
+============================================================
+# A tibble: 1 × 5
+  n_wells mean_reads sd_reads min_reads max_reads
+    <int>      <dbl>    <dbl>     <int>     <int>
+1      55       743.    2000.         1     11264
+
+plate01: 41 well(s) missing out of 96 expected: well33, well34, well35, well38, well39, well40, well41, well42, well43, well47, well49, well51, well52, well53, well54, well58, well60, well61, well63, well64, well65, well66, well67, well69, well70, well72, well73, well77, well78, well79, well80, well81, well83, well84, well85, well87, well88, well90, well92, well93, well96
+
+plate01: 28 well(s) with reads < 1% of plate mean (possible failed wells): well04, well09, well14, well15, well16, well36, well37, well44, well45, well46, well48, well50, well55, well56, well57, well59, well62, well68, well71, well74, well75, well76, well82, well86, well89, well91, well94, well95
+
+============================================================
+QC for plate10
+============================================================
+# A tibble: 1 × 5
+  n_wells mean_reads sd_reads min_reads max_reads
+    <int>      <dbl>    <dbl>     <int>     <int>
+1      37      5249.    7222.         1     26931
+
+plate10: 59 well(s) missing out of 96 expected: well26, well27, well32, well34, well35, well36, well37, well38, well39, well40, well41, well42, well43, well45, well46, well47, well49, well50, well51, well52, well53, well54, well55, well56, well57, well58, well59, well60, well61, well62, well63, well64, well65, well66, well68, well69, well70, well71, well72, well73, well74, well75, well76, well77, well78, well79, well80, well81, well82, well83, well84, well85, well86, well87, well88, well89, well90, well91, well93
+
+plate10: 10 well(s) with reads < 1% of plate mean (possible failed wells): well25, well28, well29, well31, well33, well48, well67, well92, well94, well96
+
+============================================================
+QC for plate15
+============================================================
+# A tibble: 1 × 5
+  n_wells mean_reads sd_reads min_reads max_reads
+    <int>      <dbl>    <dbl>     <int>     <int>
+1      35      7697.    6919.         1     25009
+
+plate15: 61 well(s) missing out of 96 expected: well26, well28, well31, well32, well33, well34, well35, well36, well37, well38, well39, well40, well41, well42, well43, well45, well46, well48, well49, well50, well51, well52, well53, well54, well55, well56, well57, well58, well59, well60, well61, well62, well63, well64, well65, well66, well67, well68, well69, well70, well71, well72, well73, well74, well75, well76, well77, well78, well79, well80, well81, well82, well83, well84, well85, well86, well87, well88, well89, well91, well92
+
+plate15: 7 well(s) with reads < 1% of plate mean (possible failed wells): well25, well27, well29, well47, well90, well93, well96
+
+============================================================
+QC for plate20
+============================================================
+# A tibble: 1 × 5
+  n_wells mean_reads sd_reads min_reads max_reads
+    <int>      <dbl>    <dbl>     <int>     <int>
+1      37      5845.    7946.         1     27600
+
+plate20: 59 well(s) missing out of 96 expected: well26, well28, well33, well34, well35, well36, well37, well38, well39, well40, well41, well42, well43, well46, well47, well48, well49, well50, well51, well52, well53, well54, well55, well56, well57, well58, well59, well60, well61, well62, well63, well64, well65, well66, well67, well68, well69, well70, well71, well72, well73, well74, well75, well76, well77, well78, well79, well80, well82, well83, well84, well85, well86, well87, well89, well90, well91, well92, well96
+
+plate20: 13 well(s) with reads < 1% of plate mean (possible failed wells): well25, well27, well29, well30, well31, well32, well44, well45, well81, well88, well93, well94, well95
+
+============================================================
+QC for plate25
+============================================================
+# A tibble: 1 × 5
+  n_wells mean_reads sd_reads min_reads max_reads
+    <int>      <dbl>    <dbl>     <int>     <int>
+1      34      9314.   10189.         1     36365
+
+plate25: 62 well(s) missing out of 96 expected: well25, well26, well27, well31, well33, well34, well35, well36, well37, well38, well39, well40, well41, well42, well43, well46, well47, well48, well49, well50, well51, well52, well53, well54, well55, well56, well57, well58, well59, well60, well61, well62, well63, well64, well65, well66, well67, well68, well69, well70, well71, well72, well73, well74, well75, well76, well77, well79, well80, well81, well82, well83, well84, well85, well86, well87, well88, well89, well90, well91, well92, well93
+
+plate25: 10 well(s) with reads < 1% of plate mean (possible failed wells): well28, well29, well30, well32, well44, well45, well78, well94, well95, well96
+
+============================================================
+QC for plate30
+============================================================
+# A tibble: 1 × 5
+  n_wells mean_reads sd_reads min_reads max_reads
+    <int>      <dbl>    <dbl>     <int>     <int>
+1      31      2879.    5198.         1     15936
+
+plate30: 65 well(s) missing out of 96 expected: well25, well26, well28, well31, well32, well34, well35, well36, well37, well38, well39, well40, well41, well42, well43, well45, well46, well47, well48, well49, well50, well51, well52, well53, well54, well55, well56, well57, well58, well59, well60, well61, well62, well63, well64, well65, well66, well67, well68, well69, well70, well71, well72, well73, well74, well75, well76, well77, well78, well79, well80, well81, well82, well83, well84, well85, well86, well87, well88, well89, well90, well91, well92, well93, well96
+
+plate30: 7 well(s) with reads < 1% of plate mean (possible failed wells): well27, well29, well30, well33, well44, well94, well95
 
 
 

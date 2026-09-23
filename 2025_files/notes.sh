@@ -267,3 +267,12 @@ bash genotyping_new.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt -e /grou
 
 
 bash genotyping_new.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt -e /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/sample_list2.csv -c /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/cross_list.txt -s /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/refs/ref_phi6_S_04.fasta -m /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/refs/ref_phi6_M_01.fasta -l /group/sldmunozgrp/cysto_LMGSeq08-25/cutadapt/refs/ref_phi6_L_89.fasta
+
+
+
+
+September 23 2026 udpdate:
+
+re-ran with new(final) script versions, stored in the main flu/cysto github
+
+cmatt5@franklin:/group/sldmunozgrp/cysto_LMGSeq08-25$ sbatch run_demux_and_genotp_sbatch_with_parser.sh -d /group/sldmunozgrp/cysto_LMGSeq08-25 -r /group/sldmunozgrp/cysto_LMGSeq08-25/FBC73506_fastq_pass_d5fa85e0_b727e37a_0.fastq -p /group/sldmunozgrp/cysto_LMGSeq08-25/plate_barcodes.fasta -w /group/sldmunozgrp/cysto_LMGSeq08-25/well_barcodes.fasta -c 1 -l 50 -s cysto_lmgseq_test1_updt_sample_list.csv -f /group/sldmunozgrp/cysto_LMGSeq08-25/all_lib_prep_parents.fasta -b 1

@@ -183,7 +183,7 @@ do
                             echo "Positive control reference for ${parent1} exists."
                     else
                             echo "making pos ctro ${parent1} database."
-                            grep -A1 "${parent1}" ${lib_prep_database} | grep -v "^--$" > ${genotyping_outputs}/${parent1}.fasta
+                            grep -A1 -i "^>${parent1}_" ${lib_prep_database} | grep -v "^--$" > ${genotyping_outputs}/${parent1}.fasta
 
                     fi
                     database_file="${parent1}.fasta"
@@ -217,10 +217,10 @@ do
                             echo "Coinfection reference database for ${coinf_filename} exists."
                     else
                             echo "making coinf ${coinf_filename} database."
-                            grep -A1 "${parent1}" ${lib_prep_database} | grep -v "^--$" > ${genotyping_outputs}/${coinf_filename}.fasta
-                            grep -A1 "${parent2}" ${lib_prep_database} | grep -v "^--$" >> ${genotyping_outputs}/${coinf_filename}.fasta
-                            [ -n "$parent3" ] && grep -A1 "${parent3}" ${lib_prep_database} | grep -v "^--$" >> ${genotyping_outputs}/${coinf_filename}.fasta
-                            [ -n "$parent4" ] && grep -A1 "${parent4}" ${lib_prep_database} | grep -v "^--$" >> ${genotyping_outputs}/${coinf_filename}.fasta
+                            grep -A1 -i "^>${parent1}_" ${lib_prep_database} | grep -v "^--$" > ${genotyping_outputs}/${coinf_filename}.fasta
+                            grep -A1 -i "^>${parent2}_" ${lib_prep_database} | grep -v "^--$" >> ${genotyping_outputs}/${coinf_filename}.fasta
+                            [ -n "$parent3" ] && grep -A1 -i "^>${parent3}_" ${lib_prep_database} | grep -v "^--$" >> ${genotyping_outputs}/${coinf_filename}.fasta
+                            [ -n "$parent4" ] && grep -A1 -i "^>${parent4}_" ${lib_prep_database} | grep -v "^--$" >> ${genotyping_outputs}/${coinf_filename}.fasta
 
                     fi
                     database_file="${coinf_filename}.fasta"
